@@ -113,7 +113,7 @@ public class OrchestraSubsystem extends SubsystemBase {
         }
 
         // create a separate instance of Orchestra for each track because we can't
-        // figure out how to put multiple tracks into one .chrp file :(
+        // figure out how to put multiple tracks into one .chrp file :c
         for (int track = 0; track < tracks; track++) {
             var orchestra = new Orchestra();
 
