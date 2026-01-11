@@ -2,13 +2,17 @@ package org.usfirst.frc4904.standard.custom;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
-public class CustomEncoder {
+/**
+ * Converts a DutyCycleEncoder into encoding a linear position
+ * by storing the number of full revolutions since initialization.
+ */
+public class LinearDutyCycleEncoder {
     public final DutyCycleEncoder encoder;
 
     private double resetOffset = 0;
 
-    public CustomEncoder(int encoder) {
-        this.encoder = new DutyCycleEncoder(encoder);
+    public LinearDutyCycleEncoder(int channel) {
+        encoder = new DutyCycleEncoder(channel);
         reset();
     }
 

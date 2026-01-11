@@ -1,6 +1,5 @@
 package org.usfirst.frc4904.robot;
 
-import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
@@ -13,17 +12,14 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
-import org.usfirst.frc4904.robot.subsystems.MotorSubsystem;
 import org.usfirst.frc4904.robot.swerve.SwerveModule;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem;
-import org.usfirst.frc4904.standard.custom.CustomEncoder;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.CANTalonFX;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomCANSparkMax;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomSparkMax;
 
 public class RobotMap {
 
@@ -107,32 +103,32 @@ public class RobotMap {
     public RobotMap() {
         Component.navx = new AHRS(NavXComType.kMXP_SPI);
 
-        var flTurn = new CustomCANSparkMax(5, MotorType.kBrushless, false);
-        var frTurn = new CustomCANSparkMax(6, MotorType.kBrushless, false);
-        var blTurn = new CustomCANSparkMax(7, MotorType.kBrushless, false);
-        var brTurn = new CustomCANSparkMax(8, MotorType.kBrushless, false);
+        var flTurn = new CustomSparkMax(5, MotorType.kBrushless, false);
+        var frTurn = new CustomSparkMax(6, MotorType.kBrushless, false);
+        var blTurn = new CustomSparkMax(7, MotorType.kBrushless, false);
+        var brTurn = new CustomSparkMax(8, MotorType.kBrushless, false);
 
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
-                new CANTalonFX(1),
+                new CustomTalonFX(1),
                 flTurn,
                 flTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
-                new CANTalonFX(2),
+                new CustomTalonFX(2),
                 frTurn,
                 frTurn.getAbsoluteEncoder(),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
-                new CANTalonFX(3),
+                new CustomTalonFX(3),
                 blTurn,
                 blTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, -1)
             ),
             new SwerveModule(
-                new CANTalonFX(4),
+                new CustomTalonFX(4),
                 brTurn,
                 brTurn.getAbsoluteEncoder(),
                 new Translation2d(1, -1)

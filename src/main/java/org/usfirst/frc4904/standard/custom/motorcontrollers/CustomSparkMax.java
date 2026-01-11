@@ -1,31 +1,24 @@
 package org.usfirst.frc4904.standard.custom.motorcontrollers;
 
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 
-public class CustomCANSparkMax extends SparkMax implements SmartMotorController {
-    SparkBaseConfig brakeConfig = new SparkMaxConfig().idleMode(IdleMode.kBrake);
-    SparkBaseConfig coastConfig = new SparkMaxConfig().idleMode(IdleMode.kCoast);
+public class CustomSparkMax extends SparkMax implements SmartMotorController {
 
     // protected Double voltage_compensation_max = null;   // remember the configured saturation voltage to conform to the talon api of having separate config() and enable() methods; error if we try to enable without configuring it.
     protected boolean limitSwitch;
 
-    public CustomCANSparkMax(int deviceNumber, MotorType motorType, boolean inverted, boolean limitSwitch) {
+    public CustomSparkMax(int deviceNumber, MotorType motorType, boolean inverted, boolean limitSwitch) {
         super(deviceNumber, motorType);
 
-        configure( //configs inversion and should reset to defaults on init
-            new SparkMaxConfig().inverted(inverted),
-            ResetMode.kResetSafeParameters,
-            PersistMode.kPersistParameters
-        );
-        this.limitSwitch = limitSwitch;  // have to store it bc we need to error if we try to read switch pressed state without knowing switch type
+        setInverted(inverted);
+        this.limitSwitch = limitSwitch;
     }
 
-    public CustomCANSparkMax(int deviceNumber, MotorType motorType, boolean inverted) {
+    public CustomSparkMax(int deviceNumber, MotorType motorType, boolean inverted) {
         this(deviceNumber, motorType, inverted, false);
     }
 
@@ -35,24 +28,25 @@ public class CustomCANSparkMax extends SparkMax implements SmartMotorController 
      */
     public void setPower(double power) { set(power); }
 
-    public SmartMotorController setBrakeOnNeutral() {
+    private void configure(SparkBaseConfig config) {
         configure(
-            brakeConfig,
-            ResetMode.kNoResetSafeParameters,
-            PersistMode.kPersistParameters
+            config,
+            com.revrobotics.ResetMode.kNoResetSafeParameters,
+            com.revrobotics.PersistMode.kPersistParameters
         );
-
-        return this;
     }
 
-    public SmartMotorController setCoastOnNeutral() {
-        configure(
-            coastConfig,
-            ResetMode.kNoResetSafeParameters,
-            PersistMode.kPersistParameters
-        );
+    public void setBrakeOnNeutral() {
+        configure(new SparkMaxConfig().idleMode(IdleMode.kBrake));
+    }
 
-        return this;
+    public void setCoastOnNeutral() {
+        configure(new SparkMaxConfig().idleMode(IdleMode.kCoast));
+    }
+
+    @SuppressWarnings("deprecation")
+    public void setInverted(boolean inverted) {
+        configure(new SparkMaxConfig().inverted(inverted));
     }
 
     @Override

@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.CANTalonFX;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 
 /** Orchestra™ */
 public class OrchestraSubsystem extends SubsystemBase {
@@ -25,7 +25,7 @@ public class OrchestraSubsystem extends SubsystemBase {
      *               Motors will be distributed as evenly as possible between the tracks, filling all tracks first, then going
      *               back to add multiple motors to the same track (you can use nulls to skip over tracks when assigning motors).
      */
-    public static void loadSong(String name, int tracks, CANTalonFX... motors) {
+    public static void loadSong(String name, int tracks, CustomTalonFX... motors) {
         if (songs.get(name) != null) {
             System.out.println("Song '" + name + "' already exists");
         } else {
@@ -34,7 +34,7 @@ public class OrchestraSubsystem extends SubsystemBase {
     }
 
     /**
-     * Play a song that was already loaded with {@link OrchestraSubsystem#loadSong(String, int, CANTalonFX...)}.
+     * Play a song that was already loaded with {@link OrchestraSubsystem#loadSong(String, int, CustomTalonFX...)}.
      * @param name The name of the song to play.
      * @return Whether the song was successfully played.
      */
@@ -85,10 +85,10 @@ public class OrchestraSubsystem extends SubsystemBase {
 
     /**
      * Loads a song and then returns a command to play it.
-     * See {@link OrchestraSubsystem#loadSong(String, int, CANTalonFX...)}.
+     * See {@link OrchestraSubsystem#loadSong(String, int, CustomTalonFX...)}.
      * @return A {@link Command} to play the song.
      */
-    public static Command c_loadAndPlaySong(String name, int tracks, CANTalonFX... motors) {
+    public static Command c_loadAndPlaySong(String name, int tracks, CustomTalonFX... motors) {
         loadSong(name, tracks, motors);
         return new InstantCommand(() -> playSong(name));
     }
@@ -100,7 +100,7 @@ public class OrchestraSubsystem extends SubsystemBase {
 
     private final List<Orchestra> orchestras = new ArrayList<>();
 
-    private OrchestraSubsystem(String name, int tracks, CANTalonFX... motors) {
+    private OrchestraSubsystem(String name, int tracks, CustomTalonFX... motors) {
         songName = name;
 
         if (motors.length < tracks) {
@@ -128,7 +128,7 @@ public class OrchestraSubsystem extends SubsystemBase {
             }
 
             for (int i = track; i < motors.length; i += tracks) {
-                CANTalonFX motor = motors[i];
+                CustomTalonFX motor = motors[i];
                 if (motor != null) orchestra.addInstrument(motor.motor, 0);
             }
 
