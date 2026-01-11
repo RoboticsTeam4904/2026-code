@@ -1,6 +1,5 @@
 package org.usfirst.frc4904.robot.vision;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -14,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
+// not affiliated with google
 public class GoogleTagManager {
     private final HttpClient client;
 

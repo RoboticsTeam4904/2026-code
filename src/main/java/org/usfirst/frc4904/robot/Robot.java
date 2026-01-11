@@ -37,10 +37,6 @@ public class Robot extends CommandRobotBase {
         return Math.pow(Math.abs(input), exp) * gain * Math.signum(input);
     }
 
-    public Robot() {
-        super();
-    }
-
     @Override
     public void initialize() {}
 
@@ -48,7 +44,6 @@ public class Robot extends CommandRobotBase {
     public void teleopInitialize() {
         driver.bindCommands();
         operator.bindCommands();
-        //Component.elevator.encoder.reset();
 
         Component.chassis.setDefaultCommand(
             Component.chassis.c_input(driver::getTranslation, driver::getTurnSpeed)
@@ -57,18 +52,10 @@ public class Robot extends CommandRobotBase {
         // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
     }
 
-    boolean wasControllingElevator = false;
-
     @Override
     public void teleopExecute() {
-        // TODO maybe unnecessary
-        Component.vision.periodic();
-
-        double y = RobotMap.HumanInput.Operator.joystick.getY();
 
     }
-
-    // Timer timer = new Timer();
 
     @Override
     public void autonomousInitialize() {
@@ -83,12 +70,7 @@ public class Robot extends CommandRobotBase {
         //     System.out.println(e);
         // }
 
-        // Component.chassis.getAutonomousCommand("straight", true, false).schedule();;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
         // Component.navx.reset();
-
-        // timer.reset();
-        // timer.start();
 
         CmdUtils.schedule(AutonConfig.COMMAND.get());
     }
@@ -104,9 +86,6 @@ public class Robot extends CommandRobotBase {
 
         Component.chassis.setMotorBrake(false);
         // Component.lights.flashColor(LightSubsystem.Color.DISABLED);
-
-    //     Component.elevatorMotorOne.setBrakeOnNeutral();
-    //     Component.elevatorMotorTwo.setBrakeOnNeutral();
      }
 
     @Override
@@ -115,9 +94,7 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void testInitialize() {
-        //do things like setting neutral or brake mode on the mechanism or wheels here
-        // Component.elevatorMotorOne.setCoastOnNeutral();
-        // Component.elevatorMotorTwo.setCoastOnNeutral();
+
     }
 
     @Override
@@ -125,14 +102,8 @@ public class Robot extends CommandRobotBase {
 
     }
 
-    double lastLogTime = 0;
-
     @Override
     public void alwaysExecute() {
-        // logging stuff cannot go here. turn back now
-        // if (Component.elevator != null && Timer.getFPGATimestamp() - lastLogTime > 0.2) {
-        //     lastLogTime = Timer.getFPGATimestamp();
-        //     System.out.printf("ELEVATOR ENCODER: %.4f%n", Component.elevatorEncoder.get());
-        // }
+
     }
 }
