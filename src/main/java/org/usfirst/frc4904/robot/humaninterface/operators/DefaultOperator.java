@@ -33,16 +33,12 @@ public class DefaultOperator extends Operator {
         joystick.button12.onTrue(Component.elevator.c_rampOuttake());
 
         /// MANUAL RAMP CONTROL
-        joystick.button3.onTrue(Component.ramp.c_forward());
-        joystick.button5.onTrue(Component.ramp.c_backward());
-        joystick.button3.onFalse(Component.ramp.c_stop());
-        joystick.button5.onFalse(Component.ramp.c_stop());
+        joystick.button3.onTrue(Component.ramp.c_forward(true));
+        joystick.button5.onTrue(Component.ramp.c_backward(true));
 
         /// MANUAL OUTTAKE CONTROL
-        joystick.button4.onTrue(Component.outtake.c_forward());
-        joystick.button6.onTrue(Component.outtake.c_backward());
-        joystick.button4.onFalse(Component.outtake.c_stop());
-        joystick.button6.onFalse(Component.outtake.c_stop());
+        joystick.button4.onTrue(Component.outtake.c_forward(true));
+        joystick.button6.onTrue(Component.outtake.c_backward(true));
 
         /// VISION
         turnJoystick.button1.whileTrue(Component.vision.c_align(TagGroup.ANY, -1));

@@ -100,27 +100,36 @@ public class MotorSubsystem extends SubsystemBase {
         stop();
     }
 
-    public Command c_holdVoltage(double voltage) {
-        return this.run(() -> setVoltage(voltage));
+    public Command c_holdVoltage(double voltage, boolean stopOnEnd) {
+        var cmd = run(() -> setVoltage(voltage));
+        return stopOnEnd ? cmd.finallyDo(this::stop) : cmd;
     }
 
     public Command c_forward() {
-        return c_holdVoltage(forwardVoltage);
+        return c_holdVoltage(forwardVoltage, false);
+    }
+
+    public Command c_forward(boolean stopOnEnd) {
+        return c_holdVoltage(forwardVoltage, stopOnEnd);
     }
 
     public Command c_backward() {
-        return c_holdVoltage(-backwardVoltage);
+        return c_holdVoltage(-backwardVoltage, false);
+    }
+
+    public Command c_backward(boolean stopOnEnd) {
+        return c_holdVoltage(-backwardVoltage, stopOnEnd);
     }
 
     public Command c_stop() {
-        return this.runOnce(this::stop);
+        return runOnce(this::stop);
     }
 
     public Command c_brake() {
-        return this.runOnce(this::brake);
+        return runOnce(this::brake);
     }
 
     public Command c_coast() {
-        return this.runOnce(this::coast);
+        return runOnce(this::coast);
     }
 }

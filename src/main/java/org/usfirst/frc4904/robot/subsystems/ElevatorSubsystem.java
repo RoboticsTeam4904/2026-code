@@ -85,55 +85,33 @@ public class ElevatorSubsystem extends MotorSubsystem {
     /** Intake at the current elevator position */
     public Command c_intake() {
         return new SequentialCommandGroup(
-            new ParallelDeadlineGroup(
-                new WaitCommand(0.4),
-                Component.ramp.c_forward()
-            ),
+            Component.ramp.c_forward().withTimeout(0.4),
             new ParallelDeadlineGroup(
                 new WaitCommand(0.32),
-                Component.ramp.c_forward(),
-                Component.outtake.c_forward()
-            ),
-            new ParallelCommandGroup(
-                Component.ramp.c_stop(),
-                Component.outtake.c_stop()
+                Component.ramp.c_forward(true),
+                Component.outtake.c_forward(true)
             )
         );
     }
 
     /** Outtake at the current elevator position */
     public Command c_outtake() {
-        return new SequentialCommandGroup(
-            new ParallelDeadlineGroup(
-                new WaitCommand(0.5),
-                Component.outtake.c_forward()
-            ),
-            Component.outtake.c_stop()
-        );
+        return Component.outtake.c_forward(true).withTimeout(0.5);
     }
 
     /** Outtake at the current elevator position */
     public Command c_rampOuttake() {
-        return new SequentialCommandGroup(
-            new ParallelDeadlineGroup(
-                new WaitCommand(1),
-                Component.outtake.c_backward(),
-                Component.ramp.c_backward()
-            ),
-            new ParallelCommandGroup(
-                Component.outtake.c_stop(),
-                Component.ramp.c_stop()
-            )
+        return new ParallelDeadlineGroup(
+            new WaitCommand(1),
+            Component.outtake.c_backward(true),
+            Component.ramp.c_backward(true)
         );
     }
 
     /** Go to the specified position and then outtake */
     public Command c_outtakeAtPosition(Position pos) {
         return new SequentialCommandGroup(
-            new ParallelDeadlineGroup(
-                new WaitCommand(3),
-                c_gotoPosition(pos)
-            ),
+            c_gotoPosition(pos).withTimeout(3),
             new ParallelDeadlineGroup(
                 c_outtake(),
                 c_controlVelocity(() -> 0)
@@ -142,13 +120,10 @@ public class ElevatorSubsystem extends MotorSubsystem {
     }
 
     public Command c_controlVelocity(DoubleSupplier metersPerSecDealer) {
-        var cmd = run(() -> {
+        return run(() -> {
             var ff = feedforward.calculate(metersPerSecDealer.getAsDouble());
             setVoltage(ff);
         });
-        cmd.setName("elevator - c_controlVelocity");
-
-        return cmd;
     }
 
     public Command c_gotoPosition(Position pos) {
@@ -177,29 +152,14 @@ public class ElevatorSubsystem extends MotorSubsystem {
             new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL)
         );
 
-        Command cmd = getEzMotion(
-            controller,
-            profile,
-            new TrapezoidProfile.State(getHeight(), 0), // TODO why are we assuming the velocity is 0
-            new TrapezoidProfile.State(height, 0)
-        );
-        cmd.setName("elevator - c_gotoHeight");
-        cmd.addRequirements(this);
-        return cmd;
-    }
-
-    private ezMotion getEzMotion(
-        ezControl controller,
-        TrapezoidProfile profile,
-        TrapezoidProfile.State current,
-        TrapezoidProfile.State goal
-    ) {
+        // TODO why are we assuming the velocity is 0
+        TrapezoidProfile.State current = new TrapezoidProfile.State(getHeight(), 0);
         return new ezMotion(
             controller,
             this::getHeight,
             this::setVoltage,
             (double t) -> {
-                TrapezoidProfile.State result = profile.calculate(t, current, goal);
+                TrapezoidProfile.State result = profile.calculate(t, current, new TrapezoidProfile.State(height, 0));
                 return new Pair<>(result.position, result.velocity);
             },
             this
