@@ -2,6 +2,7 @@ package org.usfirst.frc4904.standard.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.usfirst.frc4904.robot.CmdUtils;
 
 import java.util.function.Supplier;
 
@@ -50,7 +51,7 @@ public class ThresholdCommand<T extends Comparable<T>> extends Command {
     @Override
     public void execute() {
         if (pastThreshold() && !command.isScheduled()) {
-            command.schedule();
+            CmdUtils.schedule(command);
         } else if (!pastThreshold() && command.isScheduled()) {
             command.cancel();
         }

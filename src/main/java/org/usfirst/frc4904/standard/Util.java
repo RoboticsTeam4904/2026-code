@@ -17,7 +17,7 @@ import java.util.function.BooleanSupplier;
 public final class Util {
 
     private Util() {
-        throw new UnsupportedOperationException("Cannot instantiate Util class.");
+        throw new UnsupportedOperationException("Cannot instantiate utility class.");
     }
 
     /**

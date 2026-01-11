@@ -68,12 +68,8 @@ public class Robot extends CommandRobotBase {
 
         if (Math.abs(y) >= 0.05) {
             wasControllingElevator = true;
-
-            var command = new InstantCommand(
-                () -> Component.elevator.setVoltage(Math.pow(y, 2) * Math.signum(y) * 12.0)
-            );
-            command.addRequirements(Component.elevator);
-            command.schedule();
+            CmdUtils.cancelConflicting(Component.elevator);
+            Component.elevator.setVoltage(Math.pow(y, 2) * Math.signum(y) * 12.0);
         } else if (wasControllingElevator) {
             wasControllingElevator = false;
             Component.elevator.setVoltage(0);
@@ -102,7 +98,7 @@ public class Robot extends CommandRobotBase {
         // timer.reset();
         // timer.start();
 
-        AutonConfig.COMMAND.get().schedule();
+        CmdUtils.schedule(AutonConfig.COMMAND.get());
     }
 
     @Override
