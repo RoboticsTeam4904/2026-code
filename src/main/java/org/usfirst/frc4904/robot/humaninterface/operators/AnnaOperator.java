@@ -21,15 +21,6 @@ public class AnnaOperator extends Operator {
         var xyJoystick = HumanInput.Driver.xyJoystick;
         var turnJoystick = HumanInput.Driver.turnJoystick;
 
-       
-        /// MANUAL RAMP CONTROL
-        joystick.button6.whileTrue(Component.ramp.c_forward(true));
-        joystick.button4.whileTrue(Component.ramp.c_backward(true));
-
-        /// MANUAL OUTTAKE CONTROL
-        joystick.button3.whileTrue(Component.outtake.c_backward(true));
-        joystick.button5.whileTrue(Component.outtake.c_forward(true));
-
         /// VISION
         turnJoystick.button1.whileTrue(Component.vision.c_align(TagGroup.ANY, -1));
         turnJoystick.button2.whileTrue(Component.vision.c_align(TagGroup.ANY, 1));

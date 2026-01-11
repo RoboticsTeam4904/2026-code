@@ -21,14 +21,6 @@ public class DefaultOperator extends Operator {
         var xyJoystick = RobotMap.HumanInput.Driver.xyJoystick;
         var turnJoystick = RobotMap.HumanInput.Driver.turnJoystick;
 
-        /// MANUAL RAMP CONTROL
-        joystick.button3.onTrue(Component.ramp.c_forward(true));
-        joystick.button5.onTrue(Component.ramp.c_backward(true));
-
-        /// MANUAL OUTTAKE CONTROL
-        joystick.button4.onTrue(Component.outtake.c_forward(true));
-        joystick.button6.onTrue(Component.outtake.c_backward(true));
-
         /// VISION
         turnJoystick.button1.whileTrue(Component.vision.c_align(TagGroup.ANY, -1));
         turnJoystick.button2.whileTrue(Component.vision.c_align(TagGroup.ANY, 1));
