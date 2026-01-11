@@ -17,15 +17,4 @@ public abstract class Operator extends HumanInput {
     protected static Command c_resetOdometry() {
         return new InstantCommand(() -> Component.chassis.resetOdometry());
     }
-
-    protected static Command c_manualElevatorZero() {
-        return new StartEndCommand(
-            () -> Component.elevator.setVoltage(-3, true),
-            () -> {
-                Component.elevator.setVoltage(0);
-                Component.elevatorEncoder.reset();
-            },
-            Component.elevator
-        );
-    }
 }

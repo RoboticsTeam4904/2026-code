@@ -2,7 +2,6 @@ package org.usfirst.frc4904.robot.humaninterface.operators;
 
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
-import org.usfirst.frc4904.robot.subsystems.ElevatorSubsystem.Position;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem.TagGroup;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 
@@ -22,14 +21,7 @@ public class AnnaOperator extends Operator {
         var xyJoystick = HumanInput.Driver.xyJoystick;
         var turnJoystick = HumanInput.Driver.turnJoystick;
 
-        /// ELEVATOR SETPOINTS
-        joystick.button7.onTrue(Component.elevator.c_gotoPosition(Position.INTAKE));
-        joystick.button8.onTrue(Component.elevator.c_gotoPosition(Position.L2));
-        joystick.button9.onTrue(Component.elevator.c_gotoPosition(Position.L3));
-
-        /// INTAKE
-        joystick.button11.onTrue(Component.elevator.c_intake());
-
+       
         /// MANUAL RAMP CONTROL
         joystick.button6.whileTrue(Component.ramp.c_forward(true));
         joystick.button4.whileTrue(Component.ramp.c_backward(true));
@@ -45,7 +37,5 @@ public class AnnaOperator extends Operator {
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(c_resetOdometry());
 
-        /// ELEVATOR ENCODER RESETTING
-        joystick.button10.whileTrue(c_manualElevatorZero());
     }
 }
