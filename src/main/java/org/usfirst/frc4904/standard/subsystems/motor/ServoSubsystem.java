@@ -9,8 +9,8 @@ public class ServoSubsystem extends SubsystemBase {
 	protected boolean isInverted;
 	protected double lastPosition;
 	// Constants from wpilib's Servo.java.
-	protected static final double MIN_SERVO_ANGLE = 0.0;
-	protected static final double MAX_SERVO_ANGLE = 180.0;
+	protected static final double MIN_SERVO_ANGLE = 0;
+	protected static final double MAX_SERVO_ANGLE = 180;
 
 	/**
 	 * A class that wraps around a variable number of Servo objects to give them
@@ -199,7 +199,7 @@ public class ServoSubsystem extends SubsystemBase {
 	 *         was in the servo's range)
 	 */
 	protected static double convertDegreesToValue(double degrees) {
-		return ((degrees - ServoSubsystem.MIN_SERVO_ANGLE)) / ServoSubsystem.getServoAngleRange();
+		return (degrees - ServoSubsystem.MIN_SERVO_ANGLE) / ServoSubsystem.getServoAngleRange();
 	}
 
 	/**

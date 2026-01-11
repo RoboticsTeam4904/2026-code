@@ -35,18 +35,9 @@ public class TelescopingArmExtensionFeedForward {
      * @param posRads                 Position of the arm, in radians from
      *                                horizontal. 0 = horizontal, PI/2 = vertical.
      * @param velMetersPerSec         Velocity setpoint
-     * @param acclMetersPerSecSquared Acceleration setpoint
-     */
-    public double calculate(double posRads, double velMetersPerSec, double acclMetersPerSecSquared) {
-        return elevFF.calculate(velMetersPerSec, acclMetersPerSecSquared) + Math.sin(posRads) * kg_vertical;
-    }
-    /**
-     * @param posRads                 Position of the arm, in radians from
-     *                                horizontal. 0 = horizontal, PI/2 = vertical.
-     * @param velMetersPerSec         Velocity setpoint
      */
     public double calculate(double posRads, double velMetersPerSec) {
-        return calculate(posRads, velMetersPerSec, 0);
+        return elevFF.calculate(velMetersPerSec) + Math.sin(posRads) * kg_vertical;
     }
 
     // Util methods to calculate max achievable velocity/acceleration from the

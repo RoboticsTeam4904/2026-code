@@ -62,26 +62,26 @@ public class CustomCommandDS extends Joystick {
         button10 = new JoystickButton(this, 10);
         button11 = new JoystickButton(this, 11);
         button12 = new JoystickButton(this, 12);
-        button13  = new JoystickButton(this, 13);
-        button14  = new JoystickButton(this, 14);
-        button15  = new JoystickButton(this, 15);
-        button16  = new JoystickButton(this, 16);
-        button17  = new JoystickButton(this, 17);
-        button18  = new JoystickButton(this, 18);
-        button19  = new JoystickButton(this, 19);
-        button20  = new JoystickButton(this, 20);
-        button21  = new JoystickButton(this, 21);
+        button13 = new JoystickButton(this, 13);
+        button14 = new JoystickButton(this, 14);
+        button15 = new JoystickButton(this, 15);
+        button16 = new JoystickButton(this, 16);
+        button17 = new JoystickButton(this, 17);
+        button18 = new JoystickButton(this, 18);
+        button19 = new JoystickButton(this, 19);
+        button20 = new JoystickButton(this, 20);
+        button21 = new JoystickButton(this, 21);
         button22 = new JoystickButton(this, 22);
         button23 = new JoystickButton(this, 23);
         button24 = new JoystickButton(this, 24);
-        button25  = new JoystickButton(this, 25);
-        button26  = new JoystickButton(this, 26);
-        button27  = new JoystickButton(this, 27);
-        button28  = new JoystickButton(this, 28);
-        button29  = new JoystickButton(this, 29);
-        button30  = new JoystickButton(this, 30);
-        button31  = new JoystickButton(this, 31);
-        button32  = new JoystickButton(this, 32);
+        button25 = new JoystickButton(this, 25);
+        button26 = new JoystickButton(this, 26);
+        button27 = new JoystickButton(this, 27);
+        button28 = new JoystickButton(this, 28);
+        button29 = new JoystickButton(this, 29);
+        button30 = new JoystickButton(this, 30);
+        button31 = new JoystickButton(this, 31);
+        button32 = new JoystickButton(this, 32);
  
     }
 

@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class CustomCommandDigitalLimitSwitch extends Trigger {
 	public CustomCommandDigitalLimitSwitch(DigitalInput limitSwitch) {
-        super(() -> limitSwitch.get());
+        super(limitSwitch::get);
 	}
 
 	public CustomCommandDigitalLimitSwitch(int port) {

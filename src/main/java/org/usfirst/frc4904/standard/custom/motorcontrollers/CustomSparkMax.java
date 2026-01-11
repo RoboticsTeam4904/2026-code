@@ -8,7 +8,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class CustomSparkMax extends SparkMax implements SmartMotorController {
 
-    // protected Double voltage_compensation_max = null;   // remember the configured saturation voltage to conform to the talon api of having separate config() and enable() methods; error if we try to enable without configuring it.
     protected boolean limitSwitch;
 
     public CustomSparkMax(int deviceNumber, MotorType motorType, boolean inverted, boolean limitSwitch) {
@@ -21,12 +20,6 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
     public CustomSparkMax(int deviceNumber, MotorType motorType, boolean inverted) {
         this(deviceNumber, motorType, inverted, false);
     }
-
-    /**
-     * Alias for .set() on power
-     * @param power
-     */
-    public void setPower(double power) { set(power); }
 
     private void configure(SparkBaseConfig config) {
         configure(

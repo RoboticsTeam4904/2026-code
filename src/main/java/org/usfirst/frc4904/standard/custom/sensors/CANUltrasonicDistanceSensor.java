@@ -1,7 +1,5 @@
 package org.usfirst.frc4904.standard.custom.sensors;
 
-// import org.usfirst.frc4904.standard.LogKitten;
-
 public class CANUltrasonicDistanceSensor extends CANSensor implements DistanceSensor {
 	public static final int DISTANCE_SENSOR_ARRAY_INDEX = 0;
 

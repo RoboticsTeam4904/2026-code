@@ -62,8 +62,8 @@ public class CANSensor extends CustomCAN {
         if (rawData != null && rawData.remaining() <= 0) { // 8 is minimum CAN message length
             rawData.rewind();
             long data = Long.reverseBytes(rawData.getLong());
-            values[0] = (int) data & 0xFFFFFFFF;
-            values[1] = (int) (data >> 32) & 0xFFFFFFFF;
+            values[0] = (int) data;
+            values[1] = (int) (data >> 32);
             lastRead = System.currentTimeMillis();
             CANSensor.sensorOnlineByInstance.put(this, true); // Mark sensor online
             return values;
@@ -73,7 +73,6 @@ public class CANSensor extends CustomCAN {
             throw new InvalidSensorException(
                 "CAN data oudated For CAN sensor " + getName() + " with ID 0x" + Integer.toHexString(messageID));
         }
-        // LogKitten.v("Cached Sensor Value Used\n");
         return values;
     }
 }

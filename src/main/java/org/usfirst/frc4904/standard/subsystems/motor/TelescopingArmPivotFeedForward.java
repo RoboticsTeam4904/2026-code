@@ -48,17 +48,16 @@ public class TelescopingArmPivotFeedForward {
         // because of lever arm mechanics. Prefer measuring/calculating cg for
         // the full range of motion to reduce relative error. 
         param = Math.min(Math.max(param, -0.5), 1.5);
-        return (this.retracted_kg * (1-param)) + (this.extended_kg * param);
+        return retracted_kg * (1 - param) + extended_kg * param;
     }
     /**
      * @param armExtensionRatio The extension of the arm, relative to it's full extension. Should be between 0 and 1. Used as cg linear interpolation parameter.
      * @param posRads           Current angle, in radians, measured from horizontal (0 = parallel with floor).
      * @param velRadPerSec      Velocity setpoint.
-     * @param accelRadPerSecSquared Acceleration setpoint.
      * @return  The computed feedforward.
      */
-    public double calculate(double armExtensionRatio, double posRads, double velRadPerSec, double accelRadPerSecSquared) {
-        return this.armFF.calculate(posRads, velRadPerSec, accelRadPerSecSquared) + lerpedCg(armExtensionRatio) * Math.cos(posRads);
+    public double calculate(double armExtensionRatio, double posRads, double velRadPerSec) {
+        return armFF.calculate(posRads, velRadPerSec) + lerpedCg(armExtensionRatio) * Math.cos(posRads);
     }
 
     // Util methods to calculate max achievable velocity/acceleration from the
@@ -85,7 +84,7 @@ public class TelescopingArmPivotFeedForward {
      */
     public double maxAchievableVelocity(double maxVoltage, double extension, double angle, double acceleration) {
         // Assume max velocity is positive
-        return this.armFF.maxAchievableVelocity(maxVoltage, angle, acceleration) - Math.cos(angle) * lerpedCg(extension) / kv;
+        return armFF.maxAchievableVelocity(maxVoltage, angle, acceleration) - Math.cos(angle) * lerpedCg(extension) / kv;
     }
     /**
      * Calculates the minimum achievable velocity given a maximum voltage
@@ -107,7 +106,7 @@ public class TelescopingArmPivotFeedForward {
      */
     public double minAchievableVelocity(double maxVoltage, double extension, double angle, double acceleration) {
         // Assume min velocity is negative, ks flips sign
-        return this.armFF.minAchievableVelocity(maxVoltage, angle, acceleration) - Math.cos(angle) * lerpedCg(extension) / kv;
+        return armFF.minAchievableVelocity(maxVoltage, angle, acceleration) - Math.cos(angle) * lerpedCg(extension) / kv;
     }
     
     /**
@@ -129,7 +128,7 @@ public class TelescopingArmPivotFeedForward {
      * @return The maximum possible acceleration at the given velocity.
      */
     public double maxAchievableAcceleration(double maxVoltage, double extension, double angle, double velocity) {
-        return this.armFF.maxAchievableAcceleration(maxVoltage, angle, velocity) - Math.cos(angle) * lerpedCg(extension) / ka;
+        return armFF.maxAchievableAcceleration(maxVoltage, angle, velocity) - Math.cos(angle) * lerpedCg(extension) / ka;
     }
     /**
      * Calculates the minimum achievable acceleration given a maximum voltage

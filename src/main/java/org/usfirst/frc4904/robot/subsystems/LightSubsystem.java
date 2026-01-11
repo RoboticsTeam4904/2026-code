@@ -1,5 +1,4 @@
 package org.usfirst.frc4904.robot.subsystems;
-//is this it? below it was units.measure.Units
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,7 +13,6 @@ public class LightSubsystem extends SubsystemBase {
         public static final int[] FAIL     = { 255, 50, 0 };
 
         public static final int[] VISION   = { 127, 0, 255 };
-        public static final int[] ELEVATOR = { 255, 240, 0 };
 
         public static final int[] ENABLED  = { 255, 100, 0 };
         public static final int[] DISABLED = { 200, 220, 255 };
@@ -22,7 +20,6 @@ public class LightSubsystem extends SubsystemBase {
     }
 
     public double visionProgress = -1;
-    public double elevatorProgress = -1;
 
     private float[] flashColor = new float[4];
     private float flashStrength = 0;
@@ -160,11 +157,8 @@ public class LightSubsystem extends SubsystemBase {
         flashStrength = 1;
     }
 
-    private final LEDPattern rainbowPattern = LEDPattern.rainbow(255, 128)
-                                                        .scrollAtAbsoluteSpeed(
-                                                            Units.MetersPerSecond.of(0.3),
-                                                            Units.Meters.of(1.0 / 60)
-                                                        );
+    private final LEDPattern rainbowPattern =
+        LEDPattern.rainbow(255, 128).scrollAtAbsoluteSpeed(Units.MetersPerSecond.of(0.3), Units.Meters.of(1.0 / 60));
 
     @Override
     public void periodic() {
@@ -180,10 +174,8 @@ public class LightSubsystem extends SubsystemBase {
 
                 // if (visionProgress != -1) {
                 //     progressBar(colors, (float) visionProgress, Color.VISION);
-                // } else if (elevatorProgress != -1) {
-                //     progressBar(colors, (float) elevatorProgress, Color.ELEVATOR);
                 // } else {
-                    fire(colors, DriverStation.isAutonomous());
+                fire(colors, DriverStation.isAutonomous());
                 // }
 
                 if (flashStrength > 0) {

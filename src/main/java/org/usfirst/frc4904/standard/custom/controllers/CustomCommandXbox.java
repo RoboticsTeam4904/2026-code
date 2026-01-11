@@ -3,20 +3,20 @@ package org.usfirst.frc4904.standard.custom.controllers;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class CustomCommandXbox extends CommandXboxController {
-    private final double deadZoneSize;
+    private final double deadzone;
     private final CommandXboxController hid;
 
-    public CustomCommandXbox(int port, double deadZoneSize) {
+    public CustomCommandXbox(int port, double deadzone) {
         super(port);
         hid = new CommandXboxController(port);
-        if (deadZoneSize < 0 || deadZoneSize >= 1) {
-            throw new IllegalArgumentException("CustomCommandXBox deadzone must be in [0, 1]");
+        if (deadzone < 0 || deadzone >= 1) {
+            throw new IllegalArgumentException("CustomCommandXbox deadzone must be in [0, 1]");
         }
-        this.deadZoneSize = deadZoneSize;
+        this.deadzone = deadzone;
     }
 
     public double getLeftX() {
-        return applyDeadzone(hid.getLeftX(), deadZoneSize);
+        return applyDeadzone(hid.getLeftX(), deadzone);
     }
 
     /**
@@ -25,7 +25,7 @@ public class CustomCommandXbox extends CommandXboxController {
      * @return The axis value.
      */
     public double getRightX() {
-        return applyDeadzone(hid.getRightX(), deadZoneSize);
+        return applyDeadzone(hid.getRightX(), deadzone);
     }
 
     /**
@@ -34,7 +34,7 @@ public class CustomCommandXbox extends CommandXboxController {
      * @return The axis value.
      */
     public double getLeftY() {
-        return applyDeadzone(hid.getLeftY(), deadZoneSize);
+        return applyDeadzone(hid.getLeftY(), deadzone);
     }
 
     /**
@@ -43,23 +43,21 @@ public class CustomCommandXbox extends CommandXboxController {
      * @return The axis value.
      */
     public double getRightY() {
-        return applyDeadzone(hid.getRightY(), deadZoneSize);
+        return applyDeadzone(hid.getRightY(), deadzone);
     }
 
     @Override
     public double getRightTriggerAxis() {
-        return applyDeadzone(hid.getRightTriggerAxis(), deadZoneSize);
+        return applyDeadzone(hid.getRightTriggerAxis(), deadzone);
     }
 
     @Override
     public double getLeftTriggerAxis() {
-        return applyDeadzone(hid.getLeftTriggerAxis(), deadZoneSize);
+        return applyDeadzone(hid.getLeftTriggerAxis(), deadzone);
     }
 
-    public static double applyDeadzone(double input, double deadZoneSize) {
-        if (Math.abs(input) < deadZoneSize) { // return 0 if within the deadzone
-            return 0.0;
-        }
-        return (input - Math.signum(input) * deadZoneSize) / (1 - deadZoneSize); // linear between 0 and 1 in the remaining range
+    public static double applyDeadzone(double input, double deadzone) {
+        if (Math.abs(input) < deadzone) return 0;
+        return (input - Math.signum(input) * deadzone) / (1 - deadzone); // linear between 0 and 1 in the remaining range
     }
 }

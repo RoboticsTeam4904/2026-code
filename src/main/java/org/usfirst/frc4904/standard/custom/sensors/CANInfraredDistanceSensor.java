@@ -1,7 +1,5 @@
 package org.usfirst.frc4904.standard.custom.sensors;
 
-// import org.usfirst.frc4904.standard.LogKitten;
-
 /**
  * Infrared Distance Sensor connected via CAN assumes mode containing distance
  * values is 0
@@ -26,15 +24,12 @@ public class CANInfraredDistanceSensor extends CANSensor implements DistanceSens
             return getDistanceSafely();
         } catch (Exception e) {
             e.printStackTrace();
-            // LogKitten.ex(e);
             return 0;
         }
     }
 
     @Override
     public double getDistanceSafely() throws InvalidSensorException {
-        int value = readSensor()[CANInfraredDistanceSensor.DISTANCE_SENSOR_ARRAY_INDEX];
-        // LogKitten.d(name + " read value " + value);
-        return value;
+        return readSensor()[CANInfraredDistanceSensor.DISTANCE_SENSOR_ARRAY_INDEX];
     }
 }

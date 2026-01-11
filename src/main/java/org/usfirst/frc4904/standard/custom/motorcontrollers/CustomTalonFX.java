@@ -27,6 +27,7 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
     public void setBrakeOnNeutral() {
         setNeutralMode(NeutralModeValue.Brake);
     }
+
     /**
      * Setting to enable coast mode on neutral (when .neutralOutput(),
      * .disable(), or .stopMotor() is called, or when output percent is within

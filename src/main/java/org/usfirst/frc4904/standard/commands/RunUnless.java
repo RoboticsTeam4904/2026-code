@@ -14,7 +14,7 @@ public class RunUnless extends RunIfElse {
      * Conditions are AND-ed together (command will run if ANY are false).
      *
      * @param command    The command to be run if the condition is NOT met
-     * @param conditions A condition function using Java 8's colon syntax
+     * @param conditions A condition function
      */
     public RunUnless(Command command, BooleanSupplier... conditions) {
         super(null, command, conditions);

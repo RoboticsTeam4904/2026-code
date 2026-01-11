@@ -1,5 +1,7 @@
 package org.usfirst.frc4904.standard.custom;
 
+import java.io.Serial;
+
 /**
  * Designed to be a replacement for CANMessageNotFoundException that is not a
  * runtime exception. This allows us to avoid accidentally having robot code die
@@ -7,6 +9,7 @@ package org.usfirst.frc4904.standard.custom;
  */
 public class CANMessageUnavailableException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 8066629002370614378L;
 
     public CANMessageUnavailableException() {

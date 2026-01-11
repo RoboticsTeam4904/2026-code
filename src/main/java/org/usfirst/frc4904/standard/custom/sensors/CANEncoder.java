@@ -9,7 +9,7 @@ public class CANEncoder extends CANSensor implements CustomEncoder {
     private double distancePerPulse;
     private boolean reverseDirection;
     /**
-     * Sequence of bytes used to reset an encoder Spells out "resetenc" in ASCII
+     * Sequence of bytes used to reset an encoder spells out "resetenc" in ASCII
      */
     private static final byte[] RESET_ENCODER_BYTE_SEQUENCE = "resetenc".getBytes();
     protected static final int RESET_NUMBER_TRIES = 30;
