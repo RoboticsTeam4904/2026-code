@@ -214,6 +214,7 @@ public class RobotMap {
 
         Component.elevatorMotorOne = new CANTalonFX(Port.CANMotor.ELEVATOR_LEFT);
         Component.elevatorMotorTwo = new CANTalonFX(Port.CANMotor.ELEVATOR_RIGHT);
+        Component.elevatorMotorTwo.setInverted(true);
         Component.elevatorEncoder = new CustomEncoder(Port.PWM.ELEVATOR_ENCODER);
         Component.elevator = new ElevatorSubsystem(
             Component.elevatorMotorOne,

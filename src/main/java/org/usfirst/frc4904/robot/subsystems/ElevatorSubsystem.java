@@ -1,31 +1,24 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.*;
 import org.usfirst.frc4904.robot.RobotMap.Component;
-import org.usfirst.frc4904.standard.commands.CreateOnInitialize;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.custom.CustomEncoder;
-import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
-import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
+import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.FeedForward;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
 import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 
-public class ElevatorSubsystem extends MotorSubsystem {
+public class ElevatorSubsystem extends PIDMotorSubsystem {
 
     // TODO TUNING: elevator PID
-    public static final double kS = 1;
-    public static final double kV = 2;
-    public static final double kA = 0.4;
-    public static final double kG = 0.2;
+    public static final double kS = 1, kV = 2, kA = 0.4, kG = 0.2;
 
-    public static final double kP = 6;
-    public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kP = 6, kI = 0, kD = 0;
 
     public static final double MAX_VEL = 8;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
@@ -48,7 +41,6 @@ public class ElevatorSubsystem extends MotorSubsystem {
     public ElevatorSubsystem(SmartMotorController motor1, SmartMotorController motor2, CustomEncoder encoder) {
         super(
             new SmartMotorController[] { motor1, motor2 },
-            new double[] { 1, -1 },
             7
         );
         this.feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
@@ -74,12 +66,12 @@ public class ElevatorSubsystem extends MotorSubsystem {
     /**
      * @return The current height of the elevator in Magical Encoder Units™
      */
-    public double getHeight() {
+    public double getPosition() {
         return encoder.get();
     }
 
     public boolean atBottom() {
-        return getHeight() < 0.1;
+        return getPosition() < 0.1;
     }
 
     /** Intake at the current elevator position */
@@ -119,6 +111,23 @@ public class ElevatorSubsystem extends MotorSubsystem {
         );
     }
 
+    @Override
+    protected PIDController getPID() {
+        return new PIDController(kP, kI, kD);
+    }
+
+    @Override
+    protected FeedForward getFF() {
+        return (double pos, double vel) -> feedforward.calculate(vel);
+    }
+
+    @Override
+    protected TrapezoidProfile getProfile() {
+        return new TrapezoidProfile(
+            new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL)
+        );
+    }
+
     public Command c_controlVelocity(DoubleSupplier metersPerSecDealer) {
         return run(() -> {
             var ff = feedforward.calculate(metersPerSecDealer.getAsDouble());
@@ -134,41 +143,7 @@ public class ElevatorSubsystem extends MotorSubsystem {
             return new NoOp();
         }
 
-        return c_gotoHeight(height);
-    }
-
-    public Command c_gotoHeight(double height) {
-        return new CreateOnInitialize(() -> this.getRawHeightCommand(height));
-    }
-
-    private Command getRawHeightCommand(double height) {
-        ezControl controller = new ezControl(
-            kP, kI, kD,
-            (position, velocityMetersPerSec) -> feedforward.calculate(velocityMetersPerSec),
-            0.02
-        );
-
-        TrapezoidProfile profile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL)
-        );
-
-        // TODO why are we assuming the velocity is 0
-        TrapezoidProfile.State current = new TrapezoidProfile.State(getHeight(), 0);
-        return new ezMotion(
-            controller,
-            this::getHeight,
-            this::setVoltage,
-            (double t) -> {
-                TrapezoidProfile.State result = profile.calculate(t, current, new TrapezoidProfile.State(height, 0));
-                return new Pair<>(result.position, result.velocity);
-            },
-            this
-        ) {
-            @Override
-            public void end(boolean interrupted) {
-                setVoltage(0);
-            }
-        };
+        return c_gotoPosition(height);
     }
 
     @Override
@@ -179,8 +154,8 @@ public class ElevatorSubsystem extends MotorSubsystem {
     public void setVoltage(double voltage, boolean bypassSoftwareStop) {
         if (
             !bypassSoftwareStop && (
-                (this.getHeight() >= MAX_HEIGHT && voltage > 0) ||
-                (this.getHeight() <= MIN_HEIGHT && voltage < 0)
+                (getPosition() >= MAX_HEIGHT && voltage > 0) ||
+                (getPosition() <= MIN_HEIGHT && voltage < 0)
             )
         ) {
             voltage = 0;

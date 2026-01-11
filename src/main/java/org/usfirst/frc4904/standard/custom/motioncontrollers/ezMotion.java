@@ -1,33 +1,35 @@
 package org.usfirst.frc4904.standard.custom.motioncontrollers;
 
-import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
 import java.util.function.DoubleSupplier;
 
 public class ezMotion extends Command {
-    public final ezControl control;
+    public final PIDController pid;
+    public final FeedForward ff;
 
     private final DoubleSupplier getCurrent;
     private final DoubleConsumer processValue;
-    private final SetpointSupplier setpointDealer;
+    private final DoubleFunction<Setpoint> setpointDealer;
 
-    public double initialTimestamp;
-
-    private double setpoint;
-    private double setpoint_dt;
+    public double startTime;
 
     public ezMotion(
-        ezControl control,
+        PIDController pid,
+        FeedForward ff,
         DoubleSupplier getCurrent,
         DoubleConsumer processValue,
-        SetpointSupplier setpointDealer,
+        DoubleFunction<Setpoint> setpointDealer,
         Subsystem... requirements
     ) {
-        this.control = control;
+        this.pid = pid;
+        this.ff = ff;
         this.getCurrent = getCurrent;
         this.processValue = processValue;
         this.setpointDealer = setpointDealer;
@@ -36,29 +38,33 @@ public class ezMotion extends Command {
     }
 
     public double getElapsedTime() {
-        return Timer.getFPGATimestamp() - initialTimestamp;
+        return Timer.getFPGATimestamp() - startTime;
     }
 
     @Override
     public void initialize() {
-        initialTimestamp = Timer.getFPGATimestamp();
+        startTime = Timer.getFPGATimestamp();
     }
 
     @Override
     public void execute() {
-        double elapsed = getElapsedTime();
+        double current = getCurrent.getAsDouble();
+        Setpoint setpoint = setpointDealer.apply(getElapsedTime());
 
-        Pair<Double, Double> setpoints = setpointDealer.get(elapsed);
-        setpoint = setpoints.getFirst();
-        setpoint_dt = setpoints.getSecond();
-
-        control.updateSetpoint(setpoint, setpoint_dt);
-        double controlEffort = control.calculate(getCurrent.getAsDouble(), elapsed);
-        processValue.accept(controlEffort);
+        double calculated = pid.calculate(current, setpoint.pos) + ff.calculate(setpoint.pos, setpoint.vel);
+        processValue.accept(calculated);
     }
 
     @FunctionalInterface
-    public interface SetpointSupplier {
-        Pair<Double, Double> get(double elapsed);
+    public interface FeedForward {
+        FeedForward NOOP = (double pos, double vel) -> 0;
+
+        double calculate(double pos, double vel);
+    }
+
+    public record Setpoint(double pos, double vel) {
+        public Setpoint(TrapezoidProfile.State state) {
+            this(state.position, state.velocity);
+        }
     }
 }
