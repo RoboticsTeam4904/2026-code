@@ -48,12 +48,4 @@ public class Auton {
             Component.chassis.c_stop()
         );
     }
-
-    public static Command c_jankLeftCoral() {
-        return c_jankSideCoral(1);
-    }
-
-    public static Command c_jankRightCoral() {
-        return c_jankSideCoral(-1);
-    }
 }
