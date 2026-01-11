@@ -26,7 +26,7 @@ public class Robot extends CommandRobotBase {
         public static final boolean FLIP_SIDE = false;
 
         /** The auton to run */
-        public static Supplier<Command> COMMAND = Auton::c_jankRightCoral;
+        public static Supplier<Command> COMMAND = Auton::c_jankStraight;
     }
 
     private final SwerveGain driver = new SwerveGain();
@@ -66,14 +66,6 @@ public class Robot extends CommandRobotBase {
 
         double y = RobotMap.HumanInput.Operator.joystick.getY();
 
-        if (Math.abs(y) >= 0.05) {
-            wasControllingElevator = true;
-            CmdUtils.cancelConflicting(Component.elevator);
-            Component.elevator.setVoltage(Math.pow(y, 2) * Math.signum(y) * 12.0);
-        } else if (wasControllingElevator) {
-            wasControllingElevator = false;
-            Component.elevator.setVoltage(0);
-        }
     }
 
     // Timer timer = new Timer();

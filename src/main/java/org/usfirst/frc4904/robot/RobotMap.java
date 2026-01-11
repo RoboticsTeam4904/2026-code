@@ -12,7 +12,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AddressableLED;
-import org.usfirst.frc4904.robot.subsystems.ElevatorSubsystem;
 import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
 import org.usfirst.frc4904.robot.subsystems.MotorSubsystem;
 import org.usfirst.frc4904.robot.swerve.SwerveModule;
@@ -83,7 +82,6 @@ public class RobotMap {
         // subsystems
         public static SwerveSubsystem chassis;
         public static MotorSubsystem ramp;
-        public static ElevatorSubsystem elevator;
         public static MotorSubsystem outtake;
         public static MotorSubsystem climber;
         public static VisionSubsystem vision;
@@ -211,15 +209,6 @@ public class RobotMap {
 
         Component.climberMotor = new CANTalonFX(Port.CANMotor.CLIMBER);
         Component.climber = new MotorSubsystem(Component.climberMotor, 6);
-
-        Component.elevatorMotorOne = new CANTalonFX(Port.CANMotor.ELEVATOR_LEFT);
-        Component.elevatorMotorTwo = new CANTalonFX(Port.CANMotor.ELEVATOR_RIGHT);
-        Component.elevatorEncoder = new CustomEncoder(Port.PWM.ELEVATOR_ENCODER);
-        Component.elevator = new ElevatorSubsystem(
-            Component.elevatorMotorOne,
-            Component.elevatorMotorTwo,
-            Component.elevatorEncoder
-        );
 
         Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);
         Component.lights = new LightSubsystem(
