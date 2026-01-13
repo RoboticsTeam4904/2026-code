@@ -11,8 +11,7 @@ import java.util.function.DoubleFunction;
 import java.util.function.DoubleSupplier;
 
 public class ezMotion extends Command {
-    public final PIDController pid;
-    public final FeedForward ff;
+    public final ezControl control;
 
     private final DoubleSupplier getCurrent;
     private final DoubleConsumer processValue;
@@ -21,15 +20,23 @@ public class ezMotion extends Command {
     public double startTime;
 
     public ezMotion(
-        PIDController pid,
-        FeedForward ff,
+        ezControl control,
+        DoubleSupplier getCurrent,
+        DoubleConsumer processValue,
+        Setpoint setpoint,
+        Subsystem... requirements
+    ) {
+        this(control, getCurrent, processValue, (double elapsed) -> setpoint, requirements);
+    }
+
+    public ezMotion(
+        ezControl control,
         DoubleSupplier getCurrent,
         DoubleConsumer processValue,
         DoubleFunction<Setpoint> setpointDealer,
         Subsystem... requirements
     ) {
-        this.pid = pid;
-        this.ff = ff;
+        this.control = control;
         this.getCurrent = getCurrent;
         this.processValue = processValue;
         this.setpointDealer = setpointDealer;
@@ -44,25 +51,35 @@ public class ezMotion extends Command {
     @Override
     public void initialize() {
         startTime = Timer.getFPGATimestamp();
+        control.pid().reset();
     }
 
     @Override
     public void execute() {
         double current = getCurrent.getAsDouble();
         Setpoint setpoint = setpointDealer.apply(getElapsedTime());
+        processValue.accept(control.calculate(current, setpoint));
+    }
 
-        double calculated = pid.calculate(current, setpoint.pos) + ff.calculate(setpoint.pos, setpoint.vel);
-        processValue.accept(calculated);
+    public record ezControl(PIDController pid, FeedForward ff) {
+        public ezControl(PIDController pid) {
+            this(pid, FeedForward.NOOP);
+        }
+
+        double calculate(double current, Setpoint sp) {
+            return pid.calculate(current, sp.position) + ff.calculate(sp);
+        }
     }
 
     @FunctionalInterface
     public interface FeedForward {
-        FeedForward NOOP = (double pos, double vel) -> 0;
+        FeedForward NOOP = (Setpoint sp) -> 0;
 
-        double calculate(double pos, double vel);
+        double calculate(Setpoint setpoint);
     }
 
-    public record Setpoint(double pos, double vel) {
+    // doesn't necessarily have to be position and velocity - can be any value and its derivative
+    public record Setpoint(double position, double velocity) {
         public Setpoint(TrapezoidProfile.State state) {
             this(state.position, state.velocity);
         }

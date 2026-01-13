@@ -7,7 +7,8 @@ import edu.wpi.first.wpilibj2.command.*;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.custom.CustomEncoder;
-import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.FeedForward;
+import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.Setpoint;
+import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.ezControl;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
 import java.util.HashMap;
@@ -106,33 +107,22 @@ public class ElevatorSubsystem extends PIDMotorSubsystem {
             c_gotoPosition(pos).withTimeout(3),
             new ParallelDeadlineGroup(
                 c_outtake(),
-                c_controlVelocity(() -> 0)
+                c_holdCurrentPosition()
             )
         );
     }
 
     @Override
-    protected PIDController getPID() {
-        return new PIDController(kP, kI, kD);
-    }
-
-    @Override
-    protected FeedForward getFF() {
-        return (double pos, double vel) -> feedforward.calculate(vel);
-    }
-
-    @Override
-    protected TrapezoidProfile getProfile() {
-        return new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL)
+    protected ezControl getControl() {
+        return new ezControl(
+            new PIDController(kP, kI, kD),
+            (Setpoint sp) -> feedforward.calculate(sp.velocity())
         );
     }
 
-    public Command c_controlVelocity(DoubleSupplier metersPerSecDealer) {
-        return run(() -> {
-            var ff = feedforward.calculate(metersPerSecDealer.getAsDouble());
-            setVoltage(ff);
-        });
+    @Override
+    protected TrapezoidProfile.Constraints getConstraints() {
+        return new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL);
     }
 
     public Command c_gotoPosition(Position pos) {

@@ -1,20 +1,16 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
-import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.FeedForward;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.Setpoint;
+import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.ezControl;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
-import java.util.Set;
-import java.util.function.DoubleFunction;
+import java.util.function.DoubleSupplier;
 
 public abstract class PIDMotorSubsystem extends MotorSubsystem {
-    private final PIDController pid;
-    private final FeedForward ff;
+    private final ezControl control;
     private final TrapezoidProfile profile;
 
     /**
@@ -44,28 +40,43 @@ public abstract class PIDMotorSubsystem extends MotorSubsystem {
     public PIDMotorSubsystem(SmartMotorController[] motors, double forwardVoltage, double backwardVoltage) {
         super(motors, forwardVoltage, backwardVoltage);
 
-        pid = getPID();
-        ff = getFF();
-        profile = getProfile();
+        control = getControl();
+        profile = new TrapezoidProfile(getConstraints());
     }
 
     // the following methods are only called once and should be pure
-    protected abstract PIDController getPID();
-    // you probably want to either override BOTH or NEITHER of the following methods
-    protected FeedForward getFF() { return FeedForward.NOOP; }
-    protected TrapezoidProfile getProfile() { return null; }
+    protected abstract ezControl getControl();
+    // should only be overridden if the ezControl has a feedforward
+    protected TrapezoidProfile.Constraints getConstraints() { return null; }
 
     // get the current position (presumably from an encoder)
     public abstract double getPosition();
     // overriding this could lead to more accurate TrapezoidProfile calculation
     public double getVelocity() { return 0; }
 
-    public Command c_gotoPosition(double position) {
-        // don't calculate current pos until command starts
-        return new DeferredCommand(() -> c_gotoPosition0(position), Set.of(this));
+    // only has an effect if the ezControl has a feedforward
+    public Command c_controlVelocity(DoubleSupplier velocityDealer) {
+        return run(() -> {
+            Setpoint sp = new Setpoint(getPosition(), velocityDealer.getAsDouble());
+            setVoltage(control.ff().calculate(sp));
+        });
     }
 
-    private Command c_gotoPosition0(double position) {
+    public Command c_holdCurrentPosition() {
+        return c_gotoPosition(getPosition());
+    }
+
+    public Command c_gotoPosition(double position) {
+        return c_gotoPosition(position, false);
+    }
+
+    public Command c_gotoPosition(double position, boolean endOnArrival) {
+        // don't calculate current position until command starts
+        return defer(() -> c_gotoPosition0(position, endOnArrival));
+    }
+
+    private Command c_gotoPosition0(double position, boolean endOnArrival) {
+
         TrapezoidProfile.State current, goal;
         Setpoint setpoint;
         if (profile != null) {
@@ -78,16 +89,28 @@ public abstract class PIDMotorSubsystem extends MotorSubsystem {
             goal = null;
         }
 
-        // TODO stop when at setpoint
         return new ezMotion(
-            pid,
-            ff,
+            control,
             this::getPosition,
             this::setVoltage,
             (double elapsed) -> profile != null
                 ? new Setpoint(profile.calculate(elapsed, current, goal))
                 : setpoint,
             this
-        ).finallyDo(this::stop);
+        ) {
+            @Override
+            public boolean isFinished() {
+                if (!endOnArrival) return false;
+
+                double error = Math.abs(position - getPosition());
+                return error < control.pid().getErrorTolerance();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                super.end(interrupted);
+                if (!interrupted) stop();
+            }
+        };
     }
 }

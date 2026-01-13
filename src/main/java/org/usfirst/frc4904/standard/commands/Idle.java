@@ -10,7 +10,19 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  */
 public class Idle extends Command {
 
+    private final Runnable onInit;
+
     public Idle(Subsystem... requirements) {
+        this(() -> {}, requirements);
+    }
+
+    public Idle(Runnable onInit, Subsystem... requirements) {
+        this.onInit = onInit;
         addRequirements(requirements);
+    }
+
+    @Override
+    public void initialize() {
+        onInit.run();
     }
 }
