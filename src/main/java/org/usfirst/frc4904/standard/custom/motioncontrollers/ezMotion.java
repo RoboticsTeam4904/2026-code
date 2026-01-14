@@ -1,3 +1,5 @@
+// TODO mostly untested (core calculations copied from existing code)
+
 package org.usfirst.frc4904.standard.custom.motioncontrollers;
 
 import edu.wpi.first.math.controller.PIDController;
