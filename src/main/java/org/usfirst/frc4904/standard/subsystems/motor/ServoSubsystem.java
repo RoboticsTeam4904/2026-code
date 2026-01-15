@@ -1,70 +1,43 @@
 package org.usfirst.frc4904.standard.subsystems.motor;
 
-import org.usfirst.frc4904.standard.commands.Idle;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ServoSubsystem extends SubsystemBase {
+
 	protected final Servo[] servos;
-	protected boolean isInverted;
+	protected boolean inverted;
 	protected double lastPosition;
+
 	// Constants from wpilib's Servo.java.
-	protected static final double MIN_SERVO_ANGLE = 0;
-	protected static final double MAX_SERVO_ANGLE = 180;
+	protected static final double MIN_ANGLE = 0;
+	protected static final double MAX_ANGLE = 180;
+	protected static final double ANGLE_RANGE = MAX_ANGLE - MIN_ANGLE;
 
 	/**
 	 * A class that wraps around a variable number of Servo objects to give them
 	 * Subsystem functionality.
 	 *
-	 * @param name       The name for the motor
-	 * @param isInverted Inverts the direction of all of the Servos. This does not
+	 * @param inverted Inverts the direction of all of the Servos. This does not
 	 *                   override the individual inversions of the servos.
-	 * @param servos     The Servos in this subsystem. Can be a single Servo or
-	 *                   multiple Servos.
+	 * @param servos     The Servos in this subsystem. Can be a single Servo or multiple.
 	 */
-	public ServoSubsystem(String name, boolean isInverted, Servo... servos) {
+	public ServoSubsystem(boolean inverted, Servo... servos) {
 		super();
-		setName(name);
-		setDefaultCommand(new Idle(this));
+
 		this.servos = servos;
-		this.isInverted = isInverted;
-		set(0);
+		this.inverted = inverted;
+		setPosition(0);
 	}
 
 	/**
 	 * A class that wraps around a variable number of Servo objects to give them
 	 * Subsystem functionality.
 	 *
-	 * @param name   The name for the motor.
-	 * @param servos The Servos in this subsystem. Can be a single Servo or multiple
-	 *               Servos.
-	 */
-	public ServoSubsystem(String name, Servo... servos) {
-		this(name, false, servos);
-	}
-
-	/**
-	 * A class that wraps around a variable number of Servo objects to give them
-	 * Subsystem functionality.
-	 *
-	 * @param isInverted Inverts the direction of all of the Servos. This does not
-	 *                   override the individual inversions of the servos.
-	 * @param servos     The Servos in this subsystem. Can be a single Servo or
-	 *                   multiple Servos.
-	 */
-	public ServoSubsystem(boolean isInverted, Servo... servos) {
-		this("ServoSubsystem", isInverted, servos);
-	}
-
-	/**
-	 * A class that wraps around a variable number of Servo objects to give them
-	 * Subsystem functionality.
-	 *
-	 * @param servos The Servos in this subsystem. Can be a single Servo or multiple
-	 *               Servo.
+	 * @param servos The Servos in this subsystem. Can be a single Servo or multiple.
 	 */
 	public ServoSubsystem(Servo... servos) {
-		this("ServoSubsystem", servos);
+		this(false, servos);
 	}
 
 	/**
@@ -75,21 +48,8 @@ public class ServoSubsystem extends SubsystemBase {
 	 *
 	 * @return Position from 0.0 to 1.0.
 	 */
-	public double get() {
-		return lastPosition;
-	}
-
-	/**
-	 * Get the servo position.
-	 *
-	 * Servo positions range from 0.0 to 1.0 corresponding to the range of full left
-	 * to full right. (This method is equivalent to the {@link #get() get()}
-	 * method.)
-	 *
-	 * @return Position from 0.0 to 1.0.
-	 */
 	public double getPosition() {
-		return get();
+		return lastPosition;
 	}
 
 	/**
@@ -98,19 +58,20 @@ public class ServoSubsystem extends SubsystemBase {
 	 * @return The angle in degrees to which the servo is set.
 	 */
 	public double getAngle() {
-		return ServoSubsystem.convertPositionToAngle(get());
+		return positionToAngle(getPosition());
 	}
 
 	/**
 	 * Set the servo position.
 	 *
-	 * full right.
+	 * Servo positions range from 0.0 to 1.0 corresponding to the range of full left
+	 * to full right.
 	 *
 	 * @param position Position from 0.0 to 1.0.
 	 */
-	public void set(double position) {
-		if (isInverted) {
-			position = ServoSubsystem.invertPosition(position);
+	public void setPosition(double position) {
+		if (inverted) {
+			position = invertPosition(position);
 		}
 		for (Servo servo : servos) {
 			servo.set(position);
@@ -119,26 +80,13 @@ public class ServoSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Set the servo position.
-	 *
-	 * Servo positions range from 0.0 to 1.0 corresponding to the range of full left
-	 * to full right. (This method is equivalent to the {@link #set(double) set()}
-	 * method.)
-	 *
-	 * @param position Position from 0.0 to 1.0.
-	 */
-	public void setPosition(double position) {
-		set(position);
-	}
-
-	/**
 	 * Set the servo angle.
 	 *
 	 * @return The angle in degrees to which the servo is set.
 	 */
 	public void setAngle(double degrees) {
-		if (isInverted) {
-			degrees = ServoSubsystem.invertDegree(degrees);
+		if (inverted) {
+			degrees = invertAngle(degrees);
 		}
 		for (Servo servo : servos) {
 			servo.setAngle(degrees);
@@ -151,44 +99,34 @@ public class ServoSubsystem extends SubsystemBase {
 	 * @return isInverted The state of inversion, true is inverted.
 	 */
 	public boolean getInverted() {
-		return isInverted;
+		return inverted;
 	}
 
 	/**
 	 * Set whether this entire servo is inverted. Note that this will also convert
-	 * the values returned by {@link #get() get()}, {@link #getPosition()
-	 * getPosition()}, and {@link #getAngle() getAngle()} to the new coordinate
-	 * system, so anything continuously reading these methods will see a
-	 * discontinuity.
+	 * the values returned by {@link #getPosition()} and {@link #getAngle() getAngle()}
+	 * to the new coordinate system, so anything continuously reading these methods
+	 * will see a discontinuity.
 	 * 
-	 * @param shouldBeInverted The desired state of inversion, true is inverted.
+	 * @param inverted The desired state of inversion, true is inverted.
 	 */
-	public void setInverted(boolean shouldBeInverted) {
-		if (shouldBeInverted != isInverted) {
-			lastPosition = ServoSubsystem.invertPosition(lastPosition);
+	public void setInverted(boolean inverted) {
+		if (inverted != this.inverted) {
+			lastPosition = invertPosition(lastPosition);
 		}
-		isInverted = shouldBeInverted;
+		this.inverted = inverted;
 	}
 
 	// Internal helper functions
-	/**
-	 * Get the range of the servo in degrees
-	 * 
-	 * @return the range of the servo in degrees
-	 */
-	protected static double getServoAngleRange() {
-		return ServoSubsystem.MAX_SERVO_ANGLE - ServoSubsystem.MIN_SERVO_ANGLE;
-	}
 
 	/**
 	 * Convert a servo set value to degrees.
 	 * 
-	 * @param value servo set value to convert to degrees. Should be in the range
-	 *              [0, 1]
+	 * @param position servo set value to convert to degrees. Should be in the range [0, 1].
 	 * @return the value converted to degrees
 	 */
-	protected static double convertPositionToAngle(double value) {
-		return value * ServoSubsystem.getServoAngleRange() + ServoSubsystem.MIN_SERVO_ANGLE;
+	protected static double positionToAngle(double position) {
+		return position * ANGLE_RANGE + MIN_ANGLE;
 	}
 
 	/**
@@ -198,31 +136,28 @@ public class ServoSubsystem extends SubsystemBase {
 	 * @return a servo set value in the range [0, 1] (as long as the input degree
 	 *         was in the servo's range)
 	 */
-	protected static double convertDegreesToValue(double degrees) {
-		return (degrees - ServoSubsystem.MIN_SERVO_ANGLE) / ServoSubsystem.getServoAngleRange();
+	protected static double angleToPosition(double degrees) {
+		return (degrees - MIN_ANGLE) / ANGLE_RANGE;
 	}
 
 	/**
 	 * Invert the given value (0 becomes 1, 1 becomes 0)
 	 * 
-	 * @param value The value to invert. Should be in the range [0, 1]
+	 * @param position The value to invert. Should be in the range [0, 1]
 	 * @return the inverted value
 	 */
-	protected static double invertPosition(double value) {
-		return 1 - value;
+	protected static double invertPosition(double position) {
+		return 1 - position;
 	}
 
 	/**
-	 * Invert the given degree ({@link #MIN_SERVO_ANGLE kMinServoAngle} becomes
-	 * {@link #MAX_SERVO_ANGLE kMaxServoAngle}, {@link #MAX_SERVO_ANGLE
-	 * kMaxServoAngle} becomes {@link #MIN_SERVO_ANGLE kMinServoAngle})
+	 * Invert the given degree ({@link #MIN_ANGLE} becomes {@link #MAX_ANGLE},
+	 * {@link #MAX_ANGLE} becomes {@link #MIN_ANGLE})
 	 * 
 	 * @param degrees The degree to invert
 	 * @return the inverted degree
 	 */
-	protected static double invertDegree(double degrees) {
-		double value = ServoSubsystem.convertDegreesToValue(degrees);
-		value = ServoSubsystem.invertPosition(value);
-		return ServoSubsystem.convertPositionToAngle(value);
+	protected static double invertAngle(double degrees) {
+		return MAX_ANGLE - degrees + MIN_ANGLE;
 	}
 }

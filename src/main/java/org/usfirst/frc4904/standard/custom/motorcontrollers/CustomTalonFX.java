@@ -51,12 +51,15 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
 
     private boolean inverted = false;
 
+    /**
+     * @param inverted Whether to invert - true is clockwise positive, false is counterclockwise positive (default).
+     */
     @Override
-    public void setInverted(boolean isInverted) {
-        inverted = isInverted;
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
         // CounterClockwise_Positive seems to be the default value
-        InvertedValue invert = isInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-        getConfigurator().apply(new MotorOutputConfigs().withInverted(invert));
+        InvertedValue direction = inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        getConfigurator().apply(new MotorOutputConfigs().withInverted(direction));
     }
 
     @Override

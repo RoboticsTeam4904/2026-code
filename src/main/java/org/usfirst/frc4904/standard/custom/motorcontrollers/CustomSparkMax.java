@@ -37,7 +37,7 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
         configure(new SparkMaxConfig().idleMode(IdleMode.kCoast));
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // overrides deprecated method
     public void setInverted(boolean inverted) {
         configure(new SparkMaxConfig().inverted(inverted));
     }
@@ -49,13 +49,13 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
 
     @Override
     public boolean isFwdLimitSwitchPressed() throws IllegalAccessException {
-        if (!limitSwitch) throw new IllegalAccessException("Cannot read limit switch state when CustomCANSparkMax was constructed without limit switch type!");
+        if (!limitSwitch) throw new IllegalAccessException("Cannot read forward limit switch state when CustomSparkMax was constructed without limit switch.");
         return getForwardLimitSwitch().isPressed();
     }
 
     @Override
     public boolean isRevLimitSwitchPressed() throws IllegalAccessException {
-        if (!limitSwitch) throw new IllegalAccessException("Cannot read limit switch state when CustomCANSparkMax was constructed without limit switch type!");
+        if (!limitSwitch) throw new IllegalAccessException("Cannot read reverse limit switch state when CustomSparkMax was constructed without limit switch.");
         return getReverseLimitSwitch().isPressed();
     }
 }
