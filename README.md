@@ -8,4 +8,4 @@ Set up the Git hooks by running:
 ./setup
 ```
 
-le fish au snad
+le fish au sand
