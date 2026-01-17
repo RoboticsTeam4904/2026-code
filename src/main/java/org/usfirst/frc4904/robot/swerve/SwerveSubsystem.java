@@ -163,6 +163,16 @@ public class SwerveSubsystem extends SubsystemBase {
         Component.navx.zeroYaw();
     }
 
+    /**
+     * Zero the rotation encoders for all swerve modules.
+     */
+    public void zero() {
+        System.out.println("zeroed");
+        for (var module : modules) {
+            module.zero();
+        }
+    }
+
     // TODO remove
 
     public Command setMotorBrake(Boolean brake) {

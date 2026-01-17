@@ -20,6 +20,7 @@ import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomSparkMax;
+import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 
 public class RobotMap {
 
@@ -54,33 +55,13 @@ public class RobotMap {
 
         // subsystems
         public static SwerveSubsystem chassis;
-        public static VisionSubsystem vision;
         public static LightSubsystem lights;
+        public static VisionSubsystem vision;
 
         // motors
 
-
+        // misc
         public static AddressableLED ledStrip;
-    }
-
-    public static class NetworkTables {
-
-        public static NetworkTableInstance instance;
-
-        public static class Odometry {
-
-            public static NetworkTable table;
-            public static NetworkTableEntry pose;
-            public static NetworkTableEntry accel;
-            public static NetworkTableEntry turretAngle;
-        }
-
-        public static class Localization {
-
-            public static NetworkTable table;
-            public static NetworkTableEntry goalDistance;
-            public static NetworkTableEntry goalRelativeAngle;
-        }
     }
 
     public static class Input {}
@@ -103,48 +84,39 @@ public class RobotMap {
     public RobotMap() {
         Component.navx = new AHRS(NavXComType.kMXP_SPI);
 
-        var flTurn = new CustomSparkMax(5, MotorType.kBrushless, false);
-        var frTurn = new CustomSparkMax(6, MotorType.kBrushless, false);
-        var blTurn = new CustomSparkMax(7, MotorType.kBrushless, false);
-        var brTurn = new CustomSparkMax(8, MotorType.kBrushless, false);
-
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
-                new CustomTalonFX(1, false),
-                flTurn,
-                flTurn.getAbsoluteEncoder(),
+                "front left",
+                new CustomTalonFX(2),
+                new CustomTalonFX(17),
+                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
-                new CustomTalonFX(2, false),
-                frTurn,
-                frTurn.getAbsoluteEncoder(),
+                "front right",
+                new CustomTalonFX(3),
+                new CustomTalonFX(15),
+                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
-                new CustomTalonFX(3, false),
-                blTurn,
-                blTurn.getAbsoluteEncoder(),
+                "back left",
+                new CustomTalonFX(4),
+                new CustomTalonFX(18),
+                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
                 new Translation2d(-1, -1)
             ),
             new SwerveModule(
-                new CustomTalonFX(4, false),
-                brTurn,
-                brTurn.getAbsoluteEncoder(),
+                "back right",
+                new CustomTalonFX(1),
+                new CustomTalonFX(16),
+                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
                 new Translation2d(1, -1)
             )
         );
 
-        // Component.chassis.swerveDrive.setGyroOffset(new Rotation3d(0, 0, Units.degreesToRadians(180)));
-
         Component.vision = new VisionSubsystem(
-            new GoogleTagManager(),
-            new Transform2d[] {
-                new Transform2d(Units.inchesToMeters(8), Units.inchesToMeters(-10.6), Rotation2d.kZero),
-                new Transform2d(Units.inchesToMeters(8), Units.inchesToMeters(10.6), Rotation2d.kZero)
-
-                // new Transform2d(Units.inchesToMeters(0), Units.inchesToMeters(0), Rotation2d.kZero)
-            }
+            new Transform2d(Units.inchesToMeters(8), Units.inchesToMeters(0), Rotation2d.kZero)
         );
 
         Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);

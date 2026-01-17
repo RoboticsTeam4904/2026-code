@@ -12,8 +12,11 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
 
     public CustomTalonFX(int deviceId, boolean inverted) {
         super(deviceId);
-
         setInverted(inverted);
+    }
+
+    public CustomTalonFX(int deviceId) {
+        this(deviceId, false);
     }
 
     /**

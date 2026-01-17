@@ -22,11 +22,10 @@ public class AnnaOperator extends Operator {
         var turnJoystick = HumanInput.Driver.turnJoystick;
 
         /// VISION
-        turnJoystick.button1.whileTrue(Component.vision.c_align(TagGroup.ANY, -1));
-        turnJoystick.button2.whileTrue(Component.vision.c_align(TagGroup.ANY, 1));
+        turnJoystick.button1.whileTrue(Component.vision.c_align(TagGroup.ANY, 0));
 
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(c_resetOdometry());
-
+        xyJoystick.button2.onTrue(c_zeroSwerve());
     }
 }

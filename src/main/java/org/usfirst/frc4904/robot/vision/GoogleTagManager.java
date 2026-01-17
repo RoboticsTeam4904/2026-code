@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.vision;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -13,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
-// not affiliated with google
 public class GoogleTagManager {
     private final HttpClient client;
 
@@ -25,9 +25,9 @@ public class GoogleTagManager {
 
     public List<Tag> getTags() {
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("dauntless.local:8080/api/tags"))
-            .GET()
-            .build();
+                                         .uri(URI.create("http://10.49.4.203:8000/api/tags"))
+                                         .GET()
+                                         .build();
 
         List<Tag> tags = new ArrayList<>();
 
@@ -36,8 +36,8 @@ public class GoogleTagManager {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             json = response.body();
-        } catch (Exception e) {
-            System.out.println("google tag manager fetching error!!!");
+        } catch (IOException | InterruptedException e) {
+            System.out.println("google tag manager fetching error!!!\n" + e.getClass().getName() + ": " + e.getMessage());
             return tags;
         }
 
@@ -46,16 +46,17 @@ public class GoogleTagManager {
             JsonNode root = mapper.readTree(json);
 
             for (JsonNode el : root) {
+                JsonNode idPath = el.path("id");
+                if (idPath.isNull()) continue; // skip tags with no id
+
                 double[] pos = mapper.treeToValue(el.path("pos"), double[].class);
 
-                Tag tag = new Tag(
-                    el.path("id").asInt(),
+                tags.add(new Tag(
+                    idPath.asInt(),
                     Rotation2d.fromRotations(el.path("rot").asDouble()),
-                    new Translation3d(pos[0], pos[1], pos[2]),
+                    new Translation3d(pos[2], pos[0], pos[1]),
                     0
-                );
-
-                tags.add(tag);
+                ));
             }
         } catch (Exception e) {
             System.out.println("google tag manager parsing error!!!");

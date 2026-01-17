@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.humaninterface.operators;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem.TagGroup;
@@ -22,10 +23,10 @@ public class DefaultOperator extends Operator {
         var turnJoystick = RobotMap.HumanInput.Driver.turnJoystick;
 
         /// VISION
-        turnJoystick.button1.whileTrue(Component.vision.c_align(TagGroup.ANY, -1));
-        turnJoystick.button2.whileTrue(Component.vision.c_align(TagGroup.ANY, 1));
+        turnJoystick.button2.whileTrue(Component.vision.c_align(TagGroup.ANY, 0));
 
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(c_resetOdometry());
+        xyJoystick.button2.onTrue(c_zeroSwerve());
     }
 }

@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
-import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.Util;
 import org.usfirst.frc4904.standard.commands.WaitWhileCommand;
@@ -103,13 +102,13 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * Creates a new VisionSubsystem
      *
-     * @param photonCameras The PhotonVision cameras
      * @param cameraOffsets The transforms from the camera to the robot center.
      *                      -X is towards the front of the robot.
      */
-    public VisionSubsystem(GoogleTagManager gtm, Transform2d[] cameraOffsets) {
-        this.gtm = gtm;
+    public VisionSubsystem(Transform2d... cameraOffsets) {
         this.cameraOffsets = cameraOffsets;
+
+        gtm = new GoogleTagManager();
 
         // initialize pid controllers
         // TODO TUNING: tune pid values
@@ -199,16 +198,10 @@ public class VisionSubsystem extends SubsystemBase {
         if (startingDistance == -1) startingDistance = distance;
         if (startingRotDistance == -1) startingRotDistance = rotDistance;
 
-        Component.lights.visionProgress = Math.pow(
-            (1 - distance / startingDistance) * 0.6 + (1 - rotDistance / startingRotDistance) * 0.4,
-            2
-        );
-
         boolean atPosition = distance < POS_TOLERANCE_METERS && rotDistance < ROT_TOLERANCE_DEG;
 
         if (atPosition) {
             stopPositioning("Success", false);
-            Component.lights.flashColor(LightSubsystem.Color.SUCCESS);
         } else {
             // give up if too much time has passed
             double timeElapsed = currentTime - startTime;
@@ -280,8 +273,6 @@ public class VisionSubsystem extends SubsystemBase {
         this.targetTagOptions = targetTagIds;
         this.offset = offset;
 
-        System.out.println("VISION OFFSET 2: X " + this.offset.getX() + " Y " + this.offset.getY());
-
         startTime = lastSeenTagTime = lastTime = Timer.getFPGATimestamp();
 
         // reset pid controllers
@@ -289,9 +280,6 @@ public class VisionSubsystem extends SubsystemBase {
         rotationController.reset();
 
         System.out.println("Positioning started");
-
-        Component.lights.visionProgress = 0;
-        Component.lights.flashColor(LightSubsystem.Color.VISION);
     }
 
     /**
@@ -314,11 +302,6 @@ public class VisionSubsystem extends SubsystemBase {
         Component.chassis.stop();
 
         System.out.println("Positioning ended" + (reason != null ? " - " + reason : ""));
-
-        Component.lights.visionProgress = -1;
-        if (failed) {
-            Component.lights.flashColor(LightSubsystem.Color.FAIL);
-        }
     }
 
     /**
@@ -344,8 +327,6 @@ public class VisionSubsystem extends SubsystemBase {
             targetOffset.getRotation().plus(cameraOffset.getRotation())
         );
 
-        System.out.println("VISION OFFSET 3: X " + offset.getX() + " Y " + offset.getY());
-
         // calculate difference between current and desired
         Translation2d translationError = offset.getTranslation().minus(robotToTarget.getTranslation());
         Rotation2d rotationError = offset.getRotation().minus(robotToTarget.getRotation());
@@ -367,7 +348,6 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * @param targetTagId      The ID of the April Tag to align to
      * @param offsetMultiplier The horizontal offset multiplier from the tag.
-     *                         For 2025 Reefscape: -1 is left coral, 0 is center, 1 is right coral.
      */
     public Command c_align(int targetTagId, int offsetMultiplier) {
         return c_align(new int[] { targetTagId }, offsetMultiplier);
@@ -379,7 +359,6 @@ public class VisionSubsystem extends SubsystemBase {
      * @param targetTagGroup   A group of april tags to align to, e.g. {@code TagGroup.REEF}.
      *                         The robot will align to whichever one PhotonVision considers the best
      * @param offsetMultiplier The horizontal offset multiplier from the tag.
-     *                         For 2025 Reefscape: -1 is left coral, 0 is center, 1 is right coral.
      */
     public Command c_align(TagGroup targetTagGroup, int offsetMultiplier) {
         return c_align(tagIds.get(targetTagGroup), offsetMultiplier);
@@ -391,15 +370,12 @@ public class VisionSubsystem extends SubsystemBase {
      * @param targetTagIds     A list of april tag IDs to align to.
      *                         The robot will align to whichever one PhotonVision considers the best
      * @param offsetMultiplier The horizontal offset multiplier from the tag.
-     *                         For 2025 Reefscape: -1 is left coral, 0 is center, 1 is right coral.
      */
     public Command c_align(int[] targetTagIds, int offsetMultiplier) {
         Transform2d offset = new Transform2d(0, HORIZ_ALIGN_OFFSET * offsetMultiplier, Rotation2d.kPi);
 
-        // System.out.println("VISION OFFSET 1: X " + offset.getX() + " Y " + offset.getY());
-
         var command = new SequentialCommandGroup(
-            this.runOnce(() -> startPositioning(targetTagIds, offset)),
+            runOnce(() -> startPositioning(targetTagIds, offset)),
             new WaitWhileCommand(this::isPositioning)
         ) {
             @Override
@@ -418,6 +394,6 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Command c_stop() {
-        return new InstantCommand(() -> this.stopPositioning("Stop command", false));
+        return runOnce(() -> stopPositioning("Stop command", false));
     }
 }

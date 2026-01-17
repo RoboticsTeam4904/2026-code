@@ -21,6 +21,10 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
         this(deviceNumber, motorType, inverted, false);
     }
 
+    public CustomSparkMax(int deviceNumber, MotorType motorType) {
+        this(deviceNumber, motorType, false, false);
+    }
+
     private void configure(SparkBaseConfig config) {
         configure(
             config,
