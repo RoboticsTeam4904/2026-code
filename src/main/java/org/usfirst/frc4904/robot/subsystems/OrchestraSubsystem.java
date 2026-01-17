@@ -129,7 +129,9 @@ public class OrchestraSubsystem extends SubsystemBase {
 
             for (int i = track; i < motors.length; i += tracks) {
                 CustomTalonFX motor = motors[i];
-                if (motor != null) orchestra.addInstrument(motor.motor, 0);
+                if (motor != null) {
+                    orchestra.addInstrument(motor, 0);
+                }
             }
 
             orchestras.add(orchestra);
