@@ -4,7 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.usfirst.frc4904.standard.Util;
+import org.usfirst.frc4904.standard.util.MathUtil;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 
@@ -116,7 +116,7 @@ class RotationController {
     public boolean rotateToward(double theta) {
         double current = getRotation();
         double voltage = -pid.calculate(current, theta);
-        setVoltage(Util.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE));
+        setVoltage(MathUtil.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE));
 
         double dist = Math.abs(theta - current);
         return dist > 0.25 && dist < 0.75;

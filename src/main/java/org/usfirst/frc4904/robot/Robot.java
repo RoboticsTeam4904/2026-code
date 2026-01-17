@@ -8,13 +8,12 @@ package org.usfirst.frc4904.robot;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
-import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.CommandRobotBase;
+import org.usfirst.frc4904.standard.util.CmdUtil;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -76,7 +75,7 @@ public class Robot extends CommandRobotBase {
 
         // Component.navx.reset();
 
-        CmdUtils.schedule(AutonConfig.COMMAND.get());
+        CmdUtil.schedule(AutonConfig.COMMAND.get());
     }
 
     @Override

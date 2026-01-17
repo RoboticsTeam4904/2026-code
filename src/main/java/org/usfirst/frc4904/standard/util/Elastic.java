@@ -3,7 +3,7 @@
 // defined by the Elastic license:
 // https://github.com/Gold872/elastic_dashboard/blob/main/LICENSE
 
-package frc.robot.util;
+package org.usfirst.frc4904.standard.util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;

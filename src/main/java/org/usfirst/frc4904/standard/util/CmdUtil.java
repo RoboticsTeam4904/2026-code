@@ -1,12 +1,12 @@
-package org.usfirst.frc4904.robot;
+package org.usfirst.frc4904.standard.util;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc4904.standard.commands.NoOp;
 
-public final class CmdUtils {
-    private CmdUtils() {
+public final class CmdUtil {
+    private CmdUtil() {
         throw new UnsupportedOperationException("Cannot instantiate utility class.");
     }
 

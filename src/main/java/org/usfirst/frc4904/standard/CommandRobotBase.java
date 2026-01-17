@@ -1,7 +1,7 @@
 package org.usfirst.frc4904.standard;
 
 
-import org.usfirst.frc4904.robot.CmdUtils;
+import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.custom.CommandSendableChooser;
 import org.usfirst.frc4904.standard.custom.TypedNamedSendableChooser;
 import org.usfirst.frc4904.standard.humaninput.Driver;
@@ -111,7 +111,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 		}
 		teleopInitialize();
 		if (teleopCommand != null) {
-			CmdUtils.schedule(teleopCommand);
+			CmdUtil.schedule(teleopCommand);
 		}
 	}
 
@@ -147,7 +147,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 		cleanup();
 		autonomousCommand = autoChooser.getSelected();
 		if (autonomousCommand != null) {
-			CmdUtils.schedule(autonomousCommand);
+			CmdUtil.schedule(autonomousCommand);
 		}
 		autonomousInitialize();
 	}

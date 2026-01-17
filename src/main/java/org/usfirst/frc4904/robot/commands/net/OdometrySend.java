@@ -5,7 +5,7 @@
 // import org.usfirst.frc4904.robot.subsystems.Turret;
 // import org.usfirst.frc4904.robot.subsystems.net.RobotUDP;
 // import org.usfirst.frc4904.robot.subsystems.net.messages.OdometryUpdate;
-// import org.usfirst.frc4904.standard.Util;
+// import org.usfirst.frc4904.standard.util.Util;
 // import org.usfirst.frc4904.standard.custom.sensors.NavX;
 // import org.usfirst.frc4904.standard.subsystems.chassis.SensorDrive;
 
