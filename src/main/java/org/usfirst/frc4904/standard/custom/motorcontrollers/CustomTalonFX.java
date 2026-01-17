@@ -10,7 +10,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 public class CustomTalonFX extends TalonFX implements SmartMotorController {
 
-    CustomTalonFX(int deviceId, boolean inverted) {
+    public CustomTalonFX(int deviceId, boolean inverted) {
         super(deviceId);
 
         setInverted(inverted);

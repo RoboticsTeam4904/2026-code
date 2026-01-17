@@ -110,25 +110,25 @@ public class RobotMap {
 
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
-                new CustomTalonFX(1),
+                new CustomTalonFX(1, false),
                 flTurn,
                 flTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
-                new CustomTalonFX(2),
+                new CustomTalonFX(2, false),
                 frTurn,
                 frTurn.getAbsoluteEncoder(),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
-                new CustomTalonFX(3),
+                new CustomTalonFX(3, false),
                 blTurn,
                 blTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, -1)
             ),
             new SwerveModule(
-                new CustomTalonFX(4),
+                new CustomTalonFX(4, false),
                 brTurn,
                 brTurn.getAbsoluteEncoder(),
                 new Translation2d(1, -1)
