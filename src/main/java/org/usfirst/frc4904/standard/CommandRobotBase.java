@@ -3,7 +3,7 @@ package org.usfirst.frc4904.standard;
 
 import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.custom.CommandSendableChooser;
-import org.usfirst.frc4904.standard.custom.TypedNamedSendableChooser;
+import org.usfirst.frc4904.standard.custom.NamedSendableChooser;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -18,11 +18,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public abstract class CommandRobotBase extends TimedRobot {
 
-	private Command autonomousCommand;
+	protected Command autonomousCommand;
 	protected Command teleopCommand;
 	protected CommandSendableChooser autoChooser;
-	protected TypedNamedSendableChooser<Driver> driverChooser;
-	protected TypedNamedSendableChooser<Operator> operatorChooser;
+	protected NamedSendableChooser<Driver> driverChooser;
+	protected NamedSendableChooser<Operator> operatorChooser;
 
 	/**
 	 * This displays our choosers. The default choosers are for autonomous type,
@@ -49,10 +49,10 @@ public abstract class CommandRobotBase extends TimedRobot {
 	}
 
 	// HACK FIXME, incredibly cursed and potentially bad
-	public static Driver drivingConfig = new Driver("uhohhh") {
+	public static Driver driverConfig = new Driver("uhohhh") {
 		@Override
 		public double getX() {
-			for (int i = 0; i < 1000000; i++) System.err.println("DRIVER NOT CONFIGED");
+			for (int i = 0; i < 100; i++) System.err.println("DRIVER NOT CONFIGED");
 			return 0;
 		}
 
@@ -78,8 +78,8 @@ public abstract class CommandRobotBase extends TimedRobot {
 	public final void robotInit() {
 		// Initialize choosers
 		autoChooser = new CommandSendableChooser();
-		driverChooser = new TypedNamedSendableChooser<Driver>();
-		operatorChooser = new TypedNamedSendableChooser<Operator>();
+		driverChooser = new NamedSendableChooser<>();
+		operatorChooser = new NamedSendableChooser<>();
 		// Run user-provided initialize function
 		initialize();
 		// Display choosers on SmartDashboard
@@ -102,7 +102,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 		cleanup();
 		if (driverChooser.getSelected() != null) {
 			// LogKitten.d("Loading driver " + driverChooser.getSelected().getName());
-			CommandRobotBase.drivingConfig = driverChooser.getSelected();
+			CommandRobotBase.driverConfig = driverChooser.getSelected();
 			driverChooser.getSelected().bindCommands();
 		}
 		if (operatorChooser.getSelected() != null) {

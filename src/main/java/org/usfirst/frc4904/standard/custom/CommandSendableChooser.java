@@ -11,8 +11,6 @@ public class CommandSendableChooser extends SendableChooser<Command> {
 
     /**
      * Adds the command object to the smart dashboard.
-     *
-     * @param object
      */
     public void addOption(Command object) {
         super.addOption(object.getName(), object);
@@ -20,8 +18,6 @@ public class CommandSendableChooser extends SendableChooser<Command> {
 
     /**
      * Adds the command object to the smart dashboard as the default command.
-     *
-     * @param object
      */
     public void setDefaultOption(Command object) {
         super.setDefaultOption(object.getName() + " (default)", object);

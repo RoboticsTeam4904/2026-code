@@ -5,17 +5,13 @@ import java.util.function.Supplier;
 
 /**
  * A sendable chooser for any named object.
- *
- * @param <T>
  */
-public class TypedNamedSendableChooser<T extends Nameable>
+public class NamedSendableChooser<T extends Nameable>
     extends SendableChooser<T>
     implements Supplier<T> {
 
     /**
      * Adds an object of the type to the smart dashboard.
-     *
-     * @param object
      */
     public void addOption(T object) {
         super.addOption(object.getName(), object);
@@ -23,8 +19,6 @@ public class TypedNamedSendableChooser<T extends Nameable>
 
     /**
      * Adds an object of the type to the smart dashboard as the default object.
-     *
-     * @param object
      */
     public void setDefaultOption(T object) {
         super.setDefaultOption(object.getName() + " (default)", object);
