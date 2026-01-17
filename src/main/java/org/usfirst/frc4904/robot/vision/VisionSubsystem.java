@@ -23,6 +23,7 @@ import java.util.List;
 
 /** Sponsored by Claude™ 3.7 Sonnet by Anthropic® */
 public class VisionSubsystem extends SubsystemBase {
+
     public enum TagGroup {
         ANY,
         INTAKE,
@@ -73,7 +74,8 @@ public class VisionSubsystem extends SubsystemBase {
     private final double CANT_SEE_TIMEOUT = 1; // give up if we cant see the april tag for this many seconds
     private final double TOTAL_TIMEOUT = 5; // always give up after this many seconds
 
-    private final GoogleTagManager gtm;
+    // TODO public for testing
+    public final GoogleTagManager gtm;
 
     // pid controllers
     private final PIDController positionController;
@@ -174,7 +176,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         xSpeed = Util.clamp(xSpeed, -MAX_LINEAR_SPEED, MAX_LINEAR_SPEED);
         ySpeed = Util.clamp(ySpeed, -MAX_LINEAR_SPEED, MAX_LINEAR_SPEED);
-        rotSpeed = Util.clamp(rotSpeed, -MAX_ROT_SPEED, MAX_ROT_SPEED);
+        rotSpeed = 0; // Util.clamp(rotSpeed, -MAX_ROT_SPEED, MAX_ROT_SPEED); TODO put back rotation?
 
         // command swerve drive
         Component.chassis.driveRobotRelative(xSpeed, ySpeed, rotSpeed);

@@ -90,28 +90,28 @@ public class RobotMap {
                 new CustomTalonFX(2),
                 new CustomTalonFX(17),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
-                new Translation2d(-1, 1)
+                new Translation2d(1, 1)
             ),
             new SwerveModule(
                 "front right",
                 new CustomTalonFX(3),
                 new CustomTalonFX(15),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
-                new Translation2d(1, 1)
+                new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "back left",
                 new CustomTalonFX(4),
                 new CustomTalonFX(18),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
-                new Translation2d(-1, -1)
+                new Translation2d(1, -1)
             ),
             new SwerveModule(
                 "back right",
                 new CustomTalonFX(1),
                 new CustomTalonFX(16),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
-                new Translation2d(1, -1)
+                new Translation2d(-1, -1)
             )
         );
 
