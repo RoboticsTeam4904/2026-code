@@ -67,7 +67,9 @@ public class Robot extends CommandRobotBase {
     public void disabledExecute() { }
 
     @Override
-    public void disabledCleanup() { }
+    public void disabledCleanup() {
+        Component.chassis.setMotorBrake(true);
+    }
 
     @Override
     public void testInitialize() { }
