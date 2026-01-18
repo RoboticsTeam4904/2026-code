@@ -60,9 +60,10 @@ public class Robot extends CommandRobotBase {
     }
 
     @Override
-    public void teleopExecute() {
+    public void teleopExecute() { }
 
-    }
+    @Override
+    public void teleopExit() { }
 
     @Override
     public void autonomousInitialize() {
@@ -83,9 +84,10 @@ public class Robot extends CommandRobotBase {
     }
 
     @Override
-    public void autonomousExecute() {
-        // logging can go here
-    }
+    public void autonomousExecute() { }
+
+    @Override
+    public void autonomousExit() { }
 
     @Override
     public void disabledInitialize() {
@@ -96,18 +98,19 @@ public class Robot extends CommandRobotBase {
      }
 
     @Override
-    public void disabledExecute() {
-    }
+    public void disabledExecute() { }
 
     @Override
-    public void testInitialize() {
-
-    }
+    public void disabledExit() { }
 
     @Override
-    public void testExecute() {
+    public void testInitialize() { }
 
-    }
+    @Override
+    public void testExecute() { }
+
+    @Override
+    public void testExit() { }
 
     double lastLogTime;
 

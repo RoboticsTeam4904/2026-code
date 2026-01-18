@@ -1,4 +1,4 @@
-package org.usfirst.frc4904.standard;
+package org.usfirst.frc4904.standard.util;
 
 import java.util.Random;
 

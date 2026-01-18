@@ -2,7 +2,7 @@ package org.usfirst.frc4904.robot.subsystems;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.usfirst.frc4904.standard.Perlin2D;
+import org.usfirst.frc4904.standard.util.Perlin2D;
 import org.usfirst.frc4904.standard.util.MathUtil;
 
 public class LightSubsystem extends SubsystemBase {
