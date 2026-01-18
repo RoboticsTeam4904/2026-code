@@ -44,14 +44,12 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
      * @param theta Turn speed from [-1, 1]
      */
     public void input(Translation2d translation, double theta) {
-        // System.out.println("x: " + x + " y: " + y + " theta: " + theta);
-
         Translation2d scaled = translation.times(SwerveConstants.LIN_SPEED);
         driveFieldRelative(scaled, theta * SwerveConstants.ROT_SPEED);
     }
 
     public Translation2d toRobotRelative(Translation2d translation) {
-        // TODO account for alliance direction
+        // TODO account for alliance direction?
         double rotation = Component.navx.getYaw() + 90;
         return translation.rotateBy(Rotation2d.fromDegrees(rotation));
     }
@@ -174,19 +172,15 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
      */
     public void zero() {
         System.out.println("zeroed");
-        for (var module : modules) {
-            module.zero();
-        }
+        for (var module : modules) module.zero();
     }
 
-    // TODO remove
-
-    public Command setMotorBrake(Boolean brake) {
-        return new NoOp();
+    public void setMotorBrake(boolean brake) {
+        for (var module : modules) module.setMotorBrake(brake);
     }
 
-    public Command getAutonomousCommand(String path, Boolean setOdom, Boolean flipSide) {
-        return new NoOp();
+    public Command getAutonomousCommand(String path, boolean setOdom, boolean flipSide) {
+        return new NoOp(); // TODO
     }
 
     @Override
