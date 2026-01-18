@@ -1,7 +1,7 @@
 package org.usfirst.frc4904.standard.custom.sensors;
 
 // import org.usfirst.frc4904.standard.LogKitten;
-import org.usfirst.frc4904.standard.util.MathUtil;
+import org.usfirst.frc4904.standard.util.Util;
 
 /**
  * Amalgamates the data of several encoders for the purpose of controlling a
@@ -87,12 +87,12 @@ public class EncoderPair implements CustomEncoder {
 
 	@Override
 	public boolean getStopped() {
-		return MathUtil.isZero(getRate());
+		return Util.isZero(getRate());
 	}
 
 	@Override
 	public boolean getStoppedSafely() throws InvalidSensorException {
-		return MathUtil.isZero(getRateSafely());
+		return Util.isZero(getRateSafely());
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
-import org.usfirst.frc4904.standard.util.MathUtil;
+import org.usfirst.frc4904.standard.util.Util;
 import org.usfirst.frc4904.standard.commands.WaitWhileCommand;
 
 import java.util.Comparator;
@@ -173,15 +173,15 @@ public class VisionSubsystem extends SubsystemBase {
         double ySpeed = positionController.calculate(0, desiredOffset.getY());
         double rotSpeed = rotationController.calculate(0, desiredOffset.getRotation().getRadians());
 
-        xSpeed = MathUtil.clamp(xSpeed, -MAX_LINEAR_SPEED, MAX_LINEAR_SPEED);
-        ySpeed = MathUtil.clamp(ySpeed, -MAX_LINEAR_SPEED, MAX_LINEAR_SPEED);
+        xSpeed = Util.clamp(xSpeed, -MAX_LINEAR_SPEED, MAX_LINEAR_SPEED);
+        ySpeed = Util.clamp(ySpeed, -MAX_LINEAR_SPEED, MAX_LINEAR_SPEED);
         rotSpeed = 0; // Util.clamp(rotSpeed, -MAX_ROT_SPEED, MAX_ROT_SPEED); TODO put back rotation?
 
         // command swerve drive
         Component.chassis.driveRobotRelative(xSpeed, ySpeed, rotSpeed);
 
         lastTime = currentTime;
-        lastSpeed = MathUtil.transform(xSpeed, ySpeed, rotSpeed);
+        lastSpeed = Util.transform(xSpeed, ySpeed, rotSpeed);
 
         // log positioning data
         System.out.printf(

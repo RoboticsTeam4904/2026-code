@@ -3,7 +3,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.standard.util.Perlin2D;
-import org.usfirst.frc4904.standard.util.MathUtil;
+import org.usfirst.frc4904.standard.util.Util;
 
 public class LightSubsystem extends SubsystemBase {
 
@@ -93,7 +93,7 @@ public class LightSubsystem extends SubsystemBase {
         int length = colors.length;
 
         for (int i = 0; i < length; i++) {
-            float strength = MathUtil.clamp(progress * length - i, 0, 1);
+            float strength = Util.clamp(progress * length - i, 0, 1);
             if (strength > 0) {
                 colors[i][0] = color[0] / 255f;
                 colors[i][1] = color[1] / 255f;
@@ -115,9 +115,9 @@ public class LightSubsystem extends SubsystemBase {
             float strength = (float) Math.pow(noise, 2.5) * 1.3f + height - 0.55f;
 
             float r = 1;
-            float g = MathUtil.clamp(strength * 2 - 0.5f, 0, 1);
-            float b = MathUtil.clamp(strength * 4 - 3, 0, 1);
-            float a = MathUtil.clamp(strength * 4, 0, 1);
+            float g = Util.clamp(strength * 2 - 0.5f, 0, 1);
+            float b = Util.clamp(strength * 4 - 3, 0, 1);
+            float a = Util.clamp(strength * 4, 0, 1);
 
 
             //TODO: make "blue" and "!blue depending on alliance colour"

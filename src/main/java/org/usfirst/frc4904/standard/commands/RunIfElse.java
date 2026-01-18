@@ -3,7 +3,7 @@ package org.usfirst.frc4904.standard.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import org.usfirst.frc4904.standard.util.CmdUtil;
-import org.usfirst.frc4904.standard.util.MathUtil;
+import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.function.BooleanSupplier;
 
@@ -21,7 +21,7 @@ public class RunIfElse extends ConditionalCommand {
         super(
             CmdUtil.nonNull(onTrue),
             CmdUtil.nonNull(onFalse),
-            MathUtil.all(conditions)
+            Util.all(conditions)
         );
     }
 }

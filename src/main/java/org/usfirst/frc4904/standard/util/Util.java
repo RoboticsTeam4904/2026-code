@@ -10,9 +10,9 @@ import java.util.function.BooleanSupplier;
 /**
  * Common utilities
  */
-public final class MathUtil {
+public final class Util {
 
-    private MathUtil() {
+    private Util() {
         throw new UnsupportedOperationException("Cannot instantiate utility class.");
     }
 
