@@ -3,6 +3,7 @@ package org.usfirst.frc4904.robot.swerve;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,8 +18,8 @@ public class SwerveModule implements Sendable {
     private final DriveController drive;
     private final RotationController rotation;
 
-    private double magnitude = 0;
-    private double theta = 0;
+    private double magnitude;
+    private double theta;
 
     public SwerveModule(
         String name,
@@ -43,15 +44,24 @@ public class SwerveModule implements Sendable {
         rotation.zero();
     }
 
+    void setMotorBrake(boolean brake) {
+        if (brake) {
+            drive.motor().setBrakeOnNeutral();
+            rotation.motor.setBrakeOnNeutral();
+        } else {
+            drive.motor().setCoastOnNeutral();
+            rotation.motor.setCoastOnNeutral();
+        }
+    }
+
     void moveTo(double magnitude, double theta) {
         this.magnitude = magnitude;
         if (magnitude > 0) this.theta = theta;
     }
 
     void periodic() {
-        // TODO run this faster than 50hz - run pid on motor
-        boolean flip = rotation.rotateToward(theta);
-        if (drive != null) drive.setMagnitude(flip ? -magnitude : magnitude);
+        double angleDist = rotation.rotateToward(theta);
+        if (drive != null) drive.setMagnitude(magnitude * angleDist);
     }
 
     /// SMART DASHBOARD
@@ -80,7 +90,7 @@ record DriveController(SmartMotorController motor) {
 }
 
 class RotationController {
-    private static final double kP = 10, kI = 0, kD = 0;
+    private static final double kP = 15, kI = 0, kD = 0;
 
     private static final double MAX_VOLTAGE = 4;
 
@@ -102,7 +112,7 @@ class RotationController {
 
         this.direction = direction.div(direction.getNorm());
 
-        this.pid = new PIDController(kP * 1.5, kI, kD);
+        this.pid = new PIDController(kP, kI, kD);
         // encoder readings are from 0-1 but opposite angles are equivalent
         // since we can just run the wheels backwards
         this.pid.enableContinuousInput(0, 0.5);
@@ -125,15 +135,14 @@ class RotationController {
     }
 
     /**
-     * @return True if the wheel is currently more than halfway off the target
-     *         and therefore should drive in the opposite direction.
+     * @return Similarity between current and target rotation.
+     *         Effectively a dot product: 1 = same angle, -1 = opposite, 0 = perpendicular.
      */
-    public boolean rotateToward(double theta) {
+    public double rotateToward(double theta) {
         double current = getRotation();
         double voltage = -pid.calculate(current, theta);
         setVoltage(Util.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE));
 
-        double dist = Math.abs(theta - current);
-        return dist > 0.25 && dist < 0.75;
+        return Math.cos(Units.rotationsToRadians(theta - current));
     }
 }
