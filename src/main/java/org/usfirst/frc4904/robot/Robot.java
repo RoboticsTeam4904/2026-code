@@ -6,16 +6,15 @@
 /*----------------------------------------------------------------------------*/
 package org.usfirst.frc4904.robot;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
-import org.usfirst.frc4904.robot.humaninterface.operators.AnnaOperator;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.CmdUtil;
+import org.usfirst.frc4904.standard.util.Logging;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -112,13 +111,9 @@ public class Robot extends CommandRobotBase {
     @Override
     public void testExit() { }
 
-    double lastLogTime;
-
     @Override
     public void alwaysExecute() {
-        double now = Timer.getFPGATimestamp();
-        if (now - lastLogTime >= 1) {
-            lastLogTime = now;
+        if (Logging.cooldown("Robot.alwaysExecute", 1)) {
             List<Tag> tags = Component.vision.gtm.getTags();
             if (!tags.isEmpty()) System.out.println("WE FOUND A TAG: " + tags);
         }
