@@ -1,9 +1,12 @@
 package org.usfirst.frc4904.standard;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.usfirst.frc4904.robot.RobotMap;
+import org.usfirst.frc4904.robot.RobotMap.HumanInput;
 import org.usfirst.frc4904.standard.custom.CommandSendableChooser;
 import org.usfirst.frc4904.standard.custom.NamedSendableChooser;
 import org.usfirst.frc4904.standard.humaninput.Driver;
@@ -18,78 +21,87 @@ import org.usfirst.frc4904.standard.util.CmdUtil;
 public abstract class CommandRobotBase extends TimedRobot {
 
 	private Command autonCommand;
-	protected CommandSendableChooser autoChooser;
-	protected NamedSendableChooser<Driver> driverChooser;
-	protected NamedSendableChooser<Operator> operatorChooser;
+	private Driver driver;
+	private Operator operator;
 
-	/**
-	 * This displays our choosers. The default choosers are for autonomous type,
-	 * driver control, sand operator control.
-	 */
-	protected final void displayChoosers() {
-		SmartDashboard.putData("Auton Routine Selector", autoChooser);
-		SmartDashboard.putData("Driver control scheme chooser", driverChooser);
-		SmartDashboard.putData("Operator control scheme chooser", operatorChooser);
+	protected CommandSendableChooser autonChooser;
+	protected SendableChooser<Driver> driverChooser;
+	protected SendableChooser<Operator> operatorChooser;
+
+	private void displayChoosers() {
+		SmartDashboard.putData("chooser/auton", autonChooser);
+		SmartDashboard.putData("chooser/driver", driverChooser);
+		SmartDashboard.putData("chooser/operator", operatorChooser);
 	}
 
-	// HACK FIXME, incredibly cursed and potentially bad
-	public static Driver driverConfig = new Driver("uhohhh") {
-		@Override
-		public double getX() {
-			for (int i = 0; i < 100; i++) System.err.println("DRIVER NOT CONFIGED");
-			return 0;
-		}
+	private void clearBindings() {
+		// TODO does not clear xbox bindings
+		//      this is not really doable since CommandXboxController has a lot of methods
+		//      that would all have to be overridden to use a custom EventLoop
 
-		@Override
-		public double getY() {
-			return 0;
-		}
+		if (driver != null) driver.unbindCommands();
+		if (operator != null) operator.unbindCommands();
 
-		@Override
-		public double getTurnSpeed() {
-			return 0;
-		}
+		HumanInput.Driver.xyJoystick.clearBindings();
+		HumanInput.Driver.turnJoystick.clearBindings();
 
-		@Override
-		public void bindCommands() {}
-	};
+		HumanInput.Operator.joystick.clearBindings();
+	}
 
-	/**
-	 * This initializes the entire robot. It is called by WPILib on robot code
-	 * launch. Year-specific code should be written in the initialize function.
-	 */
-	@Override
-	public final void robotInit() {
-		// Initialize choosers
-		autoChooser = new CommandSendableChooser();
-		driverChooser = new NamedSendableChooser<>();
-		operatorChooser = new NamedSendableChooser<>();
-		// Run user-provided initialize function
-		initialize();
-		// Display choosers on SmartDashboard
-		displayChoosers();
+	private void updateHumanInput(Driver driver) {
+		updateHumanInput(driver, operator);
+	}
+
+	private void updateHumanInput(Operator operator) {
+		updateHumanInput(driver, operator);
+	}
+
+	private void updateHumanInput(Driver driver, Operator operator) {
+		clearBindings();
+
+		this.driver = driver;
+		this.operator = operator;
+
+		if (driver != null) driver.bindCommands();
+		if (operator != null) operator.bindCommands();
 	}
 
 	// The following methods are 'final' to prevent accidentally overriding robot
 	// functionality when implementing year specific code. Instead, use the methods
 	// linked in the Javadoc for each method below.
 
-	/** Use {@link #teleopInitialize()} instead. */
+	/** Use {@link #initialize()} for year-specific code. */
+	@Override
+	public final void robotInit() {
+		RobotMap.initialize();
+
+		autonChooser = new CommandSendableChooser();
+		driverChooser = new NamedSendableChooser<>();
+		operatorChooser = new NamedSendableChooser<>();
+
+		initialize();
+		displayChoosers();
+
+		updateHumanInput(driverChooser.getSelected(), operatorChooser.getSelected());
+
+		driverChooser.onChange(this::updateHumanInput);
+		operatorChooser.onChange(this::updateHumanInput);
+
+		if (driver == null) {
+			System.err.println("No default driver was set. Make sure to run driverChooser.setDefaultOption() in Robot.initialize()");
+		}
+		if (operator == null) {
+			System.err.println("No default operator was set. Make sure to run operatorChooser.setDefaultOption() in Robot.initialize()");
+		}
+	}
+
+	/** Use {@link #teleopInitialize()} for year-specific code. */
 	@Override
 	public final void teleopInit() {
-		if (driverChooser.getSelected() != null) {
-			// LogKitten.d("Loading driver " + driverChooser.getSelected().getName());
-			CommandRobotBase.driverConfig = driverChooser.getSelected();
-			driverChooser.getSelected().bindCommands();
-		}
-		if (operatorChooser.getSelected() != null) {
-			// LogKitten.d("Loading operator " + operatorChooser.getSelected().getName());
-			operatorChooser.getSelected().bindCommands();
-		}
 		teleopInitialize();
 	}
 
-	/** Use {@link #teleopExecute()} instead. */
+	/** Use {@link #teleopExecute()} for year-specific code. */
 	@Override
 	public final void teleopPeriodic() {
 		CommandScheduler.getInstance().run();
@@ -97,16 +109,16 @@ public abstract class CommandRobotBase extends TimedRobot {
 		alwaysExecute();
 	}
 
-	/** Use {@link #teleopCleanup()} instead. */
+	/** Use {@link #teleopCleanup()} for year-specific code. */
 	@Override
 	public final void teleopExit() {
 		teleopCleanup();
 	}
 
-	/** Use {@link #autonomousInitialize()} instead. */
+	/** Use {@link #autonomousInitialize()} for year-specific code. */
 	@Override
 	public final void autonomousInit() {
-		autonCommand = autoChooser.getSelected();
+		autonCommand = autonChooser.getSelected();
 		if (autonCommand != null) {
 			CmdUtil.schedule(autonCommand);
 		}
@@ -114,7 +126,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 		autonomousInitialize();
 	}
 
-	/** Use {@link #autonomousExecute()} instead. */
+	/** Use {@link #autonomousExecute()} for year-specific code. */
 	@Override
 	public final void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
@@ -122,7 +134,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 		alwaysExecute();
 	}
 
-	/** Use {@link #autonomousCleanup()} instead. */
+	/** Use {@link #autonomousCleanup()} for year-specific code. */
 	@Override
 	public final void autonomousExit() {
 		if (autonCommand != null) {
@@ -132,13 +144,13 @@ public abstract class CommandRobotBase extends TimedRobot {
 		autonomousCleanup();
 	}
 
-	/** Use {@link #disabledInitialize()} instead. */
+	/** Use {@link #disabledInitialize()} for year-specific code. */
 	@Override
 	public final void disabledInit() {
 		disabledInitialize();
 	}
 
-	/** Use {@link #disabledExecute()} instead. */
+	/** Use {@link #disabledExecute()} for year-specific code. */
 	@Override
 	public final void disabledPeriodic() {
 		CommandScheduler.getInstance().run();
@@ -146,19 +158,19 @@ public abstract class CommandRobotBase extends TimedRobot {
 		alwaysExecute();
 	}
 
-	/** Use {@link #disabledCleanup()} instead. */
+	/** Use {@link #disabledCleanup()} for year-specific code. */
 	@Override
 	public final void disabledExit() {
 		disabledCleanup();
 	}
 
-	/** Use {@link #testInitialize()} instead. */
+	/** Use {@link #testInitialize()} for year-specific code. */
 	@Override
 	public final void testInit() {
 		testInitialize();
 	}
 
-	/** Use {@link #testExecute()} instead. */
+	/** Use {@link #testExecute()} for year-specific code. */
 	@Override
 	public final void testPeriodic() {
 		CommandScheduler.getInstance().run();
@@ -166,14 +178,17 @@ public abstract class CommandRobotBase extends TimedRobot {
 		alwaysExecute();
 	}
 
-	/** Use {@link #testCleanup()} instead. */
+	/** Use {@link #testCleanup()} for year-specific code. */
 	@Override
 	public final void testExit() {
 		testCleanup();
 	}
 
 
-	/** Function for year-specific code to be run on robot code launch. */
+	/**
+	 * Function for year-specific code to be run on robot code launch.
+	 * Driver/operator/auton chooser options should be added here.
+	 */
 	public abstract void initialize();
 
 	/** Function for year-specific code to be run in every robot mode. */

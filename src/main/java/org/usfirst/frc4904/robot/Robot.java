@@ -21,17 +21,13 @@ import java.util.List;
 
 public class Robot extends CommandRobotBase {
 
-    private final SwerveGain driver = new SwerveGain();
-    private final DefaultOperator operator = new DefaultOperator();
-    private final RobotMap map = new RobotMap(); // TODO move init code to static method and put in initialize()
-
     @Override
     public void initialize() {
         SmartDashboard.putData("scheduler", CommandScheduler.getInstance());
 
-        autoChooser.setDefaultOption("none", new NoOp());
-        autoChooser.addOption("straight", Auton.c_straight());
-        autoChooser.addOption("reverse", Auton.c_jankReverse());
+        autonChooser.setDefaultOption("none", new NoOp());
+        autonChooser.addOption("straight", Auton.c_straight());
+        autonChooser.addOption("reverse", Auton.c_jankReverse());
 
         driverChooser.setDefaultOption("swerve", new SwerveGain());
 
@@ -41,15 +37,6 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void teleopInitialize() {
-        // TODO move to initialize() and check that that doesnt cause any problems
-        driver.bindCommands();
-        operator.bindCommands();
-
-        Component.chassis.setDefaultCommand(
-            Component.chassis.c_input(driver::getTranslation, driver::getTurnSpeed)
-        );
-        // END TODO ^
-
         // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
     }
 

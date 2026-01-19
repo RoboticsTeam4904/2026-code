@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.standard.humaninput;
 
+import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.standard.custom.Nameable;
 
 /**
@@ -21,7 +22,19 @@ public abstract class HumanInput implements Nameable {
 
     /**
      * A function where the driver's and operator's controls are bound to commands
-     * Can't be done in the constructor because constructors are called too early
+     *
+     * @implNote Can't be done in the constructor because constructors are called too early
      */
     public abstract void bindCommands();
+
+    /**
+     * Can be optionally overridden to unbind commands that were bound in bindCommands().
+     * You should do this for any commands that were <em>not</em> bound to one of the following:
+     * <ul>
+     *   <li> {@link RobotMap.HumanInput.Driver#xyJoystick}
+     *   <li> {@link RobotMap.HumanInput.Driver#turnJoystick}
+     *   <li> {@link RobotMap.HumanInput.Operator#joystick}
+     * </ul>
+     */
+    public void unbindCommands() {}
 }

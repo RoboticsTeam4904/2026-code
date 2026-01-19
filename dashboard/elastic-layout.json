@@ -28,40 +28,40 @@
         "layouts": [],
         "containers": [
           {
-            "title": "Auton Routine Selector",
-            "x": 384.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Auton Routine Selector",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "Driver control scheme chooser",
+            "title": "Driver control scheme",
             "x": 0.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/Driver control scheme chooser",
+              "topic": "/SmartDashboard/chooser/driver",
               "period": 0.06,
               "sort_options": false
             }
           },
           {
-            "title": "Operator control scheme chooser",
+            "title": "Operator control scheme",
             "x": 0.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/Operator control scheme chooser",
+              "topic": "/SmartDashboard/chooser/operator",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Auton routine",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/chooser/auton",
               "period": 0.06,
               "sort_options": false
             }
@@ -95,7 +95,7 @@
                   "topic": "/SmartDashboard/swerve/Front Left/zero",
                   "period": 1.0,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -109,7 +109,7 @@
                   "topic": "/SmartDashboard/swerve/Front Right/zero",
                   "period": 1.0,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -123,7 +123,7 @@
                   "topic": "/SmartDashboard/swerve/Back Left/zero",
                   "period": 1.0,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               },
               {
@@ -137,7 +137,7 @@
                   "topic": "/SmartDashboard/swerve/Back Right/zero",
                   "period": 1.0,
                   "data_type": "double",
-                  "show_submit_button": false
+                  "show_submit_button": true
                 }
               }
             ]

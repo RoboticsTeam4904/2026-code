@@ -75,7 +75,15 @@ public class RobotMap {
         }
     }
 
-    public RobotMap() {
+    private static boolean initialized = false;
+
+    public static void initialize() {
+        if (initialized) {
+            System.err.println("Robot already initialized");
+            return;
+        }
+        initialized = true;
+
         Component.navx = new AHRS(NavXComType.kMXP_SPI);
 
         Component.chassis = new SwerveSubsystem(
