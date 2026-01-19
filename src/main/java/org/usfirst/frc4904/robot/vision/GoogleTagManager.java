@@ -25,10 +25,11 @@ public class GoogleTagManager {
     }
 
     public List<Tag> getTags() {
-        HttpRequest request = HttpRequest.newBuilder()
-                                         .uri(URI.create("http://10.49.4.203:8000/api/tags"))
-                                         .GET()
-                                         .build();
+        HttpRequest request =
+            HttpRequest.newBuilder()
+                .uri(URI.create("http://10.49.4.203:8000/api/tags"))
+                .GET()
+                .build();
 
         List<Tag> tags = new ArrayList<>();
 
