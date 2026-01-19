@@ -18,8 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public abstract class CommandRobotBase extends TimedRobot {
 
-	protected Command autonomousCommand;
-	protected Command teleopCommand;
+	private Command autonCommand;
 	protected CommandSendableChooser autoChooser;
 	protected NamedSendableChooser<Driver> driverChooser;
 	protected NamedSendableChooser<Operator> operatorChooser;
@@ -69,7 +68,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 		@Override
 		public void bindCommands() {}
 	};
-	
+
 	/**
 	 * This initializes the entire robot. It is called by WPILib on robot code
 	 * launch. Year-specific code should be written in the initialize function.
@@ -86,20 +85,13 @@ public abstract class CommandRobotBase extends TimedRobot {
 		displayChoosers();
 	}
 
-	/**
-	 * Function for year-specific code to be run on robot code launch.
-	 * setHealthChecks should be called here if needed.
-	 */
-	public abstract void initialize();
+	// The following methods are 'final' to prevent accidentally overriding robot
+	// functionality when implementing year specific code. Instead, use the methods
+	// linked in the Javadoc for each method below.
 
-	/**
-	 * This initializes the teleoperated portion of the robot code. It is called by
-	 * WPILib on teleop enable. Year-specific code should be written in the
-	 * teleopInitialize() function.
-	 */
+	/** Use {@link #teleopInitialize()} instead. */
 	@Override
 	public final void teleopInit() {
-		cleanup();
 		if (driverChooser.getSelected() != null) {
 			// LogKitten.d("Loading driver " + driverChooser.getSelected().getName());
 			CommandRobotBase.driverConfig = driverChooser.getSelected();
@@ -110,21 +102,9 @@ public abstract class CommandRobotBase extends TimedRobot {
 			operatorChooser.getSelected().bindCommands();
 		}
 		teleopInitialize();
-		if (teleopCommand != null) {
-			CmdUtil.schedule(teleopCommand);
-		}
 	}
 
-	/**
-	 * Function for year-specific code to be run on teleoperated initialize.
-	 * teleopCommand should be set in this function.
-	 */
-	public abstract void teleopInitialize();
-
-	/**
-	 * This function is called by WPILib periodically during teleop. Year-specific
-	 * code should be written in the teleopExecute() function.
-	 */
+	/** Use {@link #teleopExecute()} instead. */
 	@Override
 	public final void teleopPeriodic() {
 		CommandScheduler.getInstance().run();
@@ -132,35 +112,24 @@ public abstract class CommandRobotBase extends TimedRobot {
 		alwaysExecute();
 	}
 
-	/**
-	 * Function for year-specific code to be run during teleoperated time.
-	 */
-	public abstract void teleopExecute();
+	/** Use {@link #teleopCleanup()} instead. */
+	@Override
+	public final void teleopExit() {
+		teleopCleanup();
+	}
 
-	/**
-	 * This initializes the autonomous portion of the robot code. It is called by
-	 * WPILib on auton enable. Year-specific code should be written in the
-	 * autonomousInitialize() function.
-	 */
+	/** Use {@link #autonomousInitialize()} instead. */
 	@Override
 	public final void autonomousInit() {
-		cleanup();
-		autonomousCommand = autoChooser.getSelected();
-		if (autonomousCommand != null) {
-			CmdUtil.schedule(autonomousCommand);
+		autonCommand = autoChooser.getSelected();
+		if (autonCommand != null) {
+			CmdUtil.schedule(autonCommand);
 		}
+
 		autonomousInitialize();
 	}
 
-	/**
-	 * Function for year-specific code to be run on autonomous initialize.
-	 */
-	public abstract void autonomousInitialize();
-
-	/**
-	 * This function is called by WPILib periodically during auton. Year-specific
-	 * code should be written in the autonomousExecute() function.
-	 */
+	/** Use {@link #autonomousExecute()} instead. */
 	@Override
 	public final void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
@@ -168,30 +137,23 @@ public abstract class CommandRobotBase extends TimedRobot {
 		alwaysExecute();
 	}
 
-	/**
-	 * Function for year-specific code to be run during autonomous.
-	 */
-	public abstract void autonomousExecute();
+	/** Use {@link #autonomousCleanup()} instead. */
+	@Override
+	public final void autonomousExit() {
+		if (autonCommand != null) {
+			autonCommand.cancel();
+		}
 
-	/**
-	 * This function is called by WPILib when the robot is disabled. Year-specific
-	 * code should be written in the disabledInitialize() function.
-	 */
+		autonomousCleanup();
+	}
+
+	/** Use {@link #disabledInitialize()} instead. */
 	@Override
 	public final void disabledInit() {
-		cleanup();
 		disabledInitialize();
 	}
 
-	/**
-	 * Function for year-specific code to be run on disabled initialize.
-	 */
-	public abstract void disabledInitialize();
-
-	/**
-	 * This function is called by WPILib periodically while disabled. Year-specific
-	 * code should be written in the disabledExecute() function.
-	 */
+	/** Use {@link #disabledExecute()} instead. */
 	@Override
 	public final void disabledPeriodic() {
 		CommandScheduler.getInstance().run();
@@ -199,44 +161,77 @@ public abstract class CommandRobotBase extends TimedRobot {
 		alwaysExecute();
 	}
 
-	/**
-	 * Function for year-specific code to be run while disabled.
-	 */
-	public abstract void disabledExecute();
+	/** Use {@link #disabledCleanup()} instead. */
+	@Override
+	public final void disabledExit() {
+		disabledCleanup();
+	}
 
-	/**
-	 * This function is called by WPILib when the robot is in test mode.
-	 * Year-specific-code should be written in the disabledInitialize() function.
-	 */
+	/** Use {@link #testInitialize()} instead. */
 	@Override
 	public final void testInit() {
-		cleanup();
 		testInitialize();
 	}
 
-	/**
-	 * Function for year-specific code to be run on disabled initialize.
-	 */
-	public abstract void testInitialize();
-
-	/**
-	 * This function is called by WPILib periodically while in test mode.
-	 * Year-specific code should be written in the testExecute() function.
-	 */
+	/** Use {@link #testExecute()} instead. */
 	@Override
-	public void testPeriodic() {
+	public final void testPeriodic() {
 		CommandScheduler.getInstance().run();
 		testExecute();
 		alwaysExecute();
 	}
 
-	/**
-	 * Function for year-specific code to be run while in test mode.
-	 */
+	/** Use {@link #testCleanup()} instead. */
+	@Override
+	public final void testExit() {
+		testCleanup();
+	}
+
+
+	/** Function for year-specific code to be run on robot code launch. */
+	public abstract void initialize();
+
+	/** Function for year-specific code to be run in every robot mode. */
+	public abstract void alwaysExecute();
+
+
+	/** Function for year-specific code to be run on teleoperated initialize. */
+	public abstract void teleopInitialize();
+
+	/** Function for year-specific code to be run during teleoperated time. */
+	public abstract void teleopExecute();
+
+	/** Function for year-specific code to be run when teleoperated mode ends. */
+	public abstract void teleopCleanup();
+
+
+	/** Function for year-specific code to be run on autonomous initialize. */
+	public abstract void autonomousInitialize();
+
+	/** Function for year-specific code to be run during autonomous. */
+	public abstract void autonomousExecute();
+
+	/** Function for year-specific code to be run when autonomous mode ends. */
+	public abstract void autonomousCleanup();
+
+
+	/** Function for year-specific code to be run on disabled initialize. */
+	public abstract void disabledInitialize();
+
+	/** Function for year-specific code to be run while disabled. */
+	public abstract void disabledExecute();
+
+	/** Function for year-specific code to be run when disabled mode ends. */
+	public abstract void disabledCleanup();
+
+
+	/** Function for year-specific code to be run on disabled initialize. */
+	public abstract void testInitialize();
+
+	/** Function for year-specific code to be run while in test mode. */
 	public abstract void testExecute();
 
-	/**
-	 * Function for year-specific code to be run in every robot mode.
-	 */
-	public abstract void alwaysExecute();
+	/** Function for year-specific code to be run when test mode ends. */
+	public abstract void testCleanup();
+
 }

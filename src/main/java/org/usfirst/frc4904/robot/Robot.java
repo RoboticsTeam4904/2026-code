@@ -62,7 +62,7 @@ public class Robot extends CommandRobotBase {
     public void teleopExecute() { }
 
     @Override
-    public void teleopExit() { }
+    public void teleopCleanup() { }
 
     @Override
     public void autonomousInitialize() {
@@ -86,7 +86,7 @@ public class Robot extends CommandRobotBase {
     public void autonomousExecute() { }
 
     @Override
-    public void autonomousExit() { }
+    public void autonomousCleanup() { }
 
     @Override
     public void disabledInitialize() {
@@ -100,7 +100,7 @@ public class Robot extends CommandRobotBase {
     public void disabledExecute() { }
 
     @Override
-    public void disabledExit() { }
+    public void disabledCleanup() { }
 
     @Override
     public void testInitialize() { }
@@ -109,7 +109,7 @@ public class Robot extends CommandRobotBase {
     public void testExecute() { }
 
     @Override
-    public void testExit() { }
+    public void testCleanup() { }
 
     @Override
     public void alwaysExecute() {
