@@ -69,23 +69,26 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
         }
 
         @Override
-        public void setPID(double p, double i, double d) {
+        public SmartMotorConfigSlot setPID(double p, double i, double d) {
             config.closedLoop.pid(p, i, d, slot);
             configure(config);
+            return this;
         }
 
         @Override
-        public void setElevFF(double kS, double kG, double kV, double kA) {
+        public SmartMotorConfigSlot setElevFF(double kS, double kG, double kV, double kA) {
             config.closedLoop.feedForward.kCos(0, slot);
             config.closedLoop.feedForward.svag(kS, kV, kA, kG, slot);
             configure(config);
+            return this;
         }
 
         @Override
-        public void setArmFF(double kS, double kG, double kV, double kA, double kCosRatio) {
+        public SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA, double kCosRatio) {
             config.closedLoop.feedForward.kG(0, slot);
             config.closedLoop.feedForward.svacr(kS, kV, kA, kG, kCosRatio, slot);
             configure(config);
+            return this;
         }
 
         @Override

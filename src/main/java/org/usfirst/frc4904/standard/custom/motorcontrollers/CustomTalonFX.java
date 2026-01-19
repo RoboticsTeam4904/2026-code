@@ -78,34 +78,37 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
         }
 
         @Override
-        public void setPID(double p, double i, double d) {
+        public SmartMotorConfigSlot setPID(double p, double i, double d) {
             config.kP = p;
             config.kI = i;
             config.kD = d;
             getConfigurator().apply(config);
+            return this;
         }
 
         @Override
-        public void setElevFF(double kS, double kG, double kV, double kA) {
+        public SmartMotorConfigSlot setElevFF(double kS, double kG, double kV, double kA) {
             config.kS = kS;
             config.kG = kG;
             config.kV = kV;
             config.kA = kA;
             config.GravityType = GravityTypeValue.Elevator_Static;
             getConfigurator().apply(config);
+            return this;
         }
 
         @Override
-        public void setArmFF(double kS, double kG, double kV, double kA, double kCosRatio) {
+        public SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA, double kCosRatio) {
+            if (kCosRatio != 0) {
+                throw new IllegalArgumentException("CustomTalonFX.configSlot(N).setArmFF() does not support kCosRatio. Call this method without the kCosRatio parameter disable this error, and use a different method of setting the ratio. Good luck");
+            }
             config.kS = kS;
             config.kG = kG;
             config.kV = kV;
             config.kA = kA;
             config.GravityType = GravityTypeValue.Arm_Cosine;
-            if (kCosRatio != 0) {
-                throw new IllegalArgumentException("CustomTalonFX.configSlot(N).setArmFF() does not support kCosRatio. Call this method without the kCosRatio parameter disable this error, and use a different method of setting the ratio. Good luck");
-            }
             getConfigurator().apply(config);
+            return this;
         }
 
         @Override

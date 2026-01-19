@@ -26,20 +26,20 @@ public interface SmartMotorController extends MotorController {
 
 	interface SmartMotorConfigSlot {
 
-		void setPID(double p, double i, double d);
+		SmartMotorConfigSlot setPID(double p, double i, double d);
 
 		/**
 		 * For static gravity gain.
 		 * @see ElevatorFeedforward#ElevatorFeedforward(double, double, double, double)
 		 */
-		void setElevFF(double kS, double kG, double kV, double kA);
+		SmartMotorConfigSlot setElevFF(double kS, double kG, double kV, double kA);
 		/**
 		 * For gravity gain depending on the rotation of the mechanism.
 		 * @param kG Gravity constant that will be multiplied by cos(mechanismRotation).
 		 * @see ArmFeedforward#ArmFeedforward(double, double, double, double)
 		 */
-		default void setArmFF(double kS, double kG, double kV, double kA) {
-			setArmFF(kS, kG, kV, kA, 0);
+		default SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA) {
+			return setArmFF(kS, kG, kV, kA, 0);
 		}
 		/**
 		 * For gravity gain depending on the rotation of the mechanism.
@@ -48,7 +48,7 @@ public interface SmartMotorController extends MotorController {
 		 *                  Only supported by some motor controllers - will throw {@code IllegalArgumentException} if not supported and set to something other than 0.
 		 * @see ArmFeedforward#ArmFeedforward(double, double, double, double)
 		 */
-		void setArmFF(double kS, double kG, double kV, double kA, double kCosRatio);
+		SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA, double kCosRatio);
 
 		/**
 		 * Holds a position using this slot's configured PID and {@code kG}.
