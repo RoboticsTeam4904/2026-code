@@ -2,6 +2,10 @@ package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
@@ -25,11 +29,13 @@ class SwerveConstants {
     public static final double ROT_SPEED = LIN_SPEED / (Math.PI * ROBOT_DIAGONAL);
 }
 
-public class SwerveSubsystem extends SubsystemBase {
+public class SwerveSubsystem extends SubsystemBase implements Sendable {
     private final SwerveModule[] modules;
 
     public SwerveSubsystem(SwerveModule... modules) {
         this.modules = modules;
+
+        SmartDashboard.putData("swerve/goal", this);
     }
 
     /**
@@ -181,5 +187,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command getAutonomousCommand(String path, Boolean setOdom, Boolean flipSide) {
         return new NoOp();
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+        for (var module : modules) {
+            module.addSendableProps(builder);
+        }
+        builder.addDoubleProperty("Robot Angle", () -> Units.degreesToRotations(Component.navx.getYaw()), null);
     }
 }

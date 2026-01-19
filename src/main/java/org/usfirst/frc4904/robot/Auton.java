@@ -1,28 +1,15 @@
 package org.usfirst.frc4904.robot;
 
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
-import org.usfirst.frc4904.robot.vision.VisionSubsystem.TagGroup;
 
 public class Auton {
 
     public static boolean getFlipSide() {
         return Robot.AutonConfig.FLIP_SIDE;
     }
-
-    // public static Command c_jank() {
-    //     return new ParallelDeadlineGroup(
-    //         new WaitCommand(1),
-    //         new InstantCommand(() -> RobotMap.Component.chassis.drive(
-    //             ChassisSpeeds.fromRobotRelativeSpeeds(
-    //                 1.0,
-    //                 0.0,
-    //                 0.0,
-    //                 Rotation2d.kZero
-    //             )
-    //         ))
-    //     );
-    // }
 
     /**
      * Move straight out of the starting zone and do nothing.

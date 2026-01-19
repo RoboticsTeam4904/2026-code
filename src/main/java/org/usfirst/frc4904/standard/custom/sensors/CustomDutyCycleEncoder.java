@@ -19,8 +19,16 @@ public class CustomDutyCycleEncoder extends DutyCycleEncoder {
     }
 
     public void reset() {
-        resetOffset = super.get();
-        Preferences.setDouble(key, resetOffset);
+        setResetOffset(super.get());
+    }
+
+    public void setResetOffset(double offset) {
+        resetOffset = offset;
+        Preferences.setDouble(key, offset);
+    }
+
+    public double getResetOffset() {
+        return resetOffset;
     }
 
     @Override

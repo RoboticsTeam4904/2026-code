@@ -3,27 +3,14 @@
   "grid_size": 128,
   "tabs": [
     {
-      "name": "Teleoperated",
+      "name": "Drive",
       "grid_layout": {
         "layouts": [],
         "containers": [
           {
-            "title": "Auton Routine Selector",
-            "x": 1152.0,
-            "y": 640.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Auton Routine Selector",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
             "title": "FMSInfo",
-            "x": 768.0,
-            "y": 640.0,
+            "x": 896.0,
+            "y": 512.0,
             "width": 384.0,
             "height": 128.0,
             "type": "FMSInfo",
@@ -36,10 +23,50 @@
       }
     },
     {
-      "name": "Autonomous",
+      "name": "Setup",
       "grid_layout": {
         "layouts": [],
-        "containers": []
+        "containers": [
+          {
+            "title": "Auton Routine Selector",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auton Routine Selector",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Driver control scheme chooser",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Driver control scheme chooser",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Operator control scheme chooser",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Operator control scheme chooser",
+              "period": 0.06,
+              "sort_options": false
+            }
+          }
+        ]
       }
     },
     {
@@ -47,76 +74,232 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Encoder Zeros",
-            "x": 0.0,
+            "title": "Swerve Zeros",
+            "x": 1024.0,
             "y": 0.0,
             "width": 256.0,
-            "height": 384.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
-              "label_position": "TOP"
+              "label_position": "LEFT"
             },
             "children": [
               {
-                "title": "0",
+                "title": "FL",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Preferences/zeros/0",
-                  "period": 0.06,
+                  "topic": "/SmartDashboard/swerve/Front Left/zero",
+                  "period": 1.0,
                   "data_type": "double",
-                  "show_submit_button": true
+                  "show_submit_button": false
                 }
               },
               {
-                "title": "1",
+                "title": "FR",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Preferences/zeros/1",
-                  "period": 0.06,
+                  "topic": "/SmartDashboard/swerve/Front Right/zero",
+                  "period": 1.0,
                   "data_type": "double",
-                  "show_submit_button": true
+                  "show_submit_button": false
                 }
               },
               {
-                "title": "2",
+                "title": "BL",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Preferences/zeros/2",
-                  "period": 0.06,
+                  "topic": "/SmartDashboard/swerve/Back Left/zero",
+                  "period": 1.0,
                   "data_type": "double",
-                  "show_submit_button": true
+                  "show_submit_button": false
                 }
               },
               {
-                "title": "3",
+                "title": "BR",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Preferences/zeros/3",
+                  "topic": "/SmartDashboard/swerve/Back Right/zero",
+                  "period": 1.0,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "Swerve ∆angles",
+            "x": 1024.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "FL",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/swerve/Front Left/delta",
                   "period": 0.06,
                   "data_type": "double",
-                  "show_submit_button": true
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "FR",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/swerve/Front Right/delta",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "BL",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/swerve/Back Left/delta",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "BR",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/swerve/Back Right/delta",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           }
         ],
-        "containers": []
+        "containers": [
+          {
+            "title": "Swerve (goal)",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "SwerveDrive",
+            "properties": {
+              "topic": "/SmartDashboard/swerve/goal",
+              "period": 0.04,
+              "show_robot_rotation": true,
+              "rotation_unit": "Rotations"
+            }
+          },
+          {
+            "title": "BL",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/swerve/Back Left/angle",
+              "period": 0.04,
+              "data_type": "double",
+              "time_displayed": 1.0,
+              "min_value": 0.0,
+              "max_value": 1.0,
+              "color": 4278238420,
+              "line_width": 3.0
+            }
+          },
+          {
+            "title": "FL",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/swerve/Front Left/angle",
+              "period": 0.04,
+              "data_type": "double",
+              "time_displayed": 1.0,
+              "min_value": 0.0,
+              "max_value": 1.0,
+              "color": 4278238420,
+              "line_width": 3.0
+            }
+          },
+          {
+            "title": "FR",
+            "x": 896.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/swerve/Front Right/angle",
+              "period": 0.04,
+              "data_type": "double",
+              "time_displayed": 1.0,
+              "min_value": 0.0,
+              "max_value": 1.0,
+              "color": 4278238420,
+              "line_width": 3.0
+            }
+          },
+          {
+            "title": "BR",
+            "x": 896.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/SmartDashboard/swerve/Back Right/angle",
+              "period": 0.04,
+              "data_type": "double",
+              "time_displayed": 1.0,
+              "min_value": 0.0,
+              "max_value": 1.0,
+              "color": 4278238420,
+              "line_width": 3.0
+            }
+          }
+        ]
       }
     }
   ]

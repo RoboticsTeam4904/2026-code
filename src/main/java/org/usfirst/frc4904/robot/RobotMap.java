@@ -1,25 +1,19 @@
 package org.usfirst.frc4904.robot;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
 import org.usfirst.frc4904.robot.swerve.SwerveModule;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
-import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomSparkMax;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 
 public class RobotMap {
@@ -86,28 +80,28 @@ public class RobotMap {
 
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
-                "front left",
+                "Front Left",
                 new CustomTalonFX(2),
                 new CustomTalonFX(17),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
-                "front right",
+                "Front Right",
                 new CustomTalonFX(3),
                 new CustomTalonFX(15),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
-                "back left",
+                "Back Left",
                 new CustomTalonFX(4),
                 new CustomTalonFX(18),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
                 new Translation2d(1, -1)
             ),
             new SwerveModule(
-                "back right",
+                "Back Right",
                 new CustomTalonFX(1),
                 new CustomTalonFX(16),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),

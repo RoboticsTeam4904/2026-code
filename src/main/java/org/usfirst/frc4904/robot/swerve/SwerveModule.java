@@ -2,13 +2,14 @@ package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.usfirst.frc4904.standard.util.Util;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
+import org.usfirst.frc4904.standard.util.Util;
 
-public class SwerveModule {
+public class SwerveModule implements Sendable {
 
     public final String name;
 
@@ -27,34 +28,44 @@ public class SwerveModule {
     ) {
         this.name = name;
 
-        // TODO remove (or maybe keep for comp?)
-        if (driveMotor != null) {
-            drive = new DriveController(driveMotor);
-        } else {
-            drive = null;
-        }
+        drive = driveMotor != null ? new DriveController(driveMotor) : null;
         rotation = new RotationController(rotMotor, rotEncoder, direction);
+
+        SmartDashboard.putData("swerve/" + name, this);
     }
 
-    public Translation2d rotToTranslation(double theta) {
+    Translation2d rotToTranslation(double theta) {
         return rotation.toTranslation(theta);
     }
 
-    public void zero() {
+    void zero() {
         rotation.zero();
     }
 
-    public void moveTo(double magnitude, double theta) {
+    void moveTo(double magnitude, double theta) {
         this.magnitude = magnitude;
         if (magnitude > 0) this.theta = theta;
     }
 
-    public void periodic() {
+    void periodic() {
         // TODO run this faster than 50hz - run pid on motor
         boolean flip = rotation.rotateToward(theta);
         if (drive != null) drive.setMagnitude(flip ? -magnitude : magnitude);
+    }
 
-        SmartDashboard.putNumber(name + " rotation: ", rotation.encoder.get());
+    /// SMART DASHBOARD
+
+    void addSendableProps(SendableBuilder builder) {
+        builder.addDoubleProperty(name + " Angle", () -> theta, null);
+        builder.addDoubleProperty(name + " Velocity", () -> magnitude, null);
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("Swerve Module");
+        builder.addDoubleProperty("angle", rotation::getRotation, null);
+        builder.addDoubleProperty("delta", () -> theta - rotation.getRotation(), null);
+        builder.addDoubleProperty("zero", rotation.encoder::getResetOffset, rotation.encoder::setResetOffset);
     }
 }
 
@@ -93,15 +104,15 @@ class RotationController {
         this.pid.enableContinuousInput(0, 0.5);
     }
 
-    public Translation2d toTranslation(double theta) {
+    Translation2d toTranslation(double theta) {
         return direction.times(theta);
     }
 
-    public void zero() {
+    void zero() {
         encoder.reset();
     }
 
-    private double getRotation() {
+    double getRotation() {
         return encoder.get();
     }
 

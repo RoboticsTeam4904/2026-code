@@ -6,9 +6,12 @@
 /*----------------------------------------------------------------------------*/
 package org.usfirst.frc4904.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
+import org.usfirst.frc4904.robot.humaninterface.operators.AnnaOperator;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.CommandRobotBase;
@@ -39,9 +42,16 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void initialize() {
+        SmartDashboard.putData("scheduler", CommandScheduler.getInstance());
+
         autoChooser.setDefaultOption("none", new NoOp());
         autoChooser.addOption("straight", Auton.c_straight());
         autoChooser.addOption("reverse", Auton.c_jankReverse());
+
+        driverChooser.setDefaultOption("swerve", new SwerveGain());
+
+        operatorChooser.setDefaultOption("default", new DefaultOperator());
+        operatorChooser.addOption("anna", new AnnaOperator());
     }
 
     @Override

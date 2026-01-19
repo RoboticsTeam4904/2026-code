@@ -1,15 +1,14 @@
 package org.usfirst.frc4904.standard;
 
-
-import org.usfirst.frc4904.standard.util.CmdUtil;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.usfirst.frc4904.standard.custom.CommandSendableChooser;
 import org.usfirst.frc4904.standard.custom.NamedSendableChooser;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 import org.usfirst.frc4904.standard.humaninput.Operator;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.usfirst.frc4904.standard.util.CmdUtil;
 
 /**
  * IterativeRobot is normally the base class for command based code, but we
@@ -31,20 +30,6 @@ public abstract class CommandRobotBase extends TimedRobot {
 		SmartDashboard.putData("Auton Routine Selector", autoChooser);
 		SmartDashboard.putData("Driver control scheme chooser", driverChooser);
 		SmartDashboard.putData("Operator control scheme chooser", operatorChooser);
-	}
-
-	/**
-	 * This stops all commands from running on initialization of a state so as to
-	 * prevent commands from the previous state from interfering with the current
-	 * robot mode.
-	 */
-	private void cleanup() {
-		if (autonomousCommand != null) {
-			autonomousCommand.cancel();
-		}
-		if (teleopCommand != null) {
-			teleopCommand.cancel();
-		}
 	}
 
 	// HACK FIXME, incredibly cursed and potentially bad
