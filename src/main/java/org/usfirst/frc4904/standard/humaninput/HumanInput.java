@@ -22,8 +22,8 @@ public abstract class HumanInput implements Nameable {
 
     /**
      * A function where the driver's and operator's controls are bound to commands
-     *
-     * @implNote Can't be done in the constructor because constructors are called too early
+     * <p>
+     * Can't be done in the constructor because constructors are called too early
      */
     public abstract void bindCommands();
 
