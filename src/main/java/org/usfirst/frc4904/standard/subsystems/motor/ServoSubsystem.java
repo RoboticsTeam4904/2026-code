@@ -81,8 +81,6 @@ public class ServoSubsystem extends SubsystemBase {
 
 	/**
 	 * Set the servo angle.
-	 *
-	 * @return The angle in degrees to which the servo is set.
 	 */
 	public void setAngle(double degrees) {
 		if (inverted) {
@@ -107,7 +105,7 @@ public class ServoSubsystem extends SubsystemBase {
 	 * the values returned by {@link #getPosition()} and {@link #getAngle() getAngle()}
 	 * to the new coordinate system, so anything continuously reading these methods
 	 * will see a discontinuity.
-	 * 
+	 *
 	 * @param inverted The desired state of inversion, true is inverted.
 	 */
 	public void setInverted(boolean inverted) {
@@ -121,7 +119,7 @@ public class ServoSubsystem extends SubsystemBase {
 
 	/**
 	 * Convert a servo set value to degrees.
-	 * 
+	 *
 	 * @param position servo set value to convert to degrees. Should be in the range [0, 1].
 	 * @return the value converted to degrees
 	 */
@@ -131,7 +129,7 @@ public class ServoSubsystem extends SubsystemBase {
 
 	/**
 	 * Convert a degree to a servo set value.
-	 * 
+	 *
 	 * @param degrees the servo degree to convert to a servo set
 	 * @return a servo set value in the range [0, 1] (as long as the input degree
 	 *         was in the servo's range)
@@ -142,7 +140,7 @@ public class ServoSubsystem extends SubsystemBase {
 
 	/**
 	 * Invert the given value (0 becomes 1, 1 becomes 0)
-	 * 
+	 *
 	 * @param position The value to invert. Should be in the range [0, 1]
 	 * @return the inverted value
 	 */
@@ -153,7 +151,7 @@ public class ServoSubsystem extends SubsystemBase {
 	/**
 	 * Invert the given degree ({@link #MIN_ANGLE} becomes {@link #MAX_ANGLE},
 	 * {@link #MAX_ANGLE} becomes {@link #MIN_ANGLE})
-	 * 
+	 *
 	 * @param degrees The degree to invert
 	 * @return the inverted degree
 	 */

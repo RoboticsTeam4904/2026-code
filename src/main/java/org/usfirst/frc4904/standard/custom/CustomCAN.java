@@ -101,7 +101,7 @@ public class CustomCAN {
     /**
      * Reads data, returning an empty Optional if there is no available message.
      *
-     * @return Optional<byte[]>
+     * @return Optional byte[]
      */
     public Optional<byte[]> read() {
         try {

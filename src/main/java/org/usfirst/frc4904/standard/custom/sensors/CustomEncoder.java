@@ -9,15 +9,15 @@ package org.usfirst.frc4904.standard.custom.sensors;
 public interface CustomEncoder extends NativeDerivativeSensor {
     /**
      * Gets current count
-     *
-     * @warning does not indicate sensor errors
+     * <p>
+     * does not indicate sensor errors
      */
     // int get();
 
     /**
      * Gets current distance
-     *
-     * @warning does not indicate sensor errors
+     * <p>
+     * does not indicate sensor errors
      */
     double getDistance();
 
@@ -28,8 +28,8 @@ public interface CustomEncoder extends NativeDerivativeSensor {
 
     /**
      * Gets direction of most recent movement
-     *
-     * @warning does not indicate sensor errors
+     * <p>
+     * does not indicate sensor errors
      */
     boolean getDirection();
 
@@ -40,8 +40,8 @@ public interface CustomEncoder extends NativeDerivativeSensor {
 
     /**
      * Returns true when stopped
-     *
-     * @warning does not indicate sensor errors
+     * <p>
+     * does not indicate sensor errors
      */
     boolean getStopped();
 

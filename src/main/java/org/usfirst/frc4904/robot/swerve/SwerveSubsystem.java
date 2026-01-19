@@ -39,7 +39,7 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     }
 
     /**
-     * Drive according to joystick inputs. {@code hypot(x, y)} should be <= 1.
+     * Drive according to joystick inputs. {@code hypot(x, y)} should not exceed 1.
      * @param translation X/Y movement from [-1, 1]
      * @param theta Turn speed from [-1, 1]
      */

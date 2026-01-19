@@ -6,10 +6,10 @@ import org.usfirst.frc4904.standard.util.Util;
 /**
  * Amalgamates the data of several encoders for the purpose of controlling a
  * single motion controller.
- *
- * @warning The amalgamation will be the average. Verify before using this class
- *          that all the encoders will be rotating in the same direction with
- *          the same rate (before setDistancePerTick).
+ * <p>
+ * The amalgamation will be the average. Verify before using this class
+ * that all the encoders will be rotating in the same direction with
+ * the same rate (before setDistancePerTick).
  */
 public class EncoderPair implements CustomEncoder {
 	private final CustomEncoder[] encoders;
@@ -24,10 +24,10 @@ public class EncoderPair implements CustomEncoder {
 	/**
 	 * Amalgamates the data of two encoders for the purpose of controlling a single
 	 * motion controller.
-	 *
-	 * @warning The amalgamation will be the average. Verify before using this class
-	 *          that all the encoders will be rotating in the same direction with
-	 *          the same rate (before setDistancePerTick).
+	 * <p>
+	 * The amalgamation will be the average. Verify before using this class
+	 * that all the encoders will be rotating in the same direction with
+	 * the same rate (before setDistancePerTick).
 	 *
 	 * @param encoder1          The first encoder to amalgamate.
 	 * @param encoder2          The second encoder to amalgamate.
@@ -47,12 +47,13 @@ public class EncoderPair implements CustomEncoder {
 	/**
 	 * Amalgamates the data of two encoders for the purpose of controlling a single
 	 * motion controller.
+	 * <p>
+	 * The amalgamation will be the average. Verify before using this class
+	 * that all the encoders will be rotating in the same direction with
+	 * the same rate (before setDistancePerTick).
 	 *
-	 * @warning The amalgamation will be the average. Verify before using this class
-	 *          that all the encoders will be rotating in the same direction with
-	 *          the same rate (before setDistancePerTick).
-	 *
-	 * @param encoders The encoders to amalgamate.
+     * @param encoder1 The first encoder to amalgamate.
+     * @param encoder2 The second encoder to amalgamate.
 	 */
 	public EncoderPair(CustomEncoder encoder1, CustomEncoder encoder2) {
 		this(encoder1, encoder2, EncoderPair.DEFAULT_DISTANCE_TOLERANCE, EncoderPair.DEFAULT_RATE_TOLERANCE);

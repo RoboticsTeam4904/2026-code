@@ -25,7 +25,7 @@ public class NamedSendableChooser<T extends Nameable>
     }
 
     /**
-     * Wrapper for getSelected() to conform to Supplier<T>
+     * Wrapper for getSelected() to conform to Supplier
      */
     public T get() {
         return getSelected();

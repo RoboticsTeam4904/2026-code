@@ -13,8 +13,8 @@ package org.usfirst.frc4904.standard.custom.sensors;
 public interface NativeDerivativeSensor {
 	/**
 	 * Gets rate
-	 *
-	 * @warning does not indicate sensor errors
+	 * <p>
+	 * does not indicate sensor errors
 	 */
 	double getRate();
 
