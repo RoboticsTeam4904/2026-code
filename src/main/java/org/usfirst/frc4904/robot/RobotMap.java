@@ -98,28 +98,24 @@ public final class RobotMap {
                 "Front Left",
                 Component.flDrive = new CustomTalonFX(2),
                 Component.flTurn = new CustomTalonFX(17),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "Front Right",
                 Component.frDrive = new CustomTalonFX(3),
                 Component.frTurn = new CustomTalonFX(15),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
                 "Back Left",
                 Component.blDrive = new CustomTalonFX(4),
                 Component.blTurn = new CustomTalonFX(18),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
                 new Translation2d(-1, -1)
             ),
             new SwerveModule(
                 "Back Right",
                 Component.brDrive = new CustomTalonFX(1),
                 Component.brTurn = new CustomTalonFX(16),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
                 new Translation2d(1, -1)
             )
         );

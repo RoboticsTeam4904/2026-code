@@ -1,16 +1,13 @@
 package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
-import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
-import org.usfirst.frc4904.standard.util.Logging;
-import org.usfirst.frc4904.standard.util.Util;
 
 public class SwerveModule implements Sendable {
 
@@ -26,13 +23,12 @@ public class SwerveModule implements Sendable {
         String name,
         SmartMotorController driveMotor,
         SmartMotorController rotMotor,
-        CustomDutyCycleEncoder rotEncoder,
         Translation2d direction
     ) {
         this.name = name;
 
         drive = driveMotor != null ? new DriveController(driveMotor) : null;
-        rotation = new RotationController(rotMotor, rotEncoder, direction);
+        rotation = new RotationController(rotMotor, direction, name);
 
         SmartDashboard.putData("swerve/" + name, this);
     }
@@ -79,43 +75,49 @@ public class SwerveModule implements Sendable {
             double delta = theta - rotation.getRotation();
             return MathUtil.inputModulus(delta, -0.25, 0.25);
         }, null);
-        builder.addDoubleProperty("zero", rotation.encoder::getResetOffset, rotation.encoder::setResetOffset);
+        builder.addDoubleProperty("zero", rotation.motor::getMechanismRotationOffset, rotation.motor::setMechanismRotationOffset);
     }
 }
 
 record DriveController(SmartMotorController motor) {
-    public void setMagnitude(double magnitude) {
-        motor.set(magnitude / SwerveConstants.LIN_SPEED);
+
+    // TODO tune
+    private static final double kP = 1, kI = 0, kD = 0;
+
+    DriveController {
+        // TODO feedforward?
+        motor.setPID(kP, kI, kD)
+             .setMotorMechanismRatio(SwerveConstants.DRIVE_GEAR_RATIO);
+    }
+
+    void setMagnitude(double magnitude) {
+        motor.holdVelocity(SwerveConstants.metersToDriveMotorRots(magnitude));
     }
 }
 
 class RotationController {
+
+    // TODO tune
     private static final double kP = 15, kI = 0, kD = 0;
 
-    private static final double MAX_VOLTAGE = 4;
-
     final SmartMotorController motor;
-    final CustomDutyCycleEncoder encoder;
 
     private final Translation2d direction;
+    private final String key;
 
-    private final PIDController pid;
-
-    public RotationController(
-        SmartMotorController motor,
-        CustomDutyCycleEncoder encoder,
-        Translation2d direction
-    ) {
+    RotationController(SmartMotorController motor, Translation2d direction, String name) {
         this.motor = motor;
-
-        this.encoder = encoder;
-
         this.direction = direction.div(direction.getNorm());
 
-        this.pid = new PIDController(kP, kI, kD);
+        key = "swerve zeros/" + name;
+
         // encoder readings are from 0-1 but opposite angles are equivalent
         // since we can just run the wheels backwards
-        this.pid.enableContinuousInput(0, 0.5);
+        // TODO feedforward?
+        motor.setPID(kP, kI, kD)
+             .setContinuousRange(0.5)
+             .setMotorMechanismRatio(SwerveConstants.ROT_GEAR_RATIO)
+             .setMechanismRotationOffset(Preferences.getDouble(key, 0));
     }
 
     Translation2d toTranslation(double theta) {
@@ -123,30 +125,27 @@ class RotationController {
     }
 
     void zero() {
-        encoder.reset();
+        motor.zeroMechanismRotationOffset();
+        Preferences.setDouble(key, motor.getMechanismRotationOffset());
     }
 
     void flipZero() {
-        encoder.flip();
+        double current = motor.getMechanismRotationOffset();
+        motor.setMechanismRotationOffset((current + 0.5) % 1);
     }
 
     double getRotation() {
-        return -encoder.get();
-    }
-
-    private void setVoltage(double voltage) {
-        motor.setVoltage(voltage);
+        return motor.getRotation();
     }
 
     /**
      * @return Similarity between current and target rotation.
-     *         Effectively a dot product: 1 = same angle, -1 = opposite, 0 = perpendicular.
+     * Effectively a dot product: 1 = same angle, -1 = opposite, 0 = perpendicular.
      */
-    public double rotateToward(double theta) {
-        double current = getRotation();
-        double voltage = pid.calculate(current, theta);
-        setVoltage(Util.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE));
+    double rotateToward(double theta) {
+        motor.holdPosition(theta);
 
+        double current = getRotation();
         return Math.cos(Units.rotationsToRadians(theta - current));
     }
 }
