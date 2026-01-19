@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 
 /** Manages Google tags */
 public class GoogleTagManager {
+
     private final HttpClient client;
 
     public record Tag(int id, Rotation2d rot, Translation3d pos, int camera) {}
