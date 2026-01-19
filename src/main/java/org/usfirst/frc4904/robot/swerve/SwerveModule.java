@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
@@ -64,7 +65,10 @@ public class SwerveModule implements Sendable {
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Swerve Module");
         builder.addDoubleProperty("angle", rotation::getRotation, null);
-        builder.addDoubleProperty("delta", () -> theta - rotation.getRotation(), null);
+        builder.addDoubleProperty("delta", () -> {
+            double delta = theta - rotation.getRotation();
+            return MathUtil.inputModulus(delta, -0.5, 0.5);
+        }, null);
         builder.addDoubleProperty("zero", rotation.encoder::getResetOffset, rotation.encoder::setResetOffset);
     }
 }

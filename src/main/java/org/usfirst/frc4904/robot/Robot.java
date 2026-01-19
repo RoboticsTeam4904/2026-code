@@ -7,7 +7,6 @@
 package org.usfirst.frc4904.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
@@ -16,25 +15,11 @@ import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
-import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Logging;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public class Robot extends CommandRobotBase {
-
-    public static class AutonConfig {
-
-        /** Whether to run auton at all */
-        public static final boolean ENABLED = true;
-
-        /** Whether to flip the path to the other side of the current alliance's field */
-        public static final boolean FLIP_SIDE = false;
-
-        /** The auton to run */
-        public static Supplier<Command> COMMAND = Auton::c_jankStraight;
-    }
 
     private final SwerveGain driver = new SwerveGain();
     private final DefaultOperator operator = new DefaultOperator();
@@ -75,22 +60,7 @@ public class Robot extends CommandRobotBase {
     public void teleopCleanup() { }
 
     @Override
-    public void autonomousInitialize() {
-        if (!AutonConfig.ENABLED) return;
-
-        // PATHPLANNER ATTEMPT #1520367
-        // try {
-        //     // Load the path you want to follow using its name in the GUI
-        //     PathPlannerPath path = PathPlannerPath.fromPathFile("straight");
-        //     AutoBuilder.followPath(path).schedule();
-        // } catch (Exception e) {
-        //     System.out.println(e);
-        // }
-
-        // Component.navx.reset();
-
-        CmdUtil.schedule(AutonConfig.COMMAND.get());
-    }
+    public void autonomousInitialize() { }
 
     @Override
     public void autonomousExecute() { }

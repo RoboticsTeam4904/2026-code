@@ -7,10 +7,6 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 
 public class Auton {
 
-    public static boolean getFlipSide() {
-        return Robot.AutonConfig.FLIP_SIDE;
-    }
-
     /**
      * Move straight out of the starting zone and do nothing.
      */
