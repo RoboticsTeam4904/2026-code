@@ -1,15 +1,14 @@
 package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController.SmartMotorConfigSlot;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
-import org.usfirst.frc4904.standard.util.Util;
 
 public class SwerveModule implements Sendable {
 
@@ -46,10 +45,10 @@ public class SwerveModule implements Sendable {
 
     void setMotorBrake(boolean brake) {
         if (brake) {
-            drive.motor().setBrakeOnNeutral();
+            drive.motor.setBrakeOnNeutral();
             rotation.motor.setBrakeOnNeutral();
         } else {
-            drive.motor().setCoastOnNeutral();
+            drive.motor.setCoastOnNeutral();
             rotation.motor.setCoastOnNeutral();
         }
     }
@@ -83,9 +82,22 @@ public class SwerveModule implements Sendable {
     }
 }
 
-record DriveController(SmartMotorController motor) {
-    public void setMagnitude(double magnitude) {
-        motor.set(magnitude / SwerveConstants.LIN_SPEED);
+class DriveController {
+    private static final double kP = 1, kI = 0, kD = 0;
+
+    final SmartMotorController motor;
+
+    private final SmartMotorConfigSlot config;
+
+    DriveController(SmartMotorController motor) {
+        this.motor = motor;
+
+        // TODO feedforward?
+        config = motor.configSlot(0).setPID(kP, kI, kD);
+    }
+
+    void setMagnitude(double magnitude) {
+        config.holdVelocity(SwerveConstants.mpsToDriveMotorRots(magnitude));
     }
 }
 
@@ -97,25 +109,24 @@ class RotationController {
     final SmartMotorController motor;
     final CustomDutyCycleEncoder encoder;
 
+    private final SmartMotorConfigSlot config;
+
     private final Translation2d direction;
 
-    private final PIDController pid;
-
-    public RotationController(
+    RotationController(
         SmartMotorController motor,
         CustomDutyCycleEncoder encoder,
         Translation2d direction
     ) {
         this.motor = motor;
-
         this.encoder = encoder;
 
-        this.direction = direction.div(direction.getNorm());
-
-        this.pid = new PIDController(kP, kI, kD);
         // encoder readings are from 0-1 but opposite angles are equivalent
         // since we can just run the wheels backwards
-        this.pid.enableContinuousInput(0, 0.5);
+        // TODO feedforward?
+        config = motor.configSlot(0).setPID(kP, kI, kD).continuous(0.5);
+
+        this.direction = direction.div(direction.getNorm());
     }
 
     Translation2d toTranslation(double theta) {
@@ -130,19 +141,14 @@ class RotationController {
         return encoder.get();
     }
 
-    private void setVoltage(double voltage) {
-        motor.setVoltage(voltage);
-    }
-
     /**
      * @return Similarity between current and target rotation.
      *         Effectively a dot product: 1 = same angle, -1 = opposite, 0 = perpendicular.
      */
-    public double rotateToward(double theta) {
-        double current = getRotation();
-        double voltage = -pid.calculate(current, theta);
-        setVoltage(Util.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE));
+    double rotateToward(double theta) {
+        config.holdPosition(theta);
 
+        double current = getRotation();
         return Math.cos(Units.rotationsToRadians(theta - current));
     }
 }

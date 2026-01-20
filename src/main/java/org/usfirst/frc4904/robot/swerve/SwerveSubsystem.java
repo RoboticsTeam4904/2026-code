@@ -20,20 +20,25 @@ final class SwerveConstants {
     private SwerveConstants() {}
 
     // TODO: get real measurements
-    public static final double LIN_RPM = 6380;
-    public static final double LIN_GEAR_RATIO = 5.1;
+    private static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
 
-    // meters - TODO: get real measurements
-    public static final double WHEEL_RADIUS = 0.07;
-    public static final double ROBOT_DIAGONAL = 1.15;
+    private static final double WHEEL_RADIUS = 0.07; // m
+    private static final double ROBOT_DIAGONAL = 1.15; // m
 
-    // m/s
-    public static final double LIN_SPEED = LIN_RPM / 60.0 / LIN_GEAR_RATIO * (2 * Math.PI * WHEEL_RADIUS);
-    // turns/s
-    public static final double ROT_SPEED = LIN_SPEED / (Math.PI * ROBOT_DIAGONAL);
+    private static final double WHEEL_CIRC = 2 * Math.PI * WHEEL_RADIUS; // m
+    private static final double ROBOT_TURN_CIRC = Math.PI * ROBOT_DIAGONAL; // m
+
+    // TODO: tune
+    public static final double LIN_SPEED = 6; // m/s
+    public static final double ROT_SPEED = LIN_SPEED * ROBOT_TURN_CIRC; // rot/s
+
+    public static double mpsToDriveMotorRots(double mps) {
+        return mps / WHEEL_CIRC * DRIVE_GEAR_RATIO;
+    }
 }
 
 public class SwerveSubsystem extends SubsystemBase implements Sendable {
+
     private final SwerveModule[] modules;
 
     public SwerveSubsystem(SwerveModule... modules) {
