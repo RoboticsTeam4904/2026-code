@@ -92,6 +92,17 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
         }
 
         @Override
+        public SmartMotorConfigSlot continuous(double range) {
+            if (range > 0) {
+                config.closedLoop.positionWrappingEnabled(true);
+                config.closedLoop.positionWrappingInputRange(0, range);
+            } else {
+                config.closedLoop.positionWrappingEnabled(false);
+            }
+            return this;
+        }
+
+        @Override
         public void holdPosition(double pos, double addedVoltage) {
             getClosedLoopController().setSetpoint(pos, ControlType.kPosition, slot, addedVoltage);
         }

@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.math.MathUtil;
 
 public class CustomTalonFX extends TalonFX implements SmartMotorController {
 
@@ -73,6 +74,8 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
 
         private final SlotConfigs config = new SlotConfigs();
 
+        private double continuousRange = 0;
+
         ConfigSlot(int slot) {
             config.SlotNumber = slot;
         }
@@ -112,7 +115,18 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
         }
 
         @Override
+        public SmartMotorConfigSlot continuous(double range) {
+            continuousRange = range;
+            return this;
+        }
+
+        @Override
         public void holdPosition(double pos, double addedVoltage) {
+            if (continuousRange != 0) {
+                double current = getPosition().getValueAsDouble();
+                double dist = continuousRange / 2;
+                pos = MathUtil.inputModulus(pos, current - dist, current + dist);
+            }
             PositionVoltage request = new PositionVoltage(pos);
             request.Slot = config.SlotNumber;
             request.FeedForward = addedVoltage;

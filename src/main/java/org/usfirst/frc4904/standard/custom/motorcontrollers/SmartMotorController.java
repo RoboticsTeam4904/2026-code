@@ -51,6 +51,20 @@ public interface SmartMotorController extends MotorController {
 		SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA, double kCosRatio);
 
 		/**
+		 * Enable or disable continuous input (0 = 1 / 0deg = 360deg).
+		 */
+		default SmartMotorConfigSlot continuous(boolean enabled) {
+			return continuous(enabled ? 1 : 0);
+		}
+		/**
+		 * Set range for continuous motion.
+		 * @param range Distance of one full rotation.
+		 *              If range = 0.5, then 0 = 0.5 = 1, or 0deg = 180deg = 360deg.
+		 *              Set to false or 0 to disable continuous input.
+		 */
+		SmartMotorConfigSlot continuous(double range);
+
+		/**
 		 * Holds a position using this slot's configured PID and {@code kG}.
 		 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
 		 * @param pos Position in rotations.
