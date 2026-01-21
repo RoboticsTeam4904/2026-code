@@ -17,10 +17,10 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 final class SwerveConstants {
-    private SwerveConstants() {}
 
     // TODO: get real measurements
-    private static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
+    public static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
+    public static final double ROT_GEAR_RATIO = 5.1; // motor rots/wheel rots
 
     private static final double WHEEL_RADIUS = 0.07; // m
     private static final double ROBOT_DIAGONAL = 1.15; // m
@@ -32,9 +32,12 @@ final class SwerveConstants {
     public static final double LIN_SPEED = 6; // m/s
     public static final double ROT_SPEED = LIN_SPEED * ROBOT_TURN_CIRC; // rot/s
 
-    public static double mpsToDriveMotorRots(double mps) {
-        return mps / WHEEL_CIRC * DRIVE_GEAR_RATIO;
+    public static double metersToDriveMotorRots(double distance) {
+        return distance / WHEEL_CIRC * DRIVE_GEAR_RATIO;
     }
+
+    private SwerveConstants() {}
+
 }
 
 public class SwerveSubsystem extends SubsystemBase implements Sendable {

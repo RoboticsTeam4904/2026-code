@@ -1,7 +1,9 @@
 package org.usfirst.frc4904.standard.custom.motorcontrollers;
 
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -27,8 +29,9 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
      * This does not brake the motor. Use .neutralOutput() instead, after
      * setBrakeOnNeutral.
      */
-    public void setBrakeOnNeutral() {
+    public CustomTalonFX setBrakeOnNeutral() {
         setNeutralMode(NeutralModeValue.Brake);
+        return this;
     }
 
     /**
@@ -39,8 +42,9 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
      * This does not coast the motor. Use .neutralOutput() instead, after
      * setCoastOnNeutral.
      */
-    public void setCoastOnNeutral() {
+    public CustomTalonFX setCoastOnNeutral() {
         setNeutralMode(NeutralModeValue.Coast);
+        return this;
     }
 
     // TODO: also support normally closed limit switches
@@ -70,91 +74,132 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
         return inverted;
     }
 
-    private class ConfigSlot implements SmartMotorConfigSlot {
+    private final Slot0Configs pidfConfig = new Slot0Configs();
 
-        private final SlotConfigs config = new SlotConfigs();
-
-        private double continuousRange = 0;
-
-        ConfigSlot(int slot) {
-            config.SlotNumber = slot;
-        }
-
-        @Override
-        public SmartMotorConfigSlot setPID(double p, double i, double d) {
-            config.kP = p;
-            config.kI = i;
-            config.kD = d;
-            getConfigurator().apply(config);
-            return this;
-        }
-
-        @Override
-        public SmartMotorConfigSlot setElevFF(double kS, double kG, double kV, double kA) {
-            config.kS = kS;
-            config.kG = kG;
-            config.kV = kV;
-            config.kA = kA;
-            config.GravityType = GravityTypeValue.Elevator_Static;
-            getConfigurator().apply(config);
-            return this;
-        }
-
-        @Override
-        public SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA, double kCosRatio) {
-            if (kCosRatio != 0) {
-                throw new IllegalArgumentException("CustomTalonFX.configSlot(N).setArmFF() does not support kCosRatio. Call this method without the kCosRatio parameter disable this error, and use a different method of setting the ratio. Good luck");
-            }
-            config.kS = kS;
-            config.kG = kG;
-            config.kV = kV;
-            config.kA = kA;
-            config.GravityType = GravityTypeValue.Arm_Cosine;
-            getConfigurator().apply(config);
-            return this;
-        }
-
-        @Override
-        public SmartMotorConfigSlot continuous(double range) {
-            continuousRange = range;
-            return this;
-        }
-
-        @Override
-        public void holdPosition(double pos, double addedVoltage) {
-            if (continuousRange != 0) {
-                double current = getPosition().getValueAsDouble();
-                double dist = continuousRange / 2;
-                pos = MathUtil.inputModulus(pos, current - dist, current + dist);
-            }
-            PositionVoltage request = new PositionVoltage(pos);
-            request.Slot = config.SlotNumber;
-            request.FeedForward = addedVoltage;
-            setControl(request);
-        }
-
-        @Override
-        public void holdVelocity(double vel, double addedVoltage) {
-            VelocityVoltage request = new VelocityVoltage(vel);
-            request.Slot = config.SlotNumber;
-            request.FeedForward = addedVoltage;
-            setControl(request);
-        }
-    }
-
-    private static final int MAX_SLOTS = 3;
-    private final ConfigSlot[] slots = new ConfigSlot[MAX_SLOTS];
+    private double motorMechanismRatio = 1;
+    private double mechanismRotationOffset = 0;
+    private double continuousRange = 0;
 
     @Override
-    public SmartMotorConfigSlot configSlot(int slot) {
-        if (slot < 0 || slot >= MAX_SLOTS) {
-            throw new IllegalArgumentException("CustomTalonFX slot must be between 0 and " + (MAX_SLOTS - 1) + " (inclusive).");
+    public double getRotation() {
+        double rot = getPosition().getValueAsDouble();
+        return rot / motorMechanismRatio + mechanismRotationOffset;
+    }
+
+    private void updateMotorMechanismRatio() {
+        double ratio = motorMechanismRatio * (continuousRange != 0 ? continuousRange : 1);
+        getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(ratio));
+    }
+
+    private void continuousRangeArmFFError() {
+        // suboptimal edge case due to questionable implementation of continuous range
+        // i can't imagine any use case for this combination so it's probably fine
+        System.err.println("CustomTalonFX with arm FeedForward is not compatible with continuous range ≠ 1.\n"
+                         + "FeedForward kG calculations will be incorrectly scaled by continuous range.");
+    }
+
+    @Override
+    public CustomTalonFX setMotorMechanismRatio(double ratio) {
+        motorMechanismRatio = ratio;
+        updateMotorMechanismRatio();
+        return this;
+    }
+
+    @Override
+    public double getMotorMechanismRatio() {
+        return motorMechanismRatio;
+    }
+
+    @Override
+    public CustomTalonFX setMechanismRotationOffset(double offset) {
+        mechanismRotationOffset = offset;
+        // GravityArmPositionOffset only accepts values within ±0.25 for some unknown reason
+        // for values 0.25-0.75, subtract 0.5 and flip kG which is (hopefully) equivalent
+        offset = MathUtil.inputModulus(offset, -0.25, 0.75);
+        if (offset > 0.25) {
+            offset -= 0.5;
+            pidfConfig.kG *= -1;
+        }
+        pidfConfig.GravityArmPositionOffset = offset;
+        getConfigurator().apply(pidfConfig);
+        return this;
+    }
+
+    @Override
+    public double getMechanismRotationOffset() {
+        return mechanismRotationOffset;
+    }
+
+    @Override
+    public CustomTalonFX setPID(double p, double i, double d) {
+        pidfConfig.kP = p;
+        pidfConfig.kI = i;
+        pidfConfig.kD = d;
+        getConfigurator().apply(pidfConfig);
+        return this;
+    }
+
+    @Override
+    public CustomTalonFX setElevFF(double kS, double kG, double kV, double kA) {
+        pidfConfig.kS = kS;
+        pidfConfig.kG = kG;
+        pidfConfig.kV = kV;
+        pidfConfig.kA = kA;
+        pidfConfig.GravityType = GravityTypeValue.Elevator_Static;
+        getConfigurator().apply(pidfConfig);
+        return this;
+    }
+
+    @Override
+    public CustomTalonFX setArmFF(double kS, double kG, double kV, double kA) {
+        if (continuousRange != 0 && continuousRange != 1) {
+            continuousRangeArmFFError();
+        }
+        pidfConfig.kS = kS;
+        pidfConfig.kG = kG;
+        pidfConfig.kV = kV;
+        pidfConfig.kA = kA;
+        pidfConfig.GravityType = GravityTypeValue.Arm_Cosine;
+        getConfigurator().apply(pidfConfig);
+        return this;
+    }
+
+    @Override
+    public CustomTalonFX setContinuousRange(double range) {
+        if (range < 0) {
+            throw new IllegalArgumentException("CustomTalonFX.setContinuousRange() cannot be negative.");
+        }
+        if (range != 0 && range != 1 && pidfConfig.GravityType == GravityTypeValue.Arm_Cosine) {
+            continuousRangeArmFFError();
         }
 
-        if (slots[slot] != null) {
-            return slots[slot];
-        } else {
-            return slots[slot] = new ConfigSlot(slot);
+        continuousRange = range;
+        updateMotorMechanismRatio();
+        getConfigurator().apply(new ClosedLoopGeneralConfigs().withContinuousWrap(range != 0));
+        return this;
+    }
+
+    @Override
+    public double getContinuousRange() {
+        return continuousRange;
+    }
+
+    @Override
+    public void holdPosition(double pos, double addedVoltage) {
+        if (continuousRange != 0) {
+            double current = getPosition().getValueAsDouble(); // TODO use getRotation() instead? (≈ multiply by motorMechanismRatio)
+            double dist = continuousRange / 2;
+            pos = MathUtil.inputModulus(pos, current - dist, current + dist);
         }
+        PositionVoltage request = new PositionVoltage(pos); // TODO multiply by motorMechanismRatio?
+        request.FeedForward = addedVoltage;
+        setControl(request);
+    }
+
+    @Override
+    public void holdVelocity(double vel, double addedVoltage) {
+        VelocityVoltage request = new VelocityVoltage(vel); // TODO multiply by motorMechanismRatio?
+        request.FeedForward = addedVoltage;
+        setControl(request);
     }
 }

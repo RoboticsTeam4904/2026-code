@@ -13,87 +13,97 @@ public interface SmartMotorController extends MotorController {
 	boolean isFwdLimitSwitchPressed() throws IllegalAccessException;
 	boolean isRevLimitSwitchPressed() throws IllegalAccessException;
 
-	void setBrakeOnNeutral();
-	void setCoastOnNeutral();
+	SmartMotorController setBrakeOnNeutral();
+	SmartMotorController setCoastOnNeutral();
 
 	/**
-	 * Implementing classes should ensure that consecutive calls with the same
-	 * slot number return the same {@link SmartMotorConfigSlot} instance.
-	 *
-	 * @throws IllegalArgumentException when slot is out of range.
+	 * Get the current rotation of the motor.
+	 * Affected by {@code setMotorMechanismRatio()} and {@code setContinuous()}/{@code setContinuousRange()}.
 	 */
-	SmartMotorConfigSlot configSlot(int slot);
+	double getRotation();
 
-	interface SmartMotorConfigSlot {
+	/**
+	 * Set the number of motor rotations per mechanism rotation.
+	 * Used for {@code getPosition()}, {@code holdPosition()}, and arm feedforward calculations.
+	 */
+	SmartMotorController setMotorMechanismRatio(double ratio);
 
-		SmartMotorConfigSlot setPID(double p, double i, double d);
+	/**
+	 * Get the ratio between motor rotations and mechanism rotations set by {@code setMotorMechanismRatio()}.
+	 */
+	double getMotorMechanismRatio();
 
-		/**
-		 * For static gravity gain.
-		 * @see ElevatorFeedforward#ElevatorFeedforward(double, double, double, double)
-		 */
-		SmartMotorConfigSlot setElevFF(double kS, double kG, double kV, double kA);
-		/**
-		 * For gravity gain depending on the rotation of the mechanism.
-		 * @param kG Gravity constant that will be multiplied by cos(mechanismRotation).
-		 * @see ArmFeedforward#ArmFeedforward(double, double, double, double)
-		 */
-		default SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA) {
-			return setArmFF(kS, kG, kV, kA, 0);
-		}
-		/**
-		 * For gravity gain depending on the rotation of the mechanism.
-		 * @param kG Gravity constant that will be multiplied by cos(mechanismRotation).
-		 * @param kCosRatio Conversion factor from measured rotation (encoder units) to absolute rotation (rotations).
-		 *                  Only supported by some motor controllers - will throw {@code IllegalArgumentException} if not supported and set to something other than 0.
-		 * @see ArmFeedforward#ArmFeedforward(double, double, double, double)
-		 */
-		SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA, double kCosRatio);
+	SmartMotorController setMechanismRotationOffset(double offset);
 
-		/**
-		 * Enable or disable continuous input (0 = 1 / 0deg = 360deg).
-		 */
-		default SmartMotorConfigSlot continuous(boolean enabled) {
-			return continuous(enabled ? 1 : 0);
-		}
-		/**
-		 * Set range for continuous motion.
-		 * @param range Distance of one full rotation.
-		 *              If range = 0.5, then 0 = 0.5 = 1, or 0deg = 180deg = 360deg.
-		 *              Set to false or 0 to disable continuous input.
-		 */
-		SmartMotorConfigSlot continuous(double range);
+	double getMechanismRotationOffset();
 
-		/**
-		 * Holds a position using this slot's configured PID and {@code kG}.
-		 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
-		 * @param pos Position in rotations.
-		 */
-		default void holdPosition(double pos) {
-			holdPosition(pos, 0);
-		}
-		/**
-		 * Holds a position using this slot's configured PID and {@code kG}.
-		 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
-		 * @param pos Position in rotations.
-		 * @param addedVoltage Extra voltage to add after PID/FF calculations.
-		 */
-		void holdPosition(double pos, double addedVoltage);
+	SmartMotorController setPID(double p, double i, double d);
 
-		/**
-		 * Holds a velocity using this slot's configured PID and FF.
-		 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
-		 * @param vel Velocity in rotations/sec.
-		 */
-		default void holdVelocity(double vel) {
-			holdVelocity(vel, 0);
-		}
-		/**
-		 * Holds a velocity using this slot's configured PID and FF.
-		 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
-		 * @param vel Velocity in rotations/sec.
-		 * @param addedVoltage Extra voltage to add after PID/FF calculations.
-		 */
-		void holdVelocity(double vel, double addedVoltage);
+	/**
+	 * For static gravity gain.
+	 * @see ElevatorFeedforward#ElevatorFeedforward(double, double, double, double)
+	 */
+	SmartMotorController setElevFF(double kS, double kG, double kV, double kA);
+	/**
+	 * For gravity gain depending on the rotation of the mechanism.
+	 * @param kG Gravity constant that will be multiplied by cos(mechanismRotation).
+	 * @see ArmFeedforward#ArmFeedforward(double, double, double, double)
+	 */
+	SmartMotorController setArmFF(double kS, double kG, double kV, double kA);
+
+	/**
+	 * Enable or disable continuous input (0 = 1 / 0deg = 360deg).
+	 */
+	default SmartMotorController setContinuous(boolean enabled) {
+		return setContinuousRange(enabled ? 1 : 0);
 	}
+	/**
+	 * Set range for continuous motion.
+	 * @param range Distance of one full rotation. Analogous to {@code PIDController.enableContinuousInput(0, range)}.
+	 *              If range = 0.5, then 0 = 0.5 = 1, or 0deg = 180deg = 360deg.
+	 *              Use {@code setContinuous(false)} or pass 0 to disable continuous input.
+	 */
+	SmartMotorController setContinuousRange(double range);
+
+	default boolean isContinuous() {
+		return getContinuousRange() != 0;
+	}
+	/**
+	 * Get the current continuous range.
+	 * @return Current range or 0 if not continuous.
+	 */
+	double getContinuousRange();
+
+	/**
+	 * Holds a position using this slot's configured PID and {@code kG}.
+	 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
+	 * @param pos Position in rotations.
+	 */
+	default void holdPosition(double pos) {
+		holdPosition(pos, 0);
+	}
+	/**
+	 * Holds a position using this slot's configured PID and {@code kG}.
+	 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
+	 * @param pos Position in rotations.
+	 * @param addedVoltage Extra voltage to add after PID/FF calculations.
+	 */
+	void holdPosition(double pos, double addedVoltage);
+
+	/**
+	 * Holds a velocity using this slot's configured PID and FF.
+	 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
+	 * @param vel Velocity in rotations/sec.
+	 */
+	default void holdVelocity(double vel) {
+		holdVelocity(vel, 0);
+	}
+	/**
+	 * Holds a velocity using this slot's configured PID and FF.
+	 * Runs until one of {@code set()}, {@code setVoltage()}, {@code stopMotor()}, etc. is called on the motor.
+	 * @param vel Velocity in rotations/sec.
+	 * @param addedVoltage Extra voltage to add after PID/FF calculations.
+	 */
+	void holdVelocity(double vel, double addedVoltage);
+
 }

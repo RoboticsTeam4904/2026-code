@@ -34,17 +34,27 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
         );
     }
 
-    public void setBrakeOnNeutral() {
+    public CustomSparkMax setBrakeOnNeutral() {
         configure(new SparkMaxConfig().idleMode(IdleMode.kBrake));
+        return this;
     }
 
-    public void setCoastOnNeutral() {
+    public CustomSparkMax setCoastOnNeutral() {
         configure(new SparkMaxConfig().idleMode(IdleMode.kCoast));
+        return this;
     }
+
+    private boolean inverted = false;
 
     @SuppressWarnings("deprecation") // overrides deprecated method
     public void setInverted(boolean inverted) {
+        this.inverted = inverted;
         configure(new SparkMaxConfig().inverted(inverted));
+    }
+
+    @SuppressWarnings("deprecation") // overrides deprecated method
+    public boolean getInverted() {
+        return inverted;
     }
 
     @Override
@@ -59,73 +69,96 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
         return getReverseLimitSwitch().isPressed();
     }
 
-    private class ConfigSlot implements SmartMotorConfigSlot {
+    private final SparkMaxConfig config = new SparkMaxConfig();
 
-        private final SparkMaxConfig config = new SparkMaxConfig();
-        private final ClosedLoopSlot slot;
-
-        ConfigSlot(int slot) {
-            this.slot = ClosedLoopSlot.fromInt(slot);
-        }
-
-        @Override
-        public SmartMotorConfigSlot setPID(double p, double i, double d) {
-            config.closedLoop.pid(p, i, d, slot);
-            configure(config);
-            return this;
-        }
-
-        @Override
-        public SmartMotorConfigSlot setElevFF(double kS, double kG, double kV, double kA) {
-            config.closedLoop.feedForward.kCos(0, slot);
-            config.closedLoop.feedForward.svag(kS, kV, kA, kG, slot);
-            configure(config);
-            return this;
-        }
-
-        @Override
-        public SmartMotorConfigSlot setArmFF(double kS, double kG, double kV, double kA, double kCosRatio) {
-            config.closedLoop.feedForward.kG(0, slot);
-            config.closedLoop.feedForward.svacr(kS, kV, kA, kG, kCosRatio, slot);
-            configure(config);
-            return this;
-        }
-
-        @Override
-        public SmartMotorConfigSlot continuous(double range) {
-            if (range > 0) {
-                config.closedLoop.positionWrappingEnabled(true);
-                config.closedLoop.positionWrappingInputRange(0, range);
-            } else {
-                config.closedLoop.positionWrappingEnabled(false);
-            }
-            return this;
-        }
-
-        @Override
-        public void holdPosition(double pos, double addedVoltage) {
-            getClosedLoopController().setSetpoint(pos, ControlType.kPosition, slot, addedVoltage);
-        }
-
-        @Override
-        public void holdVelocity(double vel, double addedVoltage) {
-            getClosedLoopController().setSetpoint(vel, ControlType.kVelocity, slot, addedVoltage);
-        }
-    }
-
-    private static final int MAX_SLOTS = 4;
-    private final ConfigSlot[] slots = new ConfigSlot[MAX_SLOTS];
+    private double motorMechanismRatio = 1;
+    private double continuousRange = 0;
 
     @Override
-    public SmartMotorConfigSlot configSlot(int slot) {
-        if (slot < 0 || slot >= MAX_SLOTS) {
-            throw new IllegalArgumentException("CustomSparkMax slot must be between 0 and " + (MAX_SLOTS - 1) + " (inclusive).");
+    public double getRotation() {
+        // division is (in theory) handled by config.encoder.positionConversionFactor() below
+        return getAbsoluteEncoder().getPosition(); //  / motorMechanismRatio;
+    }
+
+    @Override
+    public CustomSparkMax setMotorMechanismRatio(double ratio) {
+        motorMechanismRatio = ratio;
+        double reciprocal = 1 / ratio;
+        config.closedLoop.feedForward.kCosRatio(reciprocal);  // TODO reciprocal maybe wrong here? - also maybe not necessary at all if line below affects this (though i doubt it)
+        config.encoder.positionConversionFactor(reciprocal);
+        config.encoder.velocityConversionFactor(reciprocal);
+        configure(config);
+        return this;
+    }
+
+    @Override
+    public double getMotorMechanismRatio() {
+        return motorMechanismRatio;
+    }
+
+    @Override
+    public CustomSparkMax setMechanismRotationOffset(double offset) {
+        throw new UnsupportedOperationException("CustomSparkMax does not support setMechanismRotationOffset().");
+    }
+
+    @Override
+    public double getMechanismRotationOffset() {
+        System.err.println("CustomSparkMax does not support getMechanismRotationOffset().");
+        return 0;
+    }
+
+    @Override
+    public CustomSparkMax setPID(double p, double i, double d) {
+        config.closedLoop.pid(p, i, d);
+        configure(config);
+        return this;
+    }
+
+    @Override
+    public CustomSparkMax setElevFF(double kS, double kG, double kV, double kA) {
+        config.closedLoop.feedForward.kCos(0);
+        config.closedLoop.feedForward.svag(kS, kV, kA, kG);
+        configure(config);
+        return this;
+    }
+
+    @Override
+    public CustomSparkMax setArmFF(double kS, double kG, double kV, double kA) {
+        config.closedLoop.feedForward.kG(0);
+        config.closedLoop.feedForward.kCos(kG);
+        config.closedLoop.feedForward.sva(kS, kV, kA);
+        configure(config);
+        return this;
+    }
+
+    @Override
+    public CustomSparkMax setContinuousRange(double range) {
+        if (range < 0) {
+            throw new IllegalArgumentException("CustomSparkMax.setContinuousRange() cannot be negative.");
         }
 
-        if (slots[slot] != null) {
-            return slots[slot];
+        continuousRange = range;
+        if (range != 0) {
+            config.closedLoop.positionWrappingEnabled(true);
+            config.closedLoop.positionWrappingInputRange(0, range);
         } else {
-            return slots[slot] = new ConfigSlot(slot);
+            config.closedLoop.positionWrappingEnabled(false);
         }
+        return this;
+    }
+
+    @Override
+    public double getContinuousRange() {
+        return continuousRange;
+    }
+
+    @Override
+    public void holdPosition(double pos, double addedVoltage) {
+        getClosedLoopController().setSetpoint(pos, ControlType.kPosition, ClosedLoopSlot.kSlot0, addedVoltage);
+    }
+
+    @Override
+    public void holdVelocity(double vel, double addedVoltage) {
+        getClosedLoopController().setSetpoint(vel, ControlType.kVelocity, ClosedLoopSlot.kSlot0, addedVoltage);
     }
 }
