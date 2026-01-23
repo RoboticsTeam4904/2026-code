@@ -1,22 +1,28 @@
 package org.usfirst.frc4904.robot.humaninterface.drivers;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
-import org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 
-public class SwerveGain extends Driver { //ALL SWERVEGAIN JOYSTICKS OUTPUT FROM -1 TO 1
+import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
 
-    double SPEED_EXP = 2; //TODO TUNE
-    double TURN_EXP = 2; //TODO TUNE
+public class SwerveGain extends Driver {
+
+    private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
 
     public SwerveGain() {
         super("SwerveGain");
     }
 
     protected double scaleGain(double input, double exp) {
-        return Math.pow(Math.abs(input), exp) * Math.signum(input);
+        return MathUtil.copyDirectionPow(input, exp);
     }
 
     public void bindCommands() {
@@ -36,32 +42,25 @@ public class SwerveGain extends Driver { //ALL SWERVEGAIN JOYSTICKS OUTPUT FROM 
         Component.chassis.removeDefaultCommand();
     }
 
+    // positive x = right
     public double getX() {
         double raw = HumanInput.Driver.xyJoystick.getX();
         return scaleGain(raw, SPEED_EXP);
     }
 
+    // positive y = down
     public double getY() {
         double raw = HumanInput.Driver.xyJoystick.getY();
         return scaleGain(raw, SPEED_EXP);
     }
 
+    // returned translation is in standard field-relative coordinates (forward, left)
     public Translation2d getTranslation() {
-        double dead = HumanInterfaceConfig.JOYSTICK_DEADZONE;
+        double forward = -HumanInput.Driver.xyJoystick.getY();
+        double left    = -HumanInput.Driver.xyJoystick.getX();
 
-        double rawX = HumanInput.Driver.xyJoystick.getX();
-        double rawY = -HumanInput.Driver.xyJoystick.getY();
-
-        double mag = Math.hypot(rawX, rawY);
-
-        if (mag < dead) {
-            return Translation2d.kZero;
-        }
-
-        double scaled = scaleGain((mag - dead) / (1 - dead), SPEED_EXP);
-        double scale = scaled / mag;
-
-        return new Translation2d(rawX * scale, rawY * scale);
+        Vector<N2> vec = MathUtil.applyDeadband(VecBuilder.fill(left, forward), JOYSTICK_DEADZONE);
+        return new Translation2d(vec);
     }
 
     public double getTurnSpeed() {

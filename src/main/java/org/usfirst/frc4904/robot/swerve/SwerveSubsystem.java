@@ -49,8 +49,7 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     }
 
     public Translation2d toRobotRelative(Translation2d translation) {
-        // TODO account for alliance direction?
-        double rotation = Component.navx.getYaw() + 90;
+        double rotation = Component.navx.getYaw();
         return translation.rotateBy(Rotation2d.fromDegrees(rotation));
     }
 
@@ -159,8 +158,8 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
      * <p>
      * See {@link #input(Translation2d, double)}
      */
-    public Command c_input(Supplier<Translation2d> trans, DoubleSupplier theta) {
-        return run(() -> input(trans.get(), theta.getAsDouble()));
+    public Command c_input(Supplier<Translation2d> translation, DoubleSupplier theta) {
+        return run(() -> input(translation.get(), theta.getAsDouble()));
     }
 
     public void resetOdometry() {
