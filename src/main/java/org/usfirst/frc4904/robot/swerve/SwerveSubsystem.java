@@ -49,8 +49,8 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     }
 
     public Translation2d toRobotRelative(Translation2d translation) {
-        double rotation = Component.navx.getYaw();
-        return translation.rotateBy(Rotation2d.fromDegrees(rotation));
+        double rotation = Component.navx.getYaw() + 90;
+        return translation.rotateBy(Rotation2d.fromDegrees(-rotation));
     }
 
     /**
