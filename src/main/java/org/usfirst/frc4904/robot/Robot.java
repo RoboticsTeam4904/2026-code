@@ -82,9 +82,9 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void alwaysExecute() {
-        if (Logging.cooldown("Robot.alwaysExecute", 1)) {
-            List<Tag> tags = Component.vision.gtm.getTags();
-            if (!tags.isEmpty()) System.out.println("WE FOUND A TAG: " + tags);
-        }
+        // if (Logging.cooldown("Robot.alwaysExecute", 1)) {
+        //     List<Tag> tags = Component.vision.gtm.getTags();
+        //     if (!tags.isEmpty()) System.out.println("WE FOUND A TAG: " + tags);
+        // }
     }
 }
