@@ -18,7 +18,9 @@ import org.usfirst.frc4904.standard.commands.NoOp;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-class SwerveConstants {
+final class SwerveConstants {
+    private SwerveConstants() {}
+
     // TODO: get real measurements
     public static final double LIN_RPM = 6380;
     public static final double LIN_GEAR_RATIO = 5.1;
