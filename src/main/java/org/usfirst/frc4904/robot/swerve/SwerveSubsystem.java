@@ -122,6 +122,9 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     /// COMMANDS
 
     private static final PIDController rotPID = new PIDController(1, 0, 0);
+    static {
+        rotPID.enableContinuousInput(0, 1);
+    }
     private RotateToCommand rotCommand; // non-null when a rot command is running
     double rotPIDEffort;
 
