@@ -2,6 +2,8 @@ package org.usfirst.frc4904.robot.subsystems;
 
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
+import edu.wpi.first.wpilibj2.command.Command;
+
 public class IntakeSubsystem extends MotorSubsystem{
     public IntakeSubsystem(SmartMotorController intakeVerticalMotor, SmartMotorController intakeRollerMotor, CustomEncoder intakeEncoder){
         super(
