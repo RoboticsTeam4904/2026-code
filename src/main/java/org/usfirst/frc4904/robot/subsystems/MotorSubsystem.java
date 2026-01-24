@@ -67,19 +67,16 @@ public class MotorSubsystem extends SubsystemBase {
         this.forwardVoltage = forwardVoltage;
         this.backwardVoltage = backwardVoltage;
 
-        for (SmartMotorController motor : motors) {
-            motor.setBrakeOnNeutral();
-        }
+        setBrakeOnNeutral();
     }
 
     public void setVoltage(double voltage) {
-        for (SmartMotorController motor : motors) {
-            motor.setVoltage(voltage);
-        }
+        for (var motor : motors) motor.setVoltage(voltage);
     }
 
     public void stop() {
-        for (var motor : motors) motor.setVoltage(0);
+        // presumably the same as setVoltage(0)
+        for (var motor : motors) motor.stopMotor();
     }
 
     public void setBrakeOnNeutral() {
@@ -88,16 +85,6 @@ public class MotorSubsystem extends SubsystemBase {
 
     public void setCoastOnNeutral() {
         for (var motor : motors) motor.setCoastOnNeutral();
-    }
-
-    public void brake() {
-        setBrakeOnNeutral();
-        stop();
-    }
-
-    public void coast() {
-        setCoastOnNeutral();
-        stop();
     }
 
     public Command c_holdVoltage(double voltage, boolean stopOnEnd) {
@@ -125,11 +112,4 @@ public class MotorSubsystem extends SubsystemBase {
         return runOnce(this::stop);
     }
 
-    public Command c_brake() {
-        return runOnce(this::brake);
-    }
-
-    public Command c_coast() {
-        return runOnce(this::coast);
-    }
 }
