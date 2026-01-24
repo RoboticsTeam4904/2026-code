@@ -1,6 +1,5 @@
 package org.usfirst.frc4904.robot;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +13,6 @@ import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomSparkMax;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 
@@ -91,29 +89,29 @@ public final class RobotMap {
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
                 "Front Left",
-                new CustomTalonFX(1),
-                new CustomSparkMax(5,MotorType.kBrushless),
+                new CustomTalonFX(2),
+                new CustomTalonFX(17),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
                 "Front Right",
-                new CustomTalonFX(2),
-                new CustomSparkMax(6,MotorType.kBrushless),
+                new CustomTalonFX(3),
+                new CustomTalonFX(15),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "Back Left",
-                new CustomTalonFX(3),
-                new CustomSparkMax(7,MotorType.kBrushless),
+                new CustomTalonFX(4),
+                new CustomTalonFX(18),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
                 new Translation2d(1, -1)
             ),
             new SwerveModule(
                 "Back Right",
-                new CustomTalonFX(4),
-                new CustomSparkMax(8,MotorType.kBrushless),
+                new CustomTalonFX(1),
+                new CustomTalonFX(16),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
                 new Translation2d(-1, -1)
             )
