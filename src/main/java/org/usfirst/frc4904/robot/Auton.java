@@ -5,7 +5,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 
-public class Auton {
+public final class Auton {
+    private Auton() {}
 
     /**
      * Move straight out of the starting zone and do nothing.

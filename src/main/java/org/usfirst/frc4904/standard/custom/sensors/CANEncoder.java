@@ -111,7 +111,7 @@ public class CANEncoder extends CANSensor implements CustomEncoder {
      * Returns true when stopped
      */
     @Override
-    public boolean getStoppedSafely() throws InvalidSensorException {
+    public boolean getStoppedSafely() {
         return Util.isZero(getRate());
     }
 

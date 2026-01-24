@@ -17,9 +17,6 @@ public class ezMotion extends Command {
 
     public double initialTimestamp;
 
-    private double setpoint;
-    private double setpoint_dt;
-
     public ezMotion(
         ezControl control,
         DoubleSupplier getCurrent,
@@ -49,10 +46,8 @@ public class ezMotion extends Command {
         double elapsed = getElapsedTime();
 
         Pair<Double, Double> setpoints = setpointDealer.get(elapsed);
-        setpoint = setpoints.getFirst();
-        setpoint_dt = setpoints.getSecond();
+        control.updateSetpoint(setpoints.getFirst(), setpoints.getSecond());
 
-        control.updateSetpoint(setpoint, setpoint_dt);
         double controlEffort = control.calculate(getCurrent.getAsDouble(), elapsed);
         processValue.accept(controlEffort);
     }

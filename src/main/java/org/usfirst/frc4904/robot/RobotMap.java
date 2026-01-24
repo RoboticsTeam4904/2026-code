@@ -16,7 +16,7 @@ import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 
-public class RobotMap {
+public final class RobotMap {
 
     public static class Port {
 
@@ -121,13 +121,13 @@ public class RobotMap {
             new Transform2d(Units.inchesToMeters(8), Units.inchesToMeters(0), Rotation2d.kZero)
         );
 
-        Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);
-        Component.lights = new LightSubsystem(
-            Component.ledStrip,
-            107,
-            new int[] { 20, 37, 34, 16 },
-            new boolean[] { false, true, false, true }
-        );
+        // Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);
+        // Component.lights = new LightSubsystem(
+        //     Component.ledStrip,
+        //     107,
+        //     new int[] { 20, 37, 34, 16 },
+        //     new boolean[] { false, true, false, true }
+        // );
 
         HumanInput.Driver.xyJoystick = new CustomCommandJoystick(
             Port.HumanInput.xyJoystickPort,
@@ -140,4 +140,7 @@ public class RobotMap {
 
         HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);
     }
+
+    private RobotMap() {}
+
 }

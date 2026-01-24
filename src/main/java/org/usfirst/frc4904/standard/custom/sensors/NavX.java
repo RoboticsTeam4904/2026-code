@@ -2,8 +2,6 @@
 package org.usfirst.frc4904.standard.custom.sensors;
 
 import com.studica.frc.AHRS;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.SerialPort;
 
 /**
  * Local NavX interface.
@@ -99,4 +97,3 @@ public class NavX extends AHRS implements IMU {
         lastYaw = 0;
     }
 }
-

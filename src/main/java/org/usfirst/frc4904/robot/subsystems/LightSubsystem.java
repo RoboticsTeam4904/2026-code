@@ -7,7 +7,7 @@ import org.usfirst.frc4904.standard.util.Util;
 
 public class LightSubsystem extends SubsystemBase {
 
-    public static class Color {
+    public static final class Color {
 
         public static final int[] SUCCESS  = { 0, 200, 50 };
         public static final int[] FAIL     = { 255, 50, 0 };
@@ -16,6 +16,8 @@ public class LightSubsystem extends SubsystemBase {
 
         public static final int[] ENABLED  = { 255, 100, 0 };
         public static final int[] DISABLED = { 200, 220, 255 };
+
+        private Color() {}
 
     }
 
@@ -120,7 +122,6 @@ public class LightSubsystem extends SubsystemBase {
             float a = Util.clamp(strength * 4, 0, 1);
 
 
-            //TODO: make "blue" and "!blue depending on alliance colour"
             colors[i][0] = blue ? b : r;
             colors[i][1] = g * 0.8f; // green LEDs are brighter
             colors[i][2] = blue ? r : b;
@@ -180,7 +181,7 @@ public class LightSubsystem extends SubsystemBase {
 
                 if (flashStrength > 0) {
                     alphaBlend(colors, flashColor, (float) Math.sqrt(flashStrength));
-                    flashStrength -= (float) deltaTime / 1.5;
+                    flashStrength -= (float) deltaTime / 1.5f;
                 }
 
                 view.copyColorsToBuffer();

@@ -44,10 +44,10 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
     }
 
     // TODO: also support normally closed limit switches
-    public boolean isFwdLimitSwitchPressed() throws IllegalAccessException {
+    public boolean isFwdLimitSwitchPressed() {
         return getForwardLimit().getValue() == ForwardLimitValue.ClosedToGround;
     }
-    public boolean isRevLimitSwitchPressed() throws IllegalAccessException {
+    public boolean isRevLimitSwitchPressed() {
         // TODO: this boolean might be reversed
         return getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround;
     }

@@ -1,9 +1,7 @@
 package org.usfirst.frc4904.robot.humaninterface.operators;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
-import org.usfirst.frc4904.robot.vision.VisionSubsystem.TagGroup;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 
 public class DefaultOperator extends Operator {

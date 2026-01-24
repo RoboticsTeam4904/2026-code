@@ -8,7 +8,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class CustomSparkMax extends SparkMax implements SmartMotorController {
 
-    protected boolean limitSwitch;
+    protected final boolean limitSwitch;
 
     public CustomSparkMax(int deviceNumber, MotorType motorType, boolean inverted, boolean limitSwitch) {
         super(deviceNumber, motorType);

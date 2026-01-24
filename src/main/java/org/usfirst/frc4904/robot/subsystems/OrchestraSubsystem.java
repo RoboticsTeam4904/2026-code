@@ -7,12 +7,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 
 /** Orchestra™ */
 public class OrchestraSubsystem extends SubsystemBase {
 
-    private static final HashMap<String, OrchestraSubsystem> songs = new HashMap<>();
+    private static final Map<String, OrchestraSubsystem> songs = new HashMap<>();
 
     /**
      * Loads a song to be played later with {@link OrchestraSubsystem#playSong(String)}.
