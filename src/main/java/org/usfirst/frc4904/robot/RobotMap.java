@@ -5,6 +5,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
+
+import org.usfirst.frc4904.robot.subsystems.ClimberSubsystem;
+import org.usfirst.frc4904.robot.subsystems.IntakeSubsystem;
 import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
 import org.usfirst.frc4904.robot.swerve.SwerveModule;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
@@ -12,6 +15,7 @@ import org.usfirst.frc4904.robot.vision.VisionSubsystem;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 import org.usfirst.frc4904.standard.custom.sensors.CustomNavx;
 
@@ -50,6 +54,8 @@ public final class RobotMap {
         public static SwerveSubsystem chassis;
         public static LightSubsystem lights;
         public static VisionSubsystem vision;
+        public static ClimberSubsystem climber;
+        public static IntakeSubsystem intake;
 
         // motors
         public static CustomTalonFX flDrive;
@@ -60,6 +66,10 @@ public final class RobotMap {
         public static CustomTalonFX blTurn;
         public static CustomTalonFX brDrive;
         public static CustomTalonFX brTurn;
+
+        public static SmartMotorController climbMotor;
+        public static SmartMotorController intakeVerticalMotor;
+        public static SmartMotorController intakeRollerMotor;
 
         // misc
         public static AddressableLED ledStrip;
@@ -136,6 +146,10 @@ public final class RobotMap {
         //     new boolean[] { false, true, false, true }
         // );
 
+        Component.climbMotor = new CustomTalonFX(32);
+        Component.intakeVerticalMotor = new CustomTalonFX(64);
+        Component.intakeRollerMotor = new CustomTalonFX(68);
+
         HumanInput.Driver.xyJoystick = new CustomCommandJoystick(
             Port.HumanInput.xyJoystickPort,
             0.0
@@ -144,7 +158,6 @@ public final class RobotMap {
             Port.HumanInput.zJoystickPort,
             0.0
         );
-
         HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);
     }
 
