@@ -23,7 +23,7 @@ public class DefaultOperator extends Operator {
         var turnJoystick = RobotMap.HumanInput.Driver.turnJoystick;
 
         /// VISION
-        turnJoystick.button2.whileTrue(Component.vision.c_align(TagGroup.ANY, 0));
+        turnJoystick.button2.whileTrue(Component.chassis.c_rotateTo(0));
 
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(c_resetOdometry());

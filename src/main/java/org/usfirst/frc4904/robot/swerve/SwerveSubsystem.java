@@ -1,12 +1,16 @@
 package org.usfirst.frc4904.robot.swerve;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
@@ -69,6 +73,10 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
      * @param theta Rotation speed in rotations per second
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
+        if (rotCommand != null) {
+            theta = rotPIDEffort;
+        }
+
         Translation2d[] translations = new Translation2d[modules.length];
         double maxMag = SwerveConstants.LIN_SPEED;
 
@@ -103,10 +111,56 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
 
     @Override
     public void periodic() {
+        if (DriverStation.isDisabled()) return;
         for (var module : modules) module.periodic();
     }
 
+    double getHeading() {
+        return -Units.degreesToRotations(Component.navx.getYaw());
+    }
+
     /// COMMANDS
+
+    private static final PIDController rotPID = new PIDController(1, 0, 0);
+    private RotateToCommand rotCommand; // non-null when a rot command is running
+    double rotPIDEffort;
+
+    public Command c_rotateTo(double theta) {
+        return c_rotateTo(() -> theta);
+    }
+
+    public Command c_rotateTo(DoubleSupplier getTheta) {
+        return new RotateToCommand(getTheta);
+    }
+
+    private class RotateToCommand extends Command {
+
+        private final DoubleSupplier getTheta;
+
+        RotateToCommand(DoubleSupplier getTheta) {
+            this.getTheta = getTheta;
+            // don't require swerve subsystem so that it can run in parallel to other swerve commands
+        }
+
+        @Override
+        public void initialize() {
+            // manually cancel any other active rotate command
+            if (rotCommand != null) rotCommand.cancel();
+            rotCommand = this;
+        }
+
+        @Override
+        public void execute() {
+            double current = getHeading();
+            double goal = getTheta.getAsDouble();
+            rotPIDEffort = rotPID.calculate(current, goal);
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            rotCommand = null;
+        }
+    }
 
     /**
      * Stop the wheels.
