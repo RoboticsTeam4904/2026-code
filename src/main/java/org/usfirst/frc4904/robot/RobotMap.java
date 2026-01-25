@@ -88,33 +88,35 @@ public final class RobotMap {
 
         Component.navx = new AHRS(NavXComType.kMXP_SPI);
 
+        var flTurn = new CustomSparkMax(5,MotorType.kBrushless);
+        var frTurn = new CustomSparkMax(6,MotorType.kBrushless);
+        var blTurn = new CustomSparkMax(7,MotorType.kBrushless);
+        var brTurn = new CustomSparkMax(8,MotorType.kBrushless);
+
+
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
-                "Front Left",
                 new CustomTalonFX(1),
-                new CustomSparkMax(5,MotorType.kBrushless),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
+                flTurn,
+                flTurn.getAbsoluteEncoder(),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
-                "Front Right",
                 new CustomTalonFX(2),
-                new CustomSparkMax(6,MotorType.kBrushless),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
+                frTurn,
+                frTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
-                "Back Left",
                 new CustomTalonFX(3),
-                new CustomSparkMax(7,MotorType.kBrushless),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
+                blTurn,
+                blTurn.getAbsoluteEncoder(),
                 new Translation2d(1, -1)
             ),
             new SwerveModule(
-                "Back Right",
                 new CustomTalonFX(4),
-                new CustomSparkMax(8,MotorType.kBrushless),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
+                brTurn,
+                brTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, -1)
             )
         );

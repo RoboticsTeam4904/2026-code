@@ -1,85 +1,42 @@
 package org.usfirst.frc4904.robot.swerve;
 
-import edu.wpi.first.math.MathUtil;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
-import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
+
 import org.usfirst.frc4904.standard.util.Util;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
-public class SwerveModule implements Sendable {
-
-    public final String name;
-
+public class SwerveModule {
     private final DriveController drive;
     private final RotationController rotation;
 
-    private double magnitude;
-    private double theta;
+    private double magnitude = 0;
+    private double theta = 0;
 
     public SwerveModule(
-        String name,
         SmartMotorController driveMotor,
         SmartMotorController rotMotor,
-        CustomDutyCycleEncoder rotEncoder,
+        SparkAbsoluteEncoder rotEncoder,
         Translation2d direction
     ) {
-        this.name = name;
-
-        drive = driveMotor != null ? new DriveController(driveMotor) : null;
+        drive = new DriveController(driveMotor);
         rotation = new RotationController(rotMotor, rotEncoder, direction);
-
-        SmartDashboard.putData("swerve/" + name, this);
     }
 
-    Translation2d rotToTranslation(double theta) {
+    public Translation2d rotToTranslation(double theta) {
         return rotation.toTranslation(theta);
     }
 
-    void zero() {
-        rotation.zero();
-    }
-
-    void setMotorBrake(boolean brake) {
-        if (brake) {
-            drive.motor().setBrakeOnNeutral();
-            rotation.motor.setBrakeOnNeutral();
-        } else {
-            drive.motor().setCoastOnNeutral();
-            rotation.motor.setCoastOnNeutral();
-        }
-    }
-
-    void moveTo(double magnitude, double theta) {
+    public void moveTo(double magnitude, double theta) {
         this.magnitude = magnitude;
         if (magnitude > 0) this.theta = theta;
     }
 
-    void periodic() {
-        double angleDist = rotation.rotateToward(theta);
-        if (drive != null) drive.setMagnitude(magnitude * angleDist);
-    }
-
-    /// SMART DASHBOARD
-
-    void addSendableProps(SendableBuilder builder) {
-        builder.addDoubleProperty(name + " Angle", () -> theta, null);
-        builder.addDoubleProperty(name + " Velocity", () -> magnitude, null);
-    }
-
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("Swerve Module");
-        builder.addDoubleProperty("angle", rotation::getRotation, null);
-        builder.addDoubleProperty("delta", () -> {
-            double delta = theta - rotation.getRotation();
-            return MathUtil.inputModulus(delta, -0.5, 0.5);
-        }, null);
-        builder.addDoubleProperty("zero", rotation.encoder::getResetOffset, rotation.encoder::setResetOffset);
+    public void periodic() {
+        // TODO run this faster than 50hz - run pid on motor
+        boolean flip = rotation.rotateToward(theta);
+        drive.setMagnitude(flip ? -magnitude : magnitude);
     }
 }
 
@@ -90,12 +47,14 @@ record DriveController(SmartMotorController motor) {
 }
 
 class RotationController {
-    private static final double kP = 15, kI = 0, kD = 0;
+    private static final double kP = 40;
+    private static final double kI = 0;
+    private static final double kD = 0;
 
-    private static final double MAX_VOLTAGE = 4;
+    private static final double MAX_VOLTAGE = 8;
 
-    final SmartMotorController motor;
-    final CustomDutyCycleEncoder encoder;
+    public final SmartMotorController motor;
+    private final SparkAbsoluteEncoder encoder;
 
     private final Translation2d direction;
 
@@ -103,11 +62,10 @@ class RotationController {
 
     public RotationController(
         SmartMotorController motor,
-        CustomDutyCycleEncoder encoder,
+        SparkAbsoluteEncoder encoder,
         Translation2d direction
     ) {
         this.motor = motor;
-
         this.encoder = encoder;
 
         this.direction = direction.div(direction.getNorm());
@@ -118,16 +76,13 @@ class RotationController {
         this.pid.enableContinuousInput(0, 0.5);
     }
 
-    Translation2d toTranslation(double theta) {
+    public Translation2d toTranslation(double theta) {
         return direction.times(theta);
     }
 
-    void zero() {
-        encoder.reset();
-    }
-
-    double getRotation() {
-        return encoder.get();
+    private double getRotation() {
+        // flip so that positive is counterclockwise
+        return 1 - encoder.getPosition();
     }
 
     private void setVoltage(double voltage) {
@@ -135,14 +90,15 @@ class RotationController {
     }
 
     /**
-     * @return Similarity between current and target rotation.
-     *         Effectively a dot product: 1 = same angle, -1 = opposite, 0 = perpendicular.
+     * @return True if the wheel is currently more than halfway off the target
+     *         and therefore should drive in the opposite direction.
      */
-    public double rotateToward(double theta) {
+    public boolean rotateToward(double theta) {
         double current = getRotation();
-        double voltage = -pid.calculate(current, theta);
+        double voltage = pid.calculate(current, theta);
         setVoltage(Util.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE));
 
-        return Math.cos(Units.rotationsToRadians(theta - current));
+        double dist = Math.abs(theta - current);
+        return dist > 0.25 && dist < 0.75;
     }
 }

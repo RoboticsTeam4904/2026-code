@@ -25,6 +25,6 @@ public class DefaultOperator extends Operator {
 
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(c_resetOdometry());
-        xyJoystick.button2.onTrue(c_zeroSwerve());
+        // xyJoystick.button2.onTrue(c_zeroSwerve());
     }
 }

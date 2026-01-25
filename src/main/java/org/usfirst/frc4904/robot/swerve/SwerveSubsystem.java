@@ -226,25 +226,26 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     /**
      * Zero the rotation encoders for all swerve modules.
      */
-    public void zero() {
-        System.out.println("zeroed");
-        for (var module : modules) module.zero();
-    }
+    // public void zero() {
+    //     System.out.println("zeroed");
+    //     for (var module : modules) module.zero();
+    // }
 
-    public void setMotorBrake(boolean brake) {
-        for (var module : modules) module.setMotorBrake(brake);
+    public Command setMotorBrake(boolean brake) {
+        // for (var module : modules) module.setMotorBrake(brake);
+        return new NoOp(); // TODONT
     }
 
     public Command getAutonomousCommand(String path, boolean setOdom, boolean flipSide) {
         return new NoOp(); // TODO
     }
 
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("SwerveDrive");
-        for (var module : modules) {
-            module.addSendableProps(builder);
-        }
-        builder.addDoubleProperty("Robot Angle", () -> Units.degreesToRotations(Component.navx.getYaw()), null);
-    }
+    // @Override
+    // public void initSendable(SendableBuilder builder) {
+    //     builder.setSmartDashboardType("SwerveDrive");
+    //     for (var module : modules) {
+    //         module.addSendableProps(builder);
+    //     }
+    //     builder.addDoubleProperty("Robot Angle", () -> Units.degreesToRotations(Component.navx.getYaw()), null);
+    // }
 }
