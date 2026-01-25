@@ -1,8 +1,14 @@
 package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -13,28 +19,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
 
+import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 final class SwerveConstants {
 
     // TODO: get real measurements
-    public static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
-    public static final double ROT_GEAR_RATIO = 5.1; // motor rots/wheel rots
+    static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
+    static final double ROT_GEAR_RATIO = 5.1; // motor rots/wheel rots
 
-    private static final double WHEEL_RADIUS = 0.07; // m
-    private static final double ROBOT_DIAGONAL = 1.15; // m
+    static final double ROBOT_DIAGONAL = 1.15; // m
+    static final double WHEEL_RADIUS = 0.07; // m
 
-    private static final double WHEEL_CIRC = 2 * Math.PI * WHEEL_RADIUS; // m
-    private static final double ROBOT_TURN_CIRC = Math.PI * ROBOT_DIAGONAL; // m
+    static final double WHEEL_CIRC = 2 * Math.PI * WHEEL_RADIUS; // m or m/rot
+
+    static final double ROBOT_TURN_CIRC = Math.PI * ROBOT_DIAGONAL; // m
 
     // TODO: tune
-    public static final double LIN_SPEED = 6; // m/s
-    public static final double ROT_SPEED = LIN_SPEED * ROBOT_TURN_CIRC; // rot/s
-
-    public static double metersToDriveMotorRots(double distance) {
-        return distance / WHEEL_CIRC * DRIVE_GEAR_RATIO;
-    }
+    static final double LIN_SPEED = 6; // m/s
+    static final double ROT_SPEED = LIN_SPEED * ROBOT_TURN_CIRC; // rot/s
 
     private SwerveConstants() {}
 
@@ -42,12 +46,32 @@ final class SwerveConstants {
 
 public class SwerveSubsystem extends SubsystemBase implements Sendable {
 
+    private final SwerveDriveKinematics kinematics;
+    private final SwerveDrivePoseEstimator estimator;
     private final SwerveModule[] modules;
 
     public SwerveSubsystem(SwerveModule... modules) {
         this.modules = modules;
 
+        kinematics = new SwerveDriveKinematics(
+            Arrays.stream(modules)
+                  .map(module -> module.position)
+                  .toArray(Translation2d[]::new)
+        );
+        estimator = new SwerveDrivePoseEstimator(
+            kinematics,
+            Component.navx.getRotation2d(),
+            getModulePositions(),
+            Pose2d.kZero // TODO
+        );
+
         SmartDashboard.putData("swerve/goal", this);
+    }
+
+    private SwerveModulePosition[] getModulePositions() {
+        return Arrays.stream(modules)
+                     .map(SwerveModule::getModulePosition)
+                     .toArray(SwerveModulePosition[]::new);
     }
 
     /**

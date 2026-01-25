@@ -97,13 +97,13 @@ public final class RobotMap {
                 "Front Right",
                 new CustomTalonFX(3),
                 new CustomTalonFX(15),
-                new Translation2d(-1, 1)
+                new Translation2d(1, -1)
             ),
             new SwerveModule(
                 "Back Left",
                 new CustomTalonFX(4),
                 new CustomTalonFX(18),
-                new Translation2d(1, -1)
+                new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "Back Right",

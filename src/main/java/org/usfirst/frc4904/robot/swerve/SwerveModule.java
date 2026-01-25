@@ -1,7 +1,9 @@
 package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -11,7 +13,8 @@ import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController
 
 public class SwerveModule implements Sendable {
 
-    public final String name;
+    final String name;
+    final Translation2d position;
 
     private final DriveController drive;
     private final RotationController rotation;
@@ -23,18 +26,31 @@ public class SwerveModule implements Sendable {
         String name,
         SmartMotorController driveMotor,
         SmartMotorController rotMotor,
-        Translation2d direction
+        Translation2d position
     ) {
         this.name = name;
+        // TODO maybe remove normalization and make it the caller's responsibility to pass the position in meters
+        this.position = position.times(SwerveConstants.ROBOT_DIAGONAL / (2 * position.getNorm()));
+
+        Translation2d direction = position.rotateBy(Rotation2d.kCCW_90deg);
 
         drive = driveMotor != null ? new DriveController(driveMotor) : null;
         rotation = new RotationController(rotMotor, direction, name);
+
+        theta = rotation.getRotation();
 
         SmartDashboard.putData("swerve/" + name, this);
     }
 
     Translation2d rotToTranslation(double theta) {
         return rotation.toTranslation(theta);
+    }
+
+    SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(
+            drive.getDistance(),
+            Rotation2d.fromRotations(rotation.getRotation())
+        );
     }
 
     void zero() {
@@ -91,8 +107,12 @@ record DriveController(SmartMotorController motor) {
              .setMotorMechanismRatio(SwerveConstants.DRIVE_GEAR_RATIO);
     }
 
-    void setMagnitude(double magnitude) {
-        motor.holdVelocity(SwerveConstants.metersToDriveMotorRots(magnitude));
+    double getDistance() {
+        return motor.getRotation() * SwerveConstants.WHEEL_CIRC;
+    }
+
+    void setMagnitude(double mps) {
+        motor.holdVelocity(mps / SwerveConstants.WHEEL_CIRC);
     }
 }
 
