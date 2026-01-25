@@ -26,6 +26,7 @@ public class SwerveGain extends Driver {
     public void bindCommands() {
         Component.chassis.setDefaultCommand(
             Component.chassis.c_input(this::getTranslation, this::getTurnSpeed)
+                .withName("Driver - swerve drive")
         );
 
         // RobotMap.HumanInput.Driver.turnJoystick.button1.onTrue(

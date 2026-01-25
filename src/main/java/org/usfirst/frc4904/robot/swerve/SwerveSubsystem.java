@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -53,8 +54,8 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     }
 
     public Translation2d toRobotRelative(Translation2d translation) {
-        double rotation = Component.navx.getYaw() + 90;
-        return translation.rotateBy(Rotation2d.fromDegrees(-rotation));
+        double rotation = getHeading() + 0.25;
+        return translation.rotateBy(Rotation2d.fromRotations(-rotation));
     }
 
     /**
@@ -116,15 +117,11 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     }
 
     double getHeading() {
-        return -Units.degreesToRotations(Component.navx.getYaw());
+        return Units.degreesToRotations(Component.navx.getYaw()) + 0.5;
     }
 
     /// COMMANDS
 
-    private static final PIDController rotPID = new PIDController(1, 0, 0);
-    static {
-        rotPID.enableContinuousInput(0, 1);
-    }
     private RotateToCommand rotCommand; // non-null when a rot command is running
     double rotPIDEffort;
 
@@ -132,16 +129,21 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
         return c_rotateTo(() -> theta);
     }
 
-    public Command c_rotateTo(DoubleSupplier getTheta) {
+    public Command c_rotateTo(Supplier<Double> getTheta) {
         return new RotateToCommand(getTheta);
     }
 
     private class RotateToCommand extends Command {
 
-        private final DoubleSupplier getTheta;
+        private final PIDController rotPID;
 
-        RotateToCommand(DoubleSupplier getTheta) {
+        private final Supplier<Double> getTheta;
+
+        RotateToCommand(Supplier<Double> getTheta) {
             this.getTheta = getTheta;
+
+            rotPID = new PIDController(20, 0, 0);
+            rotPID.enableContinuousInput(0, 1);
             // don't require swerve subsystem so that it can run in parallel to other swerve commands
         }
 
@@ -152,11 +154,25 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
             rotCommand = this;
         }
 
+        private Double lastGoal;
+
         @Override
         public void execute() {
             double current = getHeading();
-            double goal = getTheta.getAsDouble();
-            rotPIDEffort = rotPID.calculate(current, goal);
+            Double nextGoal = getTheta.get();
+
+            if (nextGoal == null && lastGoal == null) {
+                rotPIDEffort = 0;
+            } else {
+                double goal = nextGoal == null ? lastGoal : nextGoal;
+                lastGoal = goal;
+                System.out.println("goal: " + goal);
+                rotPIDEffort = Util.clamp(
+                    rotPID.calculate(0, goal), // TODO change back to current
+                    -SwerveConstants.ROT_SPEED,
+                    SwerveConstants.ROT_SPEED
+                );
+            }
         }
 
         @Override
@@ -231,6 +247,14 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
         for (var module : modules) module.zero();
     }
 
+    /**
+     * Flip current zero position
+     */
+    public void flipZero() {
+        System.out.println("flipped zero");
+        for (var module : modules) module.flipZero();
+    }
+
     public void setMotorBrake(boolean brake) {
         for (var module : modules) module.setMotorBrake(brake);
     }
@@ -245,6 +269,6 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
         for (var module : modules) {
             module.addSendableProps(builder);
         }
-        builder.addDoubleProperty("Robot Angle", () -> Units.degreesToRotations(Component.navx.getYaw()), null);
+        builder.addDoubleProperty("Robot Angle", () -> getHeading(), null);
     }
 }

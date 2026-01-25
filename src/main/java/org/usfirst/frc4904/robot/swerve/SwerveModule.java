@@ -44,6 +44,10 @@ public class SwerveModule implements Sendable {
         rotation.zero();
     }
 
+    void flipZero() {
+        rotation.flipZero();
+    }
+
     void setMotorBrake(boolean brake) {
         if (brake) {
             drive.motor().setBrakeOnNeutral();
@@ -67,7 +71,7 @@ public class SwerveModule implements Sendable {
     /// SMART DASHBOARD
 
     void addSendableProps(SendableBuilder builder) {
-        builder.addDoubleProperty(name + " Angle", () -> theta, null);
+        builder.addDoubleProperty(name + " Angle", () -> -theta, null);
         builder.addDoubleProperty(name + " Velocity", () -> magnitude, null);
     }
 
@@ -124,6 +128,10 @@ class RotationController {
 
     void zero() {
         encoder.reset();
+    }
+
+    void flipZero() {
+        encoder.flip();
     }
 
     double getRotation() {

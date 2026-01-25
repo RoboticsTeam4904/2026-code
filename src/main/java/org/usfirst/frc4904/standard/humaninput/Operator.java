@@ -25,4 +25,13 @@ public abstract class Operator extends HumanInput {
             }
         };
     }
+
+    protected static Command c_flipZero() {
+        return new InstantCommand(() -> Component.chassis.flipZero()) {
+            @Override
+            public boolean runsWhenDisabled() {
+                return true;
+            }
+        };
+    }
 }
