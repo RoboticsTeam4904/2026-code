@@ -13,8 +13,8 @@ import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController
 
 public class SwerveModule implements Sendable {
 
-    final String name;
-    final Translation2d position;
+    public final String name;
+    public final Translation2d position;
 
     private final DriveController drive;
     private final RotationController rotation;
@@ -29,21 +29,14 @@ public class SwerveModule implements Sendable {
         Translation2d position
     ) {
         this.name = name;
-        // TODO maybe remove normalization and make it the caller's responsibility to pass the position in meters
-        this.position = position.times(SwerveConstants.ROBOT_DIAGONAL / (2 * position.getNorm()));
-
-        Translation2d direction = position.rotateBy(Rotation2d.kCCW_90deg);
+        this.position = position;
 
         drive = driveMotor != null ? new DriveController(driveMotor) : null;
-        rotation = new RotationController(rotMotor, direction, name);
+        rotation = new RotationController(rotMotor, name);
 
         theta = rotation.getRotation();
 
         SmartDashboard.putData("swerve/" + name, this);
-    }
-
-    Translation2d rotToTranslation(double theta) {
-        return rotation.toTranslation(theta);
     }
 
     SwerveModulePosition getModulePosition() {
@@ -123,12 +116,10 @@ class RotationController {
 
     final SmartMotorController motor;
 
-    private final Translation2d direction;
     private final String key;
 
-    RotationController(SmartMotorController motor, Translation2d direction, String name) {
+    RotationController(SmartMotorController motor, String name) {
         this.motor = motor;
-        this.direction = direction.div(direction.getNorm());
 
         key = "swerve zeros/" + name;
 
@@ -139,10 +130,6 @@ class RotationController {
              .setContinuousRange(0.5)
              .setMotorMechanismRatio(SwerveConstants.ROT_GEAR_RATIO)
              .setMechanismRotationOffset(Preferences.getDouble(key, 0));
-    }
-
-    Translation2d toTranslation(double theta) {
-        return direction.times(theta);
     }
 
     void zero() {

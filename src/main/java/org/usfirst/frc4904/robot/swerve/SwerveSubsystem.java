@@ -109,26 +109,31 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
             theta = rotPIDEffort;
         }
 
-        Translation2d[] translations = new Translation2d[modules.length];
-        double maxMag = SwerveConstants.LIN_SPEED;
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
+            translation.getX(),
+            translation.getY(),
+            Units.rotationsToRadians(theta)
+        );
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
 
-        for (int i = 0; i < modules.length; i++) {
-            Translation2d rotation = modules[i].rotToTranslation(theta);
-            Translation2d sum = translation.plus(rotation);
-
-            translations[i] = sum;
-            maxMag = Math.max(sum.getNorm(), maxMag);
+        if (modules.length != moduleStates.length) {
+            throw new ArrayIndexOutOfBoundsException(String.format(
+                "Wrong number of modules (%d) or module states (%d).",
+                modules.length, moduleStates.length
+            ));
         }
 
-        double norm = maxMag / SwerveConstants.LIN_SPEED;
+        double maxMag = SwerveConstants.LIN_SPEED;
+        for (var state : moduleStates) {
+            double speed = state.speedMetersPerSecond;
+            if (speed > maxMag) maxMag = speed;
+        }
+        double norm = SwerveConstants.LIN_SPEED / maxMag;
 
         for (int i = 0; i < modules.length; i++) {
-            Translation2d normalized = translations[i].div(norm);
-
-            double magnitude = normalized.getNorm();
             modules[i].moveTo(
-                magnitude,
-                magnitude > 0 ? normalized.getAngle().getRotations() : 0
+                moduleStates[i].speedMetersPerSecond * norm,
+                moduleStates[i].angle.getRotations()
             );
         }
     }
