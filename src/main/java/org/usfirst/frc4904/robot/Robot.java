@@ -7,6 +7,7 @@
 package org.usfirst.frc4904.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -15,6 +16,7 @@ import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Logging;
 
 public class Robot extends CommandRobotBase {
 
@@ -37,11 +39,14 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void teleopInitialize() {
+        Component.chassis.startPoseEstimator(Pose2d.kZero);
         // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
     }
 
     @Override
-    public void teleopExecute() { }
+    public void teleopExecute() {
+        Logging.log("place", Component.chassis.getPoseEstimate());
+    }
 
     @Override
     public void teleopCleanup() { }

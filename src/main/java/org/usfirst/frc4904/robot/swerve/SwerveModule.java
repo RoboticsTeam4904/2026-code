@@ -2,19 +2,26 @@ package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
+import static org.usfirst.frc4904.robot.swerve.SwerveConstants.*;
+
 public class SwerveModule implements Sendable {
 
-    public final String name;
+    final String name;
+    final Translation2d position;
 
     private final DriveController drive;
     private final RotationController rotation;
@@ -24,17 +31,37 @@ public class SwerveModule implements Sendable {
 
     public SwerveModule(
         String name,
-        SmartMotorController driveMotor,
+        CustomTalonFX driveMotor,
         SmartMotorController rotMotor,
         CustomDutyCycleEncoder rotEncoder,
-        Translation2d direction
+        Translation2d position
     ) {
         this.name = name;
+        // TODO maybe remove normalization and make it the caller's responsibility to pass the position in meters
+        this.position = position.times(ROBOT_DIAGONAL / (2 * position.getNorm()));
+
+        Translation2d direction = position.rotateBy(Rotation2d.kCCW_90deg);
 
         drive = driveMotor != null ? new DriveController(driveMotor) : null;
         rotation = new RotationController(rotMotor, rotEncoder, direction);
 
+        theta = rotation.getRotation();
+
         SmartDashboard.putData("swerve/" + name, this);
+    }
+
+    SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(
+            drive.getDistance(),
+            Rotation2d.fromRotations(rotation.getRotation())
+        );
+    }
+
+    SwerveModuleState getModuleState() {
+        return new SwerveModuleState(
+            drive.getVelocity(),
+            Rotation2d.fromRotations(rotation.getRotation())
+        );
     }
 
     Translation2d rotToTranslation(double theta) {
@@ -83,9 +110,17 @@ public class SwerveModule implements Sendable {
     }
 }
 
-record DriveController(SmartMotorController motor) {
+record DriveController(CustomTalonFX motor) {
     public void setMagnitude(double magnitude) {
-        motor.set(magnitude / SwerveConstants.LIN_SPEED);
+        motor.set(magnitude / LIN_SPEED);
+    }
+
+    double getDistance() {
+        return motor.getPosition().getValueAsDouble() * DRIVE_GEAR_RATIO * WHEEL_CIRC;
+    }
+
+    public double getVelocity() {
+        return motor.getVelocity().getValueAsDouble() * DRIVE_GEAR_RATIO * WHEEL_CIRC;
     }
 }
 
