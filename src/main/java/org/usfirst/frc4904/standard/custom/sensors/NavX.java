@@ -4,7 +4,6 @@ package org.usfirst.frc4904.standard.custom.sensors;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.studica.frc.Navx;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 
 /**
