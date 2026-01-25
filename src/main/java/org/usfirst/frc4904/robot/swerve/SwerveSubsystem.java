@@ -1,10 +1,15 @@
 package org.usfirst.frc4904.robot.swerve;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,28 +17,26 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Util;
 
+import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 final class SwerveConstants {
 
     // TODO: get real measurements
-    public static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
-    public static final double ROT_GEAR_RATIO = 5.1; // motor rots/wheel rots
+    static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
+    static final double ROT_GEAR_RATIO = 5.1; // motor rots/wheel rots
 
-    private static final double WHEEL_RADIUS = 0.07; // m
-    private static final double ROBOT_DIAGONAL = 1.15; // m
+    static final double ROBOT_DIAGONAL = 1.15; // m
+    static final double WHEEL_RADIUS = 0.07; // m
 
-    private static final double WHEEL_CIRC = 2 * Math.PI * WHEEL_RADIUS; // m
-    private static final double ROBOT_TURN_CIRC = Math.PI * ROBOT_DIAGONAL; // m
+    static final double WHEEL_CIRC = 2 * Math.PI * WHEEL_RADIUS; // m or m/rot
+
+    static final double ROBOT_TURN_CIRC = Math.PI * ROBOT_DIAGONAL; // m
 
     // TODO: tune
-    public static final double LIN_SPEED = 6; // m/s
-    public static final double ROT_SPEED = LIN_SPEED * ROBOT_TURN_CIRC; // rot/s
-
-    public static double metersToDriveMotorRots(double distance) {
-        return distance / WHEEL_CIRC * DRIVE_GEAR_RATIO;
-    }
+    static final double LIN_SPEED = 6; // m/s
+    static final double ROT_SPEED = LIN_SPEED * ROBOT_TURN_CIRC; // rot/s
 
     private SwerveConstants() {}
 
@@ -42,11 +45,67 @@ final class SwerveConstants {
 public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveModule[] modules;
+    private final SwerveDriveKinematics kinematics;
+    private final SwerveDrivePoseEstimator estimator;
+    private boolean estimatorEnabled = false;
 
     public SwerveSubsystem(SwerveModule... modules) {
         this.modules = modules;
 
+        kinematics = new SwerveDriveKinematics(
+            Arrays.stream(modules)
+                  .map(module -> module.position)
+                  .toArray(Translation2d[]::new)
+        );
+        estimator = new SwerveDrivePoseEstimator(
+            kinematics,
+            Component.navx.getRotation2d(),
+            getModulePositions(),
+            Pose2d.kZero // unused
+        );
+
         SmartDashboard.putData("swerve/goal", this);
+    }
+
+    private SwerveModulePosition[] getModulePositions() {
+        return Arrays.stream(modules)
+                     .map(SwerveModule::getModulePosition)
+                     .toArray(SwerveModulePosition[]::new);
+    }
+
+    public void startPoseEstimator(Pose2d currentPose) {
+        estimator.resetPose(currentPose);
+        estimatorEnabled = true;
+    }
+
+    public void stopPoseEstimator() {
+        estimatorEnabled = false;
+    }
+
+    /**
+     * Add a vision measurement to the pose estimator.
+     * @param pose Pose of the robot (according to the tag measurement)
+     * @param time Time of the vision measurement, from {@link Timer#getFPGATimestamp()}
+     */
+    public void addVisionPoseEstimate(Pose2d pose, double time) {
+        if (!estimatorEnabled) {
+            System.err.println("SwerveSubsystem.addVisionPoseEstimate() called while pose estimator is disabled.");
+            return;
+        }
+
+        estimator.addVisionMeasurement(pose, time);
+    }
+
+    /**
+     * @return The current pose estimate, based on swerve odometry and {@code addVisionPoseEstimate()} calls
+     */
+    public Pose2d getPoseEstimate() {
+        if (!estimatorEnabled) {
+            System.err.println("SwerveSubsystem.getPoseEstimate() called while pose estimator is disabled.");
+            return Pose2d.kZero;
+        }
+
+        return estimator.getEstimatedPosition();
     }
 
     /**
@@ -120,7 +179,12 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (DriverStation.isDisabled()) return;
+
         for (var module : modules) module.periodic();
+
+        if (estimatorEnabled) {
+            estimator.update(Component.navx.getRotation2d(), getModulePositions());
+        }
     }
 
     double getHeading() {
@@ -245,6 +309,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void resetOdometry() {
         Component.navx.zeroYaw();
+        estimator.resetRotation(Rotation2d.kZero);
     }
 
     /**
