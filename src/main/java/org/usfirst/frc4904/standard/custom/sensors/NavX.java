@@ -26,11 +26,10 @@ public class NavX extends Navx {
         lastYaw = Degrees.of(0);
         lastPitch = Degrees.of(0);
         lastRoll = Degrees.of(0);
-        outputRate = rate
+        outputRate = rate;
         getYawCalls = 0;
     }
 
-    @Override
     public double getRate() {
         double rate = outputRate;
         if (Math.abs(rate - lastYawRate) > NavX.MAX_DEGREES_PER_SECOND_PER_TICK) {
