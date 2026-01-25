@@ -77,7 +77,7 @@ public class SwerveModule implements Sendable {
         builder.addDoubleProperty("angle", rotation::getRotation, null);
         builder.addDoubleProperty("delta", () -> {
             double delta = theta - rotation.getRotation();
-            return MathUtil.inputModulus(delta, -0.5, 0.5);
+            return MathUtil.inputModulus(delta, -0.25, 0.25);
         }, null);
         builder.addDoubleProperty("zero", rotation.encoder::getResetOffset, rotation.encoder::setResetOffset);
     }
