@@ -33,8 +33,25 @@ public interface SmartMotorController extends MotorController {
 	 */
 	double getMotorMechanismRatio();
 
+	/**
+	 * Sets the current rotation position as the "zero" position.
+	 * Equivalent to {@code setMechanismRotationOffset(currentRotation - currentMechanismRotationOffset)}.
+	 */
+	default void zeroMechanismRotationOffset() {
+		setMechanismRotationOffset(getRotation() - getMechanismRotationOffset());
+		// not chainable since this isn't a config method
+	}
+
+	/**
+	 * Set the offset between motor rotations and mechanism rotations.
+	 * DO NOT USE with linear mechanisms or elevator feedforward, only with rotational mechanisms.
+	 * @param offset Mechanism offset, continuous between 0-1.
+	 */
 	SmartMotorController setMechanismRotationOffset(double offset);
 
+	/**
+	 * Get the offset between motor rotations and mechanism rotations set by {@code setMechanismRotationOffset()}.
+	 */
 	double getMechanismRotationOffset();
 
 	SmartMotorController setPID(double p, double i, double d);

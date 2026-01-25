@@ -154,11 +154,13 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
 
     @Override
     public void holdPosition(double pos, double addedVoltage) {
+        // TODO should maybe be pos * motorMechanismRatio ?
         getClosedLoopController().setSetpoint(pos, ControlType.kPosition, ClosedLoopSlot.kSlot0, addedVoltage);
     }
 
     @Override
     public void holdVelocity(double vel, double addedVoltage) {
+        // TODO should maybe be vel * motorMechanismRatio ?
         getClosedLoopController().setSetpoint(vel, ControlType.kVelocity, ClosedLoopSlot.kSlot0, addedVoltage);
     }
 }

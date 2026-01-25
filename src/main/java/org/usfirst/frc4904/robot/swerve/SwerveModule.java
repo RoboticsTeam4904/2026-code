@@ -5,9 +5,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
-import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 
 public class SwerveModule implements Sendable {
 
@@ -23,13 +23,12 @@ public class SwerveModule implements Sendable {
         String name,
         SmartMotorController driveMotor,
         SmartMotorController rotMotor,
-        CustomDutyCycleEncoder rotEncoder,
         Translation2d direction
     ) {
         this.name = name;
 
         drive = driveMotor != null ? new DriveController(driveMotor) : null;
-        rotation = new RotationController(rotMotor, rotEncoder, direction);
+        rotation = new RotationController(rotMotor, direction, name);
 
         SmartDashboard.putData("swerve/" + name, this);
     }
@@ -77,7 +76,7 @@ public class SwerveModule implements Sendable {
             double delta = theta - rotation.getRotation();
             return MathUtil.inputModulus(delta, -0.5, 0.5);
         }, null);
-        builder.addDoubleProperty("zero", rotation.encoder::getResetOffset, rotation.encoder::setResetOffset);
+        builder.addDoubleProperty("zero", rotation.motor::getMechanismRotationOffset, rotation.motor::setMechanismRotationOffset);
     }
 }
 
@@ -103,26 +102,23 @@ class RotationController {
     private static final double kP = 15, kI = 0, kD = 0;
 
     final SmartMotorController motor;
-    final CustomDutyCycleEncoder encoder;
 
     private final Translation2d direction;
+    private final String key;
 
-    RotationController(
-        SmartMotorController motor,
-        CustomDutyCycleEncoder encoder,
-        Translation2d direction
-    ) {
+    RotationController(SmartMotorController motor, Translation2d direction, String name) {
         this.motor = motor;
-        this.encoder = encoder;
+        this.direction = direction.div(direction.getNorm());
+
+        key = "swerve zeros/" + name;
 
         // encoder readings are from 0-1 but opposite angles are equivalent
         // since we can just run the wheels backwards
         // TODO feedforward?
         motor.setPID(kP, kI, kD)
              .setContinuousRange(0.5)
-             .setMotorMechanismRatio(SwerveConstants.ROT_GEAR_RATIO);
-
-        this.direction = direction.div(direction.getNorm());
+             .setMotorMechanismRatio(SwerveConstants.ROT_GEAR_RATIO)
+             .setMechanismRotationOffset(Preferences.getDouble(key, 0));
     }
 
     Translation2d toTranslation(double theta) {
@@ -130,11 +126,12 @@ class RotationController {
     }
 
     void zero() {
-        encoder.reset();
+        motor.zeroMechanismRotationOffset();
+        Preferences.setDouble(key, motor.getMechanismRotationOffset());
     }
 
     double getRotation() {
-        return encoder.get();
+        return motor.getRotation();
     }
 
     /**

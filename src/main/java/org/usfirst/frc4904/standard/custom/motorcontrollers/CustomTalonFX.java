@@ -110,16 +110,22 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
         return motorMechanismRatio;
     }
 
+    private boolean gravityNegated = false;
+
     @Override
     public CustomTalonFX setMechanismRotationOffset(double offset) {
         mechanismRotationOffset = offset;
+
         // GravityArmPositionOffset only accepts values within ±0.25 for some unknown reason
         // for values 0.25-0.75, subtract 0.5 and flip kG which is (hopefully) equivalent
         offset = MathUtil.inputModulus(offset, -0.25, 0.75);
-        if (offset > 0.25) {
-            offset -= 0.5;
+        boolean flipGravity = offset > 0.25;
+        if (flipGravity != gravityNegated) {
             pidfConfig.kG *= -1;
+            gravityNegated = flipGravity;
         }
+        if (flipGravity) offset -= 0.5;
+
         pidfConfig.GravityArmPositionOffset = offset;
         getConfigurator().apply(pidfConfig);
         return this;
@@ -156,7 +162,7 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
             continuousRangeArmFFError();
         }
         pidfConfig.kS = kS;
-        pidfConfig.kG = kG;
+        pidfConfig.kG = gravityNegated ? -kG : kG;
         pidfConfig.kV = kV;
         pidfConfig.kA = kA;
         pidfConfig.GravityType = GravityTypeValue.Arm_Cosine;
@@ -184,22 +190,22 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
         return continuousRange;
     }
 
+    private final PositionVoltage posRequest = new PositionVoltage(0);
+    private final VelocityVoltage velRequest = new VelocityVoltage(0);
+
     @Override
     public void holdPosition(double pos, double addedVoltage) {
         if (continuousRange != 0) {
-            double current = getPosition().getValueAsDouble(); // TODO use getRotation() instead? (≈ multiply by motorMechanismRatio)
+            double current = getRotation();
             double dist = continuousRange / 2;
             pos = MathUtil.inputModulus(pos, current - dist, current + dist);
         }
-        PositionVoltage request = new PositionVoltage(pos); // TODO multiply by motorMechanismRatio?
-        request.FeedForward = addedVoltage;
-        setControl(request);
+        double rawPos = (pos - mechanismRotationOffset) * motorMechanismRatio;
+        setControl(posRequest.withPosition(rawPos).withFeedForward(addedVoltage));
     }
 
     @Override
     public void holdVelocity(double vel, double addedVoltage) {
-        VelocityVoltage request = new VelocityVoltage(vel); // TODO multiply by motorMechanismRatio?
-        request.FeedForward = addedVoltage;
-        setControl(request);
+        setControl(velRequest.withVelocity(vel * motorMechanismRatio).withFeedForward(addedVoltage));
     }
 }
