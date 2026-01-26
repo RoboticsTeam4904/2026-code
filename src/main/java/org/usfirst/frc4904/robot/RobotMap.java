@@ -1,6 +1,5 @@
 package org.usfirst.frc4904.robot;
 
-import com.studica.frc.Navx;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -14,7 +13,7 @@ import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
-import org.usfirst.frc4904.standard.custom.sensors.NavX;
+import org.usfirst.frc4904.standard.custom.sensors.CustomNavx;
 
 public final class RobotMap {
 
@@ -45,7 +44,7 @@ public final class RobotMap {
 
     public static class Component {
 
-        public static Navx navx;
+        public static CustomNavx navx;
 
         // subsystems
         public static SwerveSubsystem chassis;
@@ -84,7 +83,7 @@ public final class RobotMap {
         }
         initialized = true;
 
-        Component.navx = new NavX(0,1000);
+        Component.navx = new CustomNavx(0);
 
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(

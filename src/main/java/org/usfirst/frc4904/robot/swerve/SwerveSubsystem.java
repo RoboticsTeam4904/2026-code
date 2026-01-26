@@ -3,8 +3,6 @@ package org.usfirst.frc4904.robot.swerve;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Units.*;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,8 +11,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Util;
-
-import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -36,7 +32,7 @@ final class SwerveConstants {
     public static final double ROT_SPEED = LIN_SPEED / (Math.PI * ROBOT_DIAGONAL);
 }
 
-public class SwerveSubsystem extends SubsystemBase implements Sendable {
+public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule[] modules;
 
     public SwerveSubsystem(SwerveModule... modules) {
@@ -119,7 +115,7 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     }
 
     double getHeading() {
-        return Component.navx.getYaw().in(Rotations) + 0.5;
+        return Component.navx.getYaw() + 0.5;
     }
 
     /// COMMANDS
@@ -238,7 +234,7 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     }
 
     public void resetOdometry() {
-        Component.navx.resetYaw();
+        Component.navx.zeroYaw();
     }
 
     /**
@@ -268,9 +264,8 @@ public class SwerveSubsystem extends SubsystemBase implements Sendable {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("SwerveDrive");
-        for (var module : modules) {
-            module.addSendableProps(builder);
-        }
-        builder.addDoubleProperty("Robot Angle", () -> getHeading(), null);
+        builder.addDoubleProperty("Robot Angle", this::getHeading, null);
+
+        for (var module : modules) module.addSendableProps(builder);
     }
 }
