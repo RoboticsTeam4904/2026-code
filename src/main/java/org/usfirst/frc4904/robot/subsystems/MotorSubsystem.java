@@ -6,110 +6,120 @@ import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController
 
 public class MotorSubsystem extends SubsystemBase {
 
-    public final SmartMotorController[] motors;
+  public final SmartMotorController[] motors;
 
-    public final double forwardVoltage;
-    public final double backwardVoltage;
+  public final double forwardVoltage;
+  public final double backwardVoltage;
 
-    /**
-     * Control multiple motors with one subsystem. This constructor only controls one motor.
-     *
-     * @param motor the motor that the subsystem controls
-     * @param voltage voltage when motors are running
-     */
-    public MotorSubsystem(SmartMotorController motor, double voltage) {
-        this(new SmartMotorController[] { motor }, voltage, voltage);
-    }
+  /**
+   * Control multiple motors with one subsystem. This constructor only controls
+   * one motor.
+   *
+   * @param motor   the motor that the subsystem controls
+   * @param voltage voltage when motors are running
+   */
+  public MotorSubsystem(SmartMotorController motor, double voltage) {
+    this(new SmartMotorController[] { motor }, voltage, voltage);
+  }
 
-    /**
-     * Control multiple motors with one subsystem. This constructor only controls one motor.
-     *
-     * @param motor the motor that the subsystem controls
-     * @param forwardVoltage voltage when the motor is running forwards
-     * @param backwardVoltage voltage when the motor is running backwards - should be POSITIVE (is negated later)
-     */
-    public MotorSubsystem(SmartMotorController motor, double forwardVoltage, double backwardVoltage) {
-        this(new SmartMotorController[] { motor }, forwardVoltage, backwardVoltage);
-    }
+  /**
+   * Control multiple motors with one subsystem. This constructor only controls
+   * one motor.
+   *
+   * @param motor           the motor that the subsystem controls
+   * @param forwardVoltage  voltage when the motor is running forwards
+   * @param backwardVoltage voltage when the motor is running backwards - should
+   *                        be POSITIVE (is negated later)
+   */
+  public MotorSubsystem(SmartMotorController motor, double forwardVoltage, double backwardVoltage) {
+    this(new SmartMotorController[] { motor }, forwardVoltage, backwardVoltage);
+  }
 
-    /**
-     * Control multiple motors with one subsystem. For example, to have two motors, use:
-     * <pre>{@code
-     *     new MultiMotorSubsystem(
-     *         new CANTalonFX[] { motor1, motor2 },
-     *         voltage
-     *     )
-     * }</pre>
-     *
-     * @param motors the motors that the subsystem controls
-     * @param voltage voltage when motors are running
-     */
-    public MotorSubsystem(SmartMotorController[] motors, double voltage) {
-        this(motors, voltage, voltage);
-    }
+  /**
+   * Control multiple motors with one subsystem. For example, to have two motors,
+   * use:
+   * 
+   * <pre>{@code
+   * new MotorSubsystem(
+   *     new CANTalonFX[] { motor1, motor2 },
+   *     voltage)
+   * }</pre>
+   *
+   * @param motors  the motors that the subsystem controls
+   * @param voltage voltage when motors are running
+   */
+  public MotorSubsystem(SmartMotorController[] motors, double voltage) {
+    this(motors, voltage, voltage);
+  }
 
-    /**
-     * Control multiple motors with one subsystem. For example, to have two motors, use:
-     * <pre>{@code
-     *     new MultiMotorSubsystem(
-     *         new CANTalonFX[] { motor1, motor2 },
-     *         forwardVoltage,
-     *         backwardVoltage
-     *     )
-     * }</pre>
-     *
-     * @param motors the motors that the subsystem controls
-     * @param forwardVoltage voltage when motors are running forwards
-     * @param backwardVoltage voltage when motors are running backwards - should be POSITIVE (is negated later)
-     */
-    public MotorSubsystem(SmartMotorController[] motors, double forwardVoltage, double backwardVoltage) {
-        this.motors = motors;
-        this.forwardVoltage = forwardVoltage;
-        this.backwardVoltage = backwardVoltage;
+  /**
+   * Control multiple motors with one subsystem. For example, to have two motors,
+   * use:
+   * 
+   * <pre>{@code
+   * new MotorSubsystem(
+   *     new CANTalonFX[] { motor1, motor2 },
+   *     forwardVoltage,
+   *     backwardVoltage)
+   * }</pre>
+   *
+   * @param motors          the motors that the subsystem controls
+   * @param forwardVoltage  voltage when motors are running forwards
+   * @param backwardVoltage voltage when motors are running backwards - should be
+   *                        POSITIVE (is negated later)
+   */
+  public MotorSubsystem(SmartMotorController[] motors, double forwardVoltage, double backwardVoltage) {
+    this.motors = motors;
+    this.forwardVoltage = forwardVoltage;
+    this.backwardVoltage = backwardVoltage;
 
-        setBrakeOnNeutral();
-    }
+    setBrakeOnNeutral();
+  }
 
-    public void setVoltage(double voltage) {
-        for (var motor : motors) motor.setVoltage(voltage);
-    }
+  public void setVoltage(double voltage) {
+    for (var motor : motors)
+      motor.setVoltage(voltage);
+  }
 
-    public void stop() {
-        // presumably the same as setVoltage(0)
-        for (var motor : motors) motor.stopMotor();
-    }
+  public void stop() {
+    // presumably the same as setVoltage(0)
+    for (var motor : motors)
+      motor.stopMotor();
+  }
 
-    public void setBrakeOnNeutral() {
-        for (var motor : motors) motor.setBrakeOnNeutral();
-    }
+  public void setBrakeOnNeutral() {
+    for (var motor : motors)
+      motor.setBrakeOnNeutral();
+  }
 
-    public void setCoastOnNeutral() {
-        for (var motor : motors) motor.setCoastOnNeutral();
-    }
+  public void setCoastOnNeutral() {
+    for (var motor : motors)
+      motor.setCoastOnNeutral();
+  }
 
-    public Command c_holdVoltage(double voltage, boolean stopOnEnd) {
-        var cmd = run(() -> setVoltage(voltage));
-        return stopOnEnd ? cmd.finallyDo(this::stop) : cmd;
-    }
+  public Command c_holdVoltage(double voltage, boolean stopOnEnd) {
+    var cmd = run(() -> setVoltage(voltage));
+    return stopOnEnd ? cmd.finallyDo(this::stop) : cmd;
+  }
 
-    public Command c_forward() {
-        return c_holdVoltage(forwardVoltage, false);
-    }
+  public Command c_forward() {
+    return c_holdVoltage(forwardVoltage, false);
+  }
 
-    public Command c_forward(boolean stopOnEnd) {
-        return c_holdVoltage(forwardVoltage, stopOnEnd);
-    }
+  public Command c_forward(boolean stopOnEnd) {
+    return c_holdVoltage(forwardVoltage, stopOnEnd);
+  }
 
-    public Command c_backward() {
-        return c_holdVoltage(-backwardVoltage, false);
-    }
+  public Command c_backward() {
+    return c_holdVoltage(-backwardVoltage, false);
+  }
 
-    public Command c_backward(boolean stopOnEnd) {
-        return c_holdVoltage(-backwardVoltage, stopOnEnd);
-    }
+  public Command c_backward(boolean stopOnEnd) {
+    return c_holdVoltage(-backwardVoltage, stopOnEnd);
+  }
 
-    public Command c_stop() {
-        return runOnce(this::stop);
-    }
+  public Command c_stop() {
+    return runOnce(this::stop);
+  }
 
 }
