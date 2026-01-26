@@ -43,8 +43,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Drive according to joystick inputs. {@code hypot(x, y)} should not exceed 1.
-     * @param translation X/Y movement from [-1, 1]
-     * @param theta Turn speed from [-1, 1]
+     * @param translation X/Y movement from [-1, 1], wpilib coordinate system (forward, left)
+     * @param theta Turn speed from [-1, 1], positive = counterclockwise
      */
     public void input(Translation2d translation, double theta) {
         Translation2d scaled = translation.times(SwerveConstants.LIN_SPEED);
@@ -52,8 +52,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Translation2d toRobotRelative(Translation2d translation) {
-        double rotation = getHeading() + 0.25;
-        return translation.rotateBy(Rotation2d.fromRotations(-rotation));
+        return translation.rotateBy(Rotation2d.fromRotations(-getHeading()));
     }
 
     /**
@@ -61,6 +60,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param translation Movement speed in meters per second
      * @param theta Rotation speed in rotations per second - not field-relative,
      *              as it represents the turning speed, not an absolute angle.
+     *              Will be overridden if a c_rotateTo() command is active
      */
     public void driveFieldRelative(Translation2d translation, double theta) {
         driveRobotRelative(toRobotRelative(translation), theta);
@@ -69,7 +69,7 @@ public class SwerveSubsystem extends SubsystemBase {
     /**
      * Drive relative to the current angle of the robot.
      * @param translation Movement speed in meters per second
-     * @param theta Rotation speed in rotations per second
+     * @param theta Rotation speed in rotations per second. Will be overridden if a c_rotateTo() command is active
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
         if (rotCommand != null) {
@@ -100,6 +100,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
+    /** See {@link #driveRobotRelative(Translation2d, double)} */
     public void driveRobotRelative(double x, double y, double theta) {
         driveRobotRelative(new Translation2d(x, y), theta);
     }
@@ -115,13 +116,13 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     double getHeading() {
-        return Component.navx.getYaw() + 0.5;
+        return Component.navx.getYaw();
     }
 
     /// COMMANDS
 
     private RotateToCommand rotCommand; // non-null when a rot command is running
-    double rotPIDEffort;
+    private double rotPIDEffort;
 
     public Command c_rotateTo(double theta) {
         return c_rotateTo(() -> theta);
@@ -134,7 +135,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private class RotateToCommand extends Command {
 
         private final PIDController rotPID;
-
         private final Supplier<Double> getTheta;
 
         RotateToCommand(Supplier<Double> getTheta) {
@@ -233,6 +233,8 @@ public class SwerveSubsystem extends SubsystemBase {
         return run(() -> input(translation.get(), theta.getAsDouble()));
     }
 
+    /// MISC CONFIG
+
     public void resetOdometry() {
         Component.navx.zeroYaw();
     }
@@ -246,7 +248,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Flip current zero position
+     * Flip current zero position by 180deg.
      */
     public void flipZero() {
         System.out.println("flipped zero");

@@ -1,6 +1,7 @@
 package org.usfirst.frc4904.standard.humaninput;
 
 import org.usfirst.frc4904.robot.RobotMap;
+import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.custom.Nameable;
 
 /**
@@ -29,12 +30,14 @@ public abstract class HumanInput implements Nameable {
 
     /**
      * Can be optionally overridden to unbind commands that were bound in bindCommands().
+     * <p>
      * You should do this for any commands that were <em>not</em> bound to one of the following:
      * <ul>
      *   <li> {@link RobotMap.HumanInput.Driver#xyJoystick}
      *   <li> {@link RobotMap.HumanInput.Driver#turnJoystick}
      *   <li> {@link RobotMap.HumanInput.Operator#joystick}
      * </ul>
+     * See {@link CommandRobotBase#clearBindings()}
      */
     public void unbindCommands() {}
 }

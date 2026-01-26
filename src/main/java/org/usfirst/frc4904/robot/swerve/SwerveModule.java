@@ -71,7 +71,7 @@ public class SwerveModule implements Sendable {
     /// SMART DASHBOARD
 
     void addSendableProps(SendableBuilder builder) {
-        builder.addDoubleProperty(name + " Angle", () -> -theta, null);
+        builder.addDoubleProperty(name + " Angle", () -> theta, null);
         builder.addDoubleProperty(name + " Velocity", () -> magnitude, null);
     }
 
@@ -135,7 +135,7 @@ class RotationController {
     }
 
     double getRotation() {
-        return encoder.get();
+        return -encoder.get();
     }
 
     private void setVoltage(double voltage) {
@@ -148,7 +148,7 @@ class RotationController {
      */
     public double rotateToward(double theta) {
         double current = getRotation();
-        double voltage = -pid.calculate(current, theta);
+        double voltage = pid.calculate(current, theta);
         setVoltage(Util.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE));
 
         return Math.cos(Units.rotationsToRadians(theta - current));

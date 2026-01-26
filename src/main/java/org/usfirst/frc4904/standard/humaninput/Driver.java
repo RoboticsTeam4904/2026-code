@@ -1,33 +1,24 @@
 package org.usfirst.frc4904.standard.humaninput;
 
-import org.usfirst.frc4904.standard.custom.ChassisController;
+import edu.wpi.first.math.geometry.Translation2d;
 
 /**
- * Driver specific version of HumanInterface. Also designed to be passed around
- * to control the chassis.
- *
+ * Driver specific version of HumanInterface.
  */
-public abstract class Driver extends HumanInput implements ChassisController {
+public abstract class Driver extends HumanInput {
 
     public Driver(String name) {
         super(name);
     }
 
     /**
-     * @return X value that the Driver wants
+     * @return Speed that the driver wants, in wpilib field-relative coordinates (forward, left).
+     *         Length of translation vector should not exceed 1
      */
-    @Override
-    public abstract double getX();
+    public abstract Translation2d getTranslation();
 
     /**
-     * @return Y value that the Driver wants
+     * @return Turn speed that the driver wants in the range [-1, 1], positive = counterclockwise
      */
-    @Override
-    public abstract double getY();
-
-    /**
-     * @return Turn speed that the Driver wants
-     */
-    @Override
     public abstract double getTurnSpeed();
 }
