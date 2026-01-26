@@ -20,6 +20,7 @@ public class CustomNavx {
 
     /** @return current angular velocity around axes {@code {x, y, z}}/{@code {roll, pitch, yaw}}, in rotations/sec */
     public double[] getAngularVel() {
+        // TODO test negation
         return Arrays.stream(navx.getAngularVel())
                      .mapToDouble(vel -> vel.in(RotationsPerSecond))
                      .toArray();
@@ -27,31 +28,34 @@ public class CustomNavx {
 
     /** @return current acceleration along axes {@code {x, y, z}}/{@code {forward, left, up}}, in meters/sec² */
     public double[] getLinearAccel() {
+        // TODO test axes/negation
         return Arrays.stream(navx.getLinearAccel())
                      .mapToDouble(vel -> vel.in(MetersPerSecondPerSecond))
                      .toArray();
     }
 
-    /** @return current yaw in rotations */
+    /** @return current yaw in rotations; positive = counterclockwise */
     public double getYaw() {
-        return navx.getYaw().in(Rotations);
+        return -navx.getYaw().in(Rotations); // TODO test negation
     }
-    /** @return current pitch in rotations */
+    /** @return current pitch in rotations; positive = front up */
     public double getPitch() {
-        return navx.getPitch().in(Rotations);
+        return navx.getPitch().in(Rotations); // TODO test negation
     }
-    /** @return current roll in rotations */
+    /** @return current roll in rotations; positive = left side up, right side down */
     public double getRoll() {
-        return navx.getRoll().in(Rotations);
+        return navx.getRoll().in(Rotations); // TODO test negation
     }
 
     /** @return current yaw as a {@link Rotation2d} */
     public Rotation2d getRotation2d() {
-        return navx.getRotation2d();
+        return navx.getRotation2d().unaryMinus(); // TODO test negation
     }
     /** @return current rotation as a {@link Rotation3d} */
     public Rotation3d getRotation3d() {
-        return navx.getRotation3d();
+        // return navx.getRotation3d();
+        // inherit negation from custom methods
+        return new Rotation3d(getRoll(), getPitch(), getYaw());
     }
 
     /** Set the zero position to the current yaw */
