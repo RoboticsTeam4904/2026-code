@@ -1,6 +1,7 @@
 package org.usfirst.frc4904.standard.humaninput;
 
 import org.usfirst.frc4904.robot.RobotMap;
+import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.custom.Nameable;
 
 /**
@@ -36,7 +37,7 @@ public abstract class HumanInput implements Nameable {
      *   <li> {@link RobotMap.HumanInput.Driver#turnJoystick}
      *   <li> {@link RobotMap.HumanInput.Operator#joystick}
      * </ul>
-     * <i>See {@code CommandRobotBase.clearBindings()}</i>
+     * See {@link CommandRobotBase#clearBindings()}
      */
     public void unbindCommands() {}
 }
