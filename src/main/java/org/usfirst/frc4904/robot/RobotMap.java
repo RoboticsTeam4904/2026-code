@@ -6,15 +6,15 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.XboxController;
+
 import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
 import org.usfirst.frc4904.robot.swerve.SwerveModule;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem;
-import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomSparkMax;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
-import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 import org.usfirst.frc4904.standard.custom.sensors.CustomNavx;
 
 public final class RobotMap {
@@ -23,10 +23,7 @@ public final class RobotMap {
 
         public static class HumanInput {
 
-            public static final int xyJoystickPort = 0;
-            public static final int zJoystickPort = 1;
-
-            public static final int joystick = 2;
+            public static final int XBOX_PORT = 0;
         }
 
         public static class CANMotor {
@@ -66,13 +63,10 @@ public final class RobotMap {
         public static class Driver {
 
             public static CustomCommandXbox xbox;
-            public static CustomCommandJoystick xyJoystick;
-            public static CustomCommandJoystick turnJoystick;
         }
 
         public static class Operator {
 
-            public static CustomCommandJoystick joystick;
         }
     }
 
@@ -133,18 +127,8 @@ public final class RobotMap {
         //     107,
         //     new int[] { 20, 37, 34, 16 },
         //     new boolean[] { false, true, false, true }
-        // );
 
-        HumanInput.Driver.xyJoystick = new CustomCommandJoystick(
-            Port.HumanInput.xyJoystickPort,
-            0.0
-        );
-        HumanInput.Driver.turnJoystick = new CustomCommandJoystick(
-            Port.HumanInput.zJoystickPort,
-            0.0
-        );
-
-        HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);
+        HumanInput.Driver.xbox = new CustomCommandXbox(Port.HumanInput.XBOX_PORT, 0.1);
     }
 
     private RobotMap() {}

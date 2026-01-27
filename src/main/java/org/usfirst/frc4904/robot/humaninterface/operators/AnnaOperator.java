@@ -17,14 +17,5 @@ public class AnnaOperator extends Operator {
 
     @Override
     public void bindCommands() {
-        var joystick = HumanInput.Operator.joystick;
-        var xyJoystick = HumanInput.Driver.xyJoystick;
-        var turnJoystick = HumanInput.Driver.turnJoystick;
-
-        /// VISION
-        turnJoystick.button1.whileTrue(Component.vision.c_align(TagGroup.ANY, 0));
-
-        /// ODOMETRY RESETTING
-        xyJoystick.button1.onTrue(c_resetOdometry());
     }
 }

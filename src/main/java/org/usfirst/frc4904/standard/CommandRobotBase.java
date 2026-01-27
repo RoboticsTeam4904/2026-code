@@ -42,10 +42,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 		if (driver != null) driver.unbindCommands();
 		if (operator != null) operator.unbindCommands();
 
-		HumanInput.Driver.xyJoystick.clearBindings();
-		HumanInput.Driver.turnJoystick.clearBindings();
-
-		HumanInput.Operator.joystick.clearBindings();
+		HumanInput.Driver.xbox.clearBindings();
 	}
 
 	private void updateHumanInput(Driver driver) {

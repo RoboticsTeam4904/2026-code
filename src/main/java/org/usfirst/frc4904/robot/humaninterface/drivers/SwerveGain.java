@@ -42,10 +42,10 @@ public class SwerveGain extends Driver {
     }
 
     protected double getRawForward() {
-        return -HumanInput.Driver.xyJoystick.getY();
+        return -HumanInput.Driver.xbox.getLeftY();
     }
     protected double getRawLeft() {
-        return -HumanInput.Driver.xyJoystick.getX();
+        return -HumanInput.Driver.xbox.getLeftX();
     }
 
     public Translation2d getTranslation() {
@@ -56,7 +56,7 @@ public class SwerveGain extends Driver {
     }
 
     public double getTurnSpeed() {
-        double turnSpeed = -HumanInput.Driver.turnJoystick.getX();
+        double turnSpeed = -HumanInput.Driver.xbox.getRightX();
         return scaleGain(turnSpeed, TURN_EXP);
     }
 }

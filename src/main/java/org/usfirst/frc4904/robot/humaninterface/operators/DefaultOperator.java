@@ -21,21 +21,5 @@ public class DefaultOperator extends Operator {
 
     @Override
     public void bindCommands() {
-        var joystick = RobotMap.HumanInput.Operator.joystick;
-        var xyJoystick = RobotMap.HumanInput.Driver.xyJoystick;
-        var turnJoystick = RobotMap.HumanInput.Driver.turnJoystick;
-
-        /// VISION
-        turnJoystick.button2.whileTrue(Component.chassis.c_rotateTo(() -> {
-            List<Tag> tags = Component.vision.gtm.getTags();
-            if (tags.isEmpty()) return null;
-            Tag tag = tags.get(0);
-            return Units.radiansToRotations(
-                Math.atan2(tag.pos().getY() + 0.25, tag.pos().getX())
-            );
-        }));
-
-        /// ODOMETRY RESETTING
-        xyJoystick.button1.onTrue(c_resetOdometry());
     }
 }
