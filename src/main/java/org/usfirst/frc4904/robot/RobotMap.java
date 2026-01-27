@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot;
 
+import com.revrobotics.spark.SparkLowLevel;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,6 +12,7 @@ import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomSparkMax;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 import org.usfirst.frc4904.standard.custom.sensors.CustomNavx;
@@ -85,33 +87,38 @@ public final class RobotMap {
 
         Component.navx = new CustomNavx(0);
 
+        var flTurn = new CustomSparkMax(5, SparkLowLevel.MotorType.kBrushless, false);
+        var frTurn = new CustomSparkMax(6, SparkLowLevel.MotorType.kBrushless, false);
+        var blTurn = new CustomSparkMax(7, SparkLowLevel.MotorType.kBrushless, false);
+        var brTurn = new CustomSparkMax(8, SparkLowLevel.MotorType.kBrushless, false);
+
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
                 "Front Left",
-                new CustomTalonFX(2),
-                new CustomTalonFX(17),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
+                new CustomTalonFX(1),
+                flTurn,
+                flTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "Front Right",
-                new CustomTalonFX(3),
-                new CustomTalonFX(15),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
+                new CustomTalonFX(2),
+                frTurn,
+                frTurn.getAbsoluteEncoder(),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
                 "Back Left",
-                new CustomTalonFX(4),
-                new CustomTalonFX(18),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
+                new CustomTalonFX(3),
+                blTurn,
+                blTurn.getAbsoluteEncoder(),
                 new Translation2d(-1, -1)
             ),
             new SwerveModule(
                 "Back Right",
-                new CustomTalonFX(1),
-                new CustomTalonFX(16),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
+                new CustomTalonFX(4),
+                brTurn,
+                brTurn.getAbsoluteEncoder(),
                 new Translation2d(1, -1)
             )
         );

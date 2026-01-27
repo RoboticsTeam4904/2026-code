@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.swerve;
 
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -25,7 +26,7 @@ public class SwerveModule implements Sendable {
         String name,
         SmartMotorController driveMotor,
         SmartMotorController rotMotor,
-        CustomDutyCycleEncoder rotEncoder,
+        SparkAbsoluteEncoder rotEncoder,
         Translation2d direction
     ) {
         this.name = name;
@@ -38,14 +39,6 @@ public class SwerveModule implements Sendable {
 
     Translation2d rotToTranslation(double theta) {
         return rotation.toTranslation(theta);
-    }
-
-    void zero() {
-        rotation.zero();
-    }
-
-    void flipZero() {
-        rotation.flipZero();
     }
 
     void setMotorBrake(boolean brake) {
@@ -83,7 +76,6 @@ public class SwerveModule implements Sendable {
             double delta = theta - rotation.getRotation();
             return MathUtil.inputModulus(delta, -0.25, 0.25);
         }, null);
-        builder.addDoubleProperty("zero", rotation.encoder::getResetOffset, rotation.encoder::setResetOffset);
     }
 }
 
@@ -99,7 +91,7 @@ class RotationController {
     private static final double MAX_VOLTAGE = 4;
 
     final SmartMotorController motor;
-    final CustomDutyCycleEncoder encoder;
+    final SparkAbsoluteEncoder encoder;
 
     private final Translation2d direction;
 
@@ -107,11 +99,10 @@ class RotationController {
 
     public RotationController(
         SmartMotorController motor,
-        CustomDutyCycleEncoder encoder,
+        SparkAbsoluteEncoder encoder,
         Translation2d direction
     ) {
         this.motor = motor;
-
         this.encoder = encoder;
 
         this.direction = direction.div(direction.getNorm());
@@ -126,16 +117,8 @@ class RotationController {
         return direction.times(theta);
     }
 
-    void zero() {
-        encoder.reset();
-    }
-
-    void flipZero() {
-        encoder.flip();
-    }
-
     double getRotation() {
-        return -encoder.get();
+        return encoder.getPosition();
     }
 
     private void setVoltage(double voltage) {

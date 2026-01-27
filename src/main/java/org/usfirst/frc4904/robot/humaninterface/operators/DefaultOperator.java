@@ -26,7 +26,6 @@ public class DefaultOperator extends Operator {
         var turnJoystick = RobotMap.HumanInput.Driver.turnJoystick;
 
         /// VISION
-        turnJoystick.button1.onTrue(c_flipZero());
         turnJoystick.button2.whileTrue(Component.chassis.c_rotateTo(() -> {
             List<Tag> tags = Component.vision.gtm.getTags();
             if (tags.isEmpty()) return null;
@@ -38,6 +37,5 @@ public class DefaultOperator extends Operator {
 
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(c_resetOdometry());
-        xyJoystick.button2.onTrue(c_zeroSwerve());
     }
 }
