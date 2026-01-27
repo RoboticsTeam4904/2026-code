@@ -8,12 +8,16 @@ package org.usfirst.frc4904.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.util.Arrays;
+
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.AnnaOperator;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Logging;
 
 public class Robot extends CommandRobotBase {
 
@@ -82,5 +86,12 @@ public class Robot extends CommandRobotBase {
         //     List<Tag> tags = Component.vision.gtm.getTags();
         //     if (!tags.isEmpty()) System.out.println("WE FOUND A TAG: " + tags);
         // }
+
+        // if (Logging.cooldown("equis para nav", 0.5)) {
+        //     int[] test = new int[8];
+        //     int status = Component.navx.selfTest(test);
+        //     System.out.println("navx test: " + status + " test: " + Arrays.toString(test));
+        // }
+        Logging.log("navx rot", Component.navx.getYaw());
     }
 }

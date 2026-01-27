@@ -68,4 +68,8 @@ public class CustomNavx {
         return navx.getTemperature().in(Fahrenheit);
     }
 
+    public int selfTest(int[] test) {
+        return navx.selfTest(test);
+    }
+
 }
