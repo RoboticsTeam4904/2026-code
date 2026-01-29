@@ -35,7 +35,7 @@ public class MotorSubsystem extends SubsystemBase {
     /**
      * Control multiple motors with one subsystem. For example, to have two motors, use:
      * <pre>{@code
-     *     new MultiMotorSubsystem(
+     *     new MotorSubsystem(
      *         new CANTalonFX[] { motor1, motor2 },
      *         voltage
      *     )
@@ -51,7 +51,7 @@ public class MotorSubsystem extends SubsystemBase {
     /**
      * Control multiple motors with one subsystem. For example, to have two motors, use:
      * <pre>{@code
-     *     new MultiMotorSubsystem(
+     *     new MotorSubsystem(
      *         new CANTalonFX[] { motor1, motor2 },
      *         forwardVoltage,
      *         backwardVoltage

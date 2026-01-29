@@ -26,6 +26,7 @@ public class SwerveGain extends Driver {
     public void bindCommands() {
         Component.chassis.setDefaultCommand(
             Component.chassis.c_input(this::getTranslation, this::getTurnSpeed)
+                .withName("Driver - swerve drive")
         );
 
         // RobotMap.HumanInput.Driver.turnJoystick.button1.onTrue(
@@ -40,29 +41,22 @@ public class SwerveGain extends Driver {
         Component.chassis.removeDefaultCommand();
     }
 
-    // positive x = right
-    public double getX() {
-        double raw = HumanInput.Driver.xyJoystick.getX();
-        return scaleGain(raw, SPEED_EXP);
+    protected double getRawForward() {
+        return -HumanInput.Driver.xbox.getLeftY();
+    }
+    protected double getRawLeft() {
+        return -HumanInput.Driver.xbox.getLeftX();
     }
 
-    // positive y = down
-    public double getY() {
-        double raw = HumanInput.Driver.xyJoystick.getY();
-        return scaleGain(raw, SPEED_EXP);
-    }
-
-    // returned translation is in standard field-relative coordinates (forward, left)
     public Translation2d getTranslation() {
-        double forward = -HumanInput.Driver.xyJoystick.getY();
-        double left    = -HumanInput.Driver.xyJoystick.getX();
+        double forward = getRawForward(), left = getRawLeft();
 
         Vector<N2> vec = MathUtil.applyDeadband(VecBuilder.fill(left, forward), JOYSTICK_DEADZONE);
         return new Translation2d(vec);
     }
 
     public double getTurnSpeed() {
-        double raw = HumanInput.Driver.turnJoystick.getX();
-        return scaleGain(raw, TURN_EXP);
+        double turnSpeed = -HumanInput.Driver.xbox.getRightX();
+        return scaleGain(turnSpeed, TURN_EXP);
     }
 }

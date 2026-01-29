@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.humaninterface.drivers;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.standard.humaninput.Driver;
@@ -61,12 +62,7 @@ public class NathanGain extends Driver {
     }
 
     @Override
-    public double getX() {
-        return 0;
-    }
-
-    @Override
-    public double getY() {
+    public Translation2d getTranslation() {
         double rawSpeed =
             RobotMap.HumanInput.Driver.xbox.getRightTriggerAxis() -
             RobotMap.HumanInput.Driver.xbox.getLeftTriggerAxis();
@@ -77,7 +73,7 @@ public class NathanGain extends Driver {
         // double precisionDrive = scaleGain(RobotMap.HumanInput.Driver.xbox.getLeftY(), 0.08, 1.2);
         // double operatorDrive = scaleGain(-RobotMap.HumanInput.Operator.joystick.getAxis(1), 0.1, 1.2);
 
-        return NathanGain.isFlippy ? -speed : speed;
+        return new Translation2d(NathanGain.isFlippy ? -speed : speed, 0);
     }
 
     @Override
@@ -92,8 +88,4 @@ public class NathanGain extends Driver {
 
         return NathanGain.isFlippy ? -turnSpeed : turnSpeed;
     }
-    // @Override
-    // public double getRotation() {
-    //     return 0;
-    // }
 }

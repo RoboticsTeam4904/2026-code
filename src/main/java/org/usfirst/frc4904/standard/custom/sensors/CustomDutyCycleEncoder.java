@@ -22,7 +22,12 @@ public class CustomDutyCycleEncoder extends DutyCycleEncoder {
         setResetOffset(super.get());
     }
 
+    public void flip() {
+        setResetOffset(resetOffset + 0.5);
+    }
+
     public void setResetOffset(double offset) {
+        offset %= 1;
         resetOffset = offset;
         Preferences.setDouble(key, offset);
     }
