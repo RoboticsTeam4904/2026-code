@@ -20,215 +20,214 @@ import org.usfirst.frc4904.standard.util.CmdUtil;
  */
 public abstract class CommandRobotBase extends TimedRobot {
 
-	private Command autonCommand;
-	private Driver driver;
-	private Operator operator;
+    private Command autonCommand;
+    private Driver driver;
+    private Operator operator;
 
-	protected CommandSendableChooser autonChooser;
-	protected SendableChooser<Driver> driverChooser;
-	protected SendableChooser<Operator> operatorChooser;
+    protected CommandSendableChooser autonChooser;
+    protected SendableChooser<Driver> driverChooser;
+    protected SendableChooser<Operator> operatorChooser;
 
-	private void displayChoosers() {
-		SmartDashboard.putData("chooser/auton", autonChooser);
-		SmartDashboard.putData("chooser/driver", driverChooser);
-		SmartDashboard.putData("chooser/operator", operatorChooser);
-	}
+    private void displayChoosers() {
+        SmartDashboard.putData("chooser/auton", autonChooser);
+        SmartDashboard.putData("chooser/driver", driverChooser);
+        SmartDashboard.putData("chooser/operator", operatorChooser);
+    }
 
-	private void clearBindings() {
-		// TODO does not clear xbox bindings
-		//      this is not really doable since CommandXboxController has a lot of methods
-		//      that would all have to be overridden to use a custom EventLoop
+    // private void clearBindings() {
+    // // TODO does not clear xbox bindings
+    // // this is not really doable since CommandXboxController has a lot of methods
+    // // that would all have to be overridden to use a custom EventLoop
+    //
+    // if (driver != null) driver.unbindCommands();
+    // if (operator != null) operator.unbindCommands();
+    //
+    // HumanInput.Driver.xbox.clearBindings();
+    // }
 
-		if (driver != null) driver.unbindCommands();
-		if (operator != null) operator.unbindCommands();
+    private void updateHumanInput(Driver driver) {
+        updateHumanInput(driver, operator);
+    }
 
-		HumanInput.Driver.xbox.clearBindings();
-	}
+    private void updateHumanInput(Operator operator) {
+        updateHumanInput(driver, operator);
+    }
 
-	private void updateHumanInput(Driver driver) {
-		updateHumanInput(driver, operator);
-	}
+    private void updateHumanInput(Driver driver, Operator operator) {
+        // clearBindings();
 
-	private void updateHumanInput(Operator operator) {
-		updateHumanInput(driver, operator);
-	}
+        this.driver = driver;
+        this.operator = operator;
 
-	private void updateHumanInput(Driver driver, Operator operator) {
-		clearBindings();
+        if (driver != null)
+            driver.bindCommands();
+        if (operator != null)
+            operator.bindCommands();
+    }
 
-		this.driver = driver;
-		this.operator = operator;
+    // The following methods are 'final' to prevent accidentally overriding robot
+    // functionality when implementing year specific code. Instead, use the methods
+    // linked in the Javadoc for each method below.
 
-		if (driver != null) driver.bindCommands();
-		if (operator != null) operator.bindCommands();
-	}
+    /** Use {@link #initialize()} for year-specific code. */
+    @Override
+    public final void robotInit() {
+        RobotMap.initialize();
 
-	// The following methods are 'final' to prevent accidentally overriding robot
-	// functionality when implementing year specific code. Instead, use the methods
-	// linked in the Javadoc for each method below.
+        autonChooser = new CommandSendableChooser();
+        driverChooser = new NamedSendableChooser<>();
+        operatorChooser = new NamedSendableChooser<>();
 
-	/** Use {@link #initialize()} for year-specific code. */
-	@Override
-	public final void robotInit() {
-		RobotMap.initialize();
+        initialize();
+        displayChoosers();
 
-		autonChooser = new CommandSendableChooser();
-		driverChooser = new NamedSendableChooser<>();
-		operatorChooser = new NamedSendableChooser<>();
+        updateHumanInput(driverChooser.getSelected(), operatorChooser.getSelected());
 
-		initialize();
-		displayChoosers();
+        driverChooser.onChange(this::updateHumanInput);
+        operatorChooser.onChange(this::updateHumanInput);
 
-		updateHumanInput(driverChooser.getSelected(), operatorChooser.getSelected());
+        if (driver == null) {
+            System.err.println(
+                    "No default driver was set. Make sure to run driverChooser.setDefaultOption() in Robot.initialize()");
+        }
+        if (operator == null) {
+            System.err.println(
+                    "No default operator was set. Make sure to run operatorChooser.setDefaultOption() in Robot.initialize()");
+        }
+    }
 
-		driverChooser.onChange(this::updateHumanInput);
-		operatorChooser.onChange(this::updateHumanInput);
+    /** Use {@link #teleopInitialize()} for year-specific code. */
+    @Override
+    public final void teleopInit() {
+        teleopInitialize();
+    }
 
-		if (driver == null) {
-			System.err.println("No default driver was set. Make sure to run driverChooser.setDefaultOption() in Robot.initialize()");
-		}
-		if (operator == null) {
-			System.err.println("No default operator was set. Make sure to run operatorChooser.setDefaultOption() in Robot.initialize()");
-		}
-	}
+    /** Use {@link #teleopExecute()} for year-specific code. */
+    @Override
+    public final void teleopPeriodic() {
+        CommandScheduler.getInstance().run();
+        teleopExecute();
+        alwaysExecute();
+    }
 
-	/** Use {@link #teleopInitialize()} for year-specific code. */
-	@Override
-	public final void teleopInit() {
-		teleopInitialize();
-	}
+    /** Use {@link #teleopCleanup()} for year-specific code. */
+    @Override
+    public final void teleopExit() {
+        teleopCleanup();
+    }
 
-	/** Use {@link #teleopExecute()} for year-specific code. */
-	@Override
-	public final void teleopPeriodic() {
-		CommandScheduler.getInstance().run();
-		teleopExecute();
-		alwaysExecute();
-	}
+    /** Use {@link #autonomousInitialize()} for year-specific code. */
+    @Override
+    public final void autonomousInit() {
+        autonCommand = autonChooser.getSelected();
+        if (autonCommand != null) {
+            CmdUtil.schedule(autonCommand);
+        }
 
-	/** Use {@link #teleopCleanup()} for year-specific code. */
-	@Override
-	public final void teleopExit() {
-		teleopCleanup();
-	}
+        autonomousInitialize();
+    }
 
-	/** Use {@link #autonomousInitialize()} for year-specific code. */
-	@Override
-	public final void autonomousInit() {
-		autonCommand = autonChooser.getSelected();
-		if (autonCommand != null) {
-			CmdUtil.schedule(autonCommand);
-		}
+    /** Use {@link #autonomousExecute()} for year-specific code. */
+    @Override
+    public final void autonomousPeriodic() {
+        CommandScheduler.getInstance().run();
+        autonomousExecute();
+        alwaysExecute();
+    }
 
-		autonomousInitialize();
-	}
+    /** Use {@link #autonomousCleanup()} for year-specific code. */
+    @Override
+    public final void autonomousExit() {
+        if (autonCommand != null) {
+            autonCommand.cancel();
+        }
 
-	/** Use {@link #autonomousExecute()} for year-specific code. */
-	@Override
-	public final void autonomousPeriodic() {
-		CommandScheduler.getInstance().run();
-		autonomousExecute();
-		alwaysExecute();
-	}
+        autonomousCleanup();
+    }
 
-	/** Use {@link #autonomousCleanup()} for year-specific code. */
-	@Override
-	public final void autonomousExit() {
-		if (autonCommand != null) {
-			autonCommand.cancel();
-		}
+    /** Use {@link #disabledInitialize()} for year-specific code. */
+    @Override
+    public final void disabledInit() {
+        disabledInitialize();
+    }
 
-		autonomousCleanup();
-	}
+    /** Use {@link #disabledExecute()} for year-specific code. */
+    @Override
+    public final void disabledPeriodic() {
+        CommandScheduler.getInstance().run();
+        disabledExecute();
+        alwaysExecute();
+    }
 
-	/** Use {@link #disabledInitialize()} for year-specific code. */
-	@Override
-	public final void disabledInit() {
-		disabledInitialize();
-	}
+    /** Use {@link #disabledCleanup()} for year-specific code. */
+    @Override
+    public final void disabledExit() {
+        disabledCleanup();
+    }
 
-	/** Use {@link #disabledExecute()} for year-specific code. */
-	@Override
-	public final void disabledPeriodic() {
-		CommandScheduler.getInstance().run();
-		disabledExecute();
-		alwaysExecute();
-	}
+    /** Use {@link #testInitialize()} for year-specific code. */
+    @Override
+    public final void testInit() {
+        testInitialize();
+    }
 
-	/** Use {@link #disabledCleanup()} for year-specific code. */
-	@Override
-	public final void disabledExit() {
-		disabledCleanup();
-	}
+    /** Use {@link #testExecute()} for year-specific code. */
+    @Override
+    public final void testPeriodic() {
+        CommandScheduler.getInstance().run();
+        testExecute();
+        alwaysExecute();
+    }
 
-	/** Use {@link #testInitialize()} for year-specific code. */
-	@Override
-	public final void testInit() {
-		testInitialize();
-	}
+    /** Use {@link #testCleanup()} for year-specific code. */
+    @Override
+    public final void testExit() {
+        testCleanup();
+    }
 
-	/** Use {@link #testExecute()} for year-specific code. */
-	@Override
-	public final void testPeriodic() {
-		CommandScheduler.getInstance().run();
-		testExecute();
-		alwaysExecute();
-	}
+    /**
+     * Function for year-specific code to be run on robot code launch.
+     * Driver/operator/auton chooser options should be added here.
+     */
+    public abstract void initialize();
 
-	/** Use {@link #testCleanup()} for year-specific code. */
-	@Override
-	public final void testExit() {
-		testCleanup();
-	}
+    /** Function for year-specific code to be run in every robot mode. */
+    public abstract void alwaysExecute();
 
+    /** Function for year-specific code to be run on teleoperated initialize. */
+    public abstract void teleopInitialize();
 
-	/**
-	 * Function for year-specific code to be run on robot code launch.
-	 * Driver/operator/auton chooser options should be added here.
-	 */
-	public abstract void initialize();
+    /** Function for year-specific code to be run during teleoperated time. */
+    public abstract void teleopExecute();
 
-	/** Function for year-specific code to be run in every robot mode. */
-	public abstract void alwaysExecute();
+    /** Function for year-specific code to be run when teleoperated mode ends. */
+    public abstract void teleopCleanup();
 
+    /** Function for year-specific code to be run on autonomous initialize. */
+    public abstract void autonomousInitialize();
 
-	/** Function for year-specific code to be run on teleoperated initialize. */
-	public abstract void teleopInitialize();
+    /** Function for year-specific code to be run during autonomous. */
+    public abstract void autonomousExecute();
 
-	/** Function for year-specific code to be run during teleoperated time. */
-	public abstract void teleopExecute();
+    /** Function for year-specific code to be run when autonomous mode ends. */
+    public abstract void autonomousCleanup();
 
-	/** Function for year-specific code to be run when teleoperated mode ends. */
-	public abstract void teleopCleanup();
+    /** Function for year-specific code to be run on disabled initialize. */
+    public abstract void disabledInitialize();
 
+    /** Function for year-specific code to be run while disabled. */
+    public abstract void disabledExecute();
 
-	/** Function for year-specific code to be run on autonomous initialize. */
-	public abstract void autonomousInitialize();
+    /** Function for year-specific code to be run when disabled mode ends. */
+    public abstract void disabledCleanup();
 
-	/** Function for year-specific code to be run during autonomous. */
-	public abstract void autonomousExecute();
+    /** Function for year-specific code to be run on disabled initialize. */
+    public abstract void testInitialize();
 
-	/** Function for year-specific code to be run when autonomous mode ends. */
-	public abstract void autonomousCleanup();
+    /** Function for year-specific code to be run while in test mode. */
+    public abstract void testExecute();
 
-
-	/** Function for year-specific code to be run on disabled initialize. */
-	public abstract void disabledInitialize();
-
-	/** Function for year-specific code to be run while disabled. */
-	public abstract void disabledExecute();
-
-	/** Function for year-specific code to be run when disabled mode ends. */
-	public abstract void disabledCleanup();
-
-
-	/** Function for year-specific code to be run on disabled initialize. */
-	public abstract void testInitialize();
-
-	/** Function for year-specific code to be run while in test mode. */
-	public abstract void testExecute();
-
-	/** Function for year-specific code to be run when test mode ends. */
-	public abstract void testCleanup();
+    /** Function for year-specific code to be run when test mode ends. */
+    public abstract void testCleanup();
 
 }

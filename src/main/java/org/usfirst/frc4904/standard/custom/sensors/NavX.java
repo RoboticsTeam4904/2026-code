@@ -1,38 +1,34 @@
 // WAS PID SOURCE
 package org.usfirst.frc4904.standard.custom.sensors;
 
-import static edu.wpi.first.units.Units.Degrees;
-
-import com.studica.frc.Navx;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
+import com.studica.frc.AHRS;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.SerialPort;
 
 /**
  * Local NavX interface.
  */
-public class NavX extends Navx {
-    protected Angle lastYaw;
-    protected Angle lastPitch;
-    protected Angle lastRoll;
+public class NavX extends AHRS implements IMU {
+    protected float lastYaw;
+    protected float lastPitch;
+    protected float lastRoll;
     protected double lastYawRate;
-    public static int outputRate;
     protected int getYawCalls;
     protected static final double MAX_DEGREES_PER_TICK = 90.0;
     protected static final double MAX_DEGREES_PER_SECOND_PER_TICK = 180;
 
-    public NavX(int id, int rate) {
-        super(id, rate);
-        super.resetYaw();
-        lastYaw = Degrees.of(0);
-        lastPitch = Degrees.of(0);
-        lastRoll = Degrees.of(0);
-        outputRate = rate
+    public NavX(NavXComType port) {
+        super(port);
+        super.zeroYaw();
+        lastYaw = 0.0f;
+        lastPitch = 0.0f;
+        lastRoll = 0.0f;
         getYawCalls = 0;
     }
 
     @Override
     public double getRate() {
-        double rate = outputRate;
+        double rate = super.getRate();
         if (Math.abs(rate - lastYawRate) > NavX.MAX_DEGREES_PER_SECOND_PER_TICK) {
             return lastYawRate;
         }
@@ -43,12 +39,12 @@ public class NavX extends Navx {
     /**
      * Returns an always positive yaw. Ignores anomalous values
      */
-    public Angle getSafeYaw() {
-        Angle yaw = super.getYaw();
+    public float getSafeYaw() {
+        float yaw = super.getYaw();
         // SmartDashboard.putNumber("navx_yaw", yaw);
         // SmartDashboard.putNumber("navx_last_yaw", lastYaw);
-        if ((Math.abs(yaw.in(Degrees) - lastYaw.in(Degrees)) > NavX.MAX_DEGREES_PER_TICK)
-                && (Math.abs(Math.abs(yaw.in(Degrees) - lastYaw.in(Degrees)) - 360) > NavX.MAX_DEGREES_PER_TICK)) { // Smoothing
+        if ((Math.abs(yaw - lastYaw) > NavX.MAX_DEGREES_PER_TICK)
+                && (Math.abs(Math.abs(yaw - lastYaw) - 360) > NavX.MAX_DEGREES_PER_TICK)) { // Smoothing
             return lastYaw;
         }
         lastYaw = yaw;
@@ -56,7 +52,7 @@ public class NavX extends Navx {
     }
 
     @Override
-    public Angle getYaw() {
+    public float getYaw() {
         getYawCalls += 1;
         return super.getYaw();
     }
@@ -65,14 +61,14 @@ public class NavX extends Navx {
      * Returns an always positive pitch
      */
     @Override
-    public Angle getPitch() {
-        Angle pitch = super.getPitch();
-        if (Math.abs(pitch.in(Degrees) - lastPitch.in(Degrees)) > NavX.MAX_DEGREES_PER_TICK) {
+    public float getPitch() {
+        float pitch = super.getPitch();
+        if (Math.abs(pitch - lastPitch) > NavX.MAX_DEGREES_PER_TICK) {
             return lastPitch;
         }
-        if (pitch.in(Degrees) < 0) {
-            lastPitch = Degrees.of(360 + pitch.in(Degrees));
-            return Degrees.of(360 + pitch.in(Degrees));
+        if (pitch < 0) {
+            lastPitch = 360 + pitch;
+            return 360 + pitch;
         } else {
             lastPitch = pitch;
             return pitch;
@@ -83,22 +79,23 @@ public class NavX extends Navx {
      * Returns an always positive roll
      */
     @Override
-    public Angle getRoll() {
-        Angle roll = super.getRoll();
-        if (Math.abs(roll.in(Degrees) - lastRoll.in(Degrees)) > NavX.MAX_DEGREES_PER_TICK) {
+    public float getRoll() {
+        float roll = super.getRoll();
+        if (Math.abs(roll - lastRoll) > NavX.MAX_DEGREES_PER_TICK) {
             return lastRoll;
         }
-        if (roll.in(Degrees) < 0) {
-            lastRoll = Degrees.of(360 + roll.in(Degrees));
-            return Degrees.of(360 + roll.in(Degrees));
+        if (roll < 0) {
+            lastRoll = 360 + roll;
+            return 360 + roll;
         } else {
             lastRoll = roll;
             return roll;
         }
     }
 
+    @Override
     public void zeroYaw() {
-        super.resetYaw();
-        lastYaw = Degrees.of(0);
+        super.zeroYaw();
+        lastYaw = 0;
     }
 }
