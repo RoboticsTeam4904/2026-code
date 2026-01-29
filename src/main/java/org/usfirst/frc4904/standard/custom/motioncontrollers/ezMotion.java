@@ -49,7 +49,7 @@ public class ezMotion extends Command {
         ezControl control,
         DoubleSupplier getCurrent,
         DoubleConsumer processValue,
-        TrapezoidProfile.State goal,
+        double goal,
         TrapezoidProfile.Constraints constraints,
         Subsystem... requirements
     ) {
@@ -59,8 +59,9 @@ public class ezMotion extends Command {
             processValue,
             () -> {
                 var profile = new TrapezoidProfile(constraints);
-                var start = new TrapezoidProfile.State(getCurrent.getAsDouble(), 0);
-                return (elapsed) -> profile.calculate(elapsed, start, goal);
+                var startState = new TrapezoidProfile.State(getCurrent.getAsDouble(), 0);
+                var goalState = new TrapezoidProfile.State(goal, 0);
+                return (elapsed) -> profile.calculate(elapsed, startState, goalState);
             },
             requirements
         );
