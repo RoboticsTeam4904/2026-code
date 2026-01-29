@@ -59,9 +59,7 @@ public class ezMotion extends Command {
             processValue,
             () -> {
                 var profile = new TrapezoidProfile(constraints);
-
                 var start = new TrapezoidProfile.State(getCurrent.getAsDouble(), 0);
-
                 return (elapsed) -> profile.calculate(elapsed, start, goal);
             },
             requirements
