@@ -27,6 +27,7 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
      * This does not brake the motor. Use .neutralOutput() instead, after
      * setBrakeOnNeutral.
      */
+    @Override
     public void setBrakeOnNeutral() {
         setNeutralMode(NeutralModeValue.Brake);
     }
@@ -39,14 +40,17 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
      * This does not coast the motor. Use .neutralOutput() instead, after
      * setCoastOnNeutral.
      */
+    @Override
     public void setCoastOnNeutral() {
         setNeutralMode(NeutralModeValue.Coast);
     }
 
     // TODO: also support normally closed limit switches
+    @Override
     public boolean isFwdLimitSwitchPressed() {
         return getForwardLimit().getValue() == ForwardLimitValue.ClosedToGround;
     }
+    @Override
     public boolean isRevLimitSwitchPressed() {
         // TODO: this boolean might be reversed
         return getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround;
