@@ -3,7 +3,6 @@ package org.usfirst.frc4904.standard.custom.motioncontrollers;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.FeedForward;
-import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.Setpoint;
 
 public class ezControl {
 
