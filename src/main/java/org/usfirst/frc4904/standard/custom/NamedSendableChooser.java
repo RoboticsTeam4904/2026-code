@@ -27,6 +27,7 @@ public class NamedSendableChooser<T extends Nameable>
     /**
      * Wrapper for getSelected() to conform to Supplier
      */
+    @Override
     public T get() {
         return getSelected();
     }

@@ -80,11 +80,8 @@ public class CANEncoder extends CANSensor implements CustomEncoder {
      */
     @Override
     public double getDistanceSafely() throws InvalidSensorException {
-        if (reverseDirection) {
-            return distancePerPulse * super.readSensor()[0] * -1 + offset;
-        } else {
-            return distancePerPulse * super.readSensor()[0] + offset;
-        }
+        int reverse = reverseDirection ? -1 : 1;
+        return distancePerPulse * super.readSensor()[0] * reverse + offset;
     }
 
     /**
@@ -92,7 +89,7 @@ public class CANEncoder extends CANSensor implements CustomEncoder {
      */
     @Override
     public boolean getDirectionSafely() throws InvalidSensorException {
-        return !reverseDirection == (super.readSensor()[1] >= 0);
+        return reverseDirection == (super.readSensor()[1] < 0);
     }
 
     /**
@@ -100,11 +97,8 @@ public class CANEncoder extends CANSensor implements CustomEncoder {
      */
     @Override
     public double getRateSafely() throws InvalidSensorException {
-        if (reverseDirection) {
-            return distancePerPulse * super.readSensor()[1] * -1.0;
-        } else {
-            return distancePerPulse * super.readSensor()[1];
-        }
+        int reverse = reverseDirection ? -1 : 1;
+        return distancePerPulse * super.readSensor()[1] * reverse;
     }
 
     /**

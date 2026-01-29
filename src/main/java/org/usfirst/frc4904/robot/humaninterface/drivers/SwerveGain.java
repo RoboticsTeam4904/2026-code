@@ -23,6 +23,7 @@ public class SwerveGain extends Driver {
         return MathUtil.copyDirectionPow(input, exp);
     }
 
+    @Override
     public void bindCommands() {
         Component.chassis.setDefaultCommand(
             Component.chassis.c_input(this::getTranslation, this::getTurnSpeed)
@@ -37,6 +38,7 @@ public class SwerveGain extends Driver {
         // );
     }
 
+    @Override
     public void unbindCommands() {
         Component.chassis.removeDefaultCommand();
     }
@@ -48,6 +50,7 @@ public class SwerveGain extends Driver {
         return -HumanInput.Driver.xyJoystick.getX();
     }
 
+    @Override
     public Translation2d getTranslation() {
         double forward = getRawForward(), left = getRawLeft();
 
@@ -55,6 +58,7 @@ public class SwerveGain extends Driver {
         return new Translation2d(vec);
     }
 
+    @Override
     public double getTurnSpeed() {
         double turnSpeed = -HumanInput.Driver.turnJoystick.getX();
         return scaleGain(turnSpeed, TURN_EXP);

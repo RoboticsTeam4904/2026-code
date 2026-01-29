@@ -229,7 +229,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * <p>
      * See {@link #input(Translation2d, double)}
      */
-    public Command c_input(Supplier<Translation2d> translation, DoubleSupplier theta) {
+    public Command c_input(Supplier<? extends Translation2d> translation, DoubleSupplier theta) {
         return run(() -> input(translation.get(), theta.getAsDouble()));
     }
 

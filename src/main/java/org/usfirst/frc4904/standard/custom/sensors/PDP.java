@@ -13,12 +13,12 @@ import edu.wpi.first.wpilibj.RobotController;
 public class PDP {
     public static final double PDP_CURRENT_PRECISION = 0.01;
     public static final double PDP_VOLTAGE_PRECISION = 0.125;
-    protected final static double DEFAULT_VOLTAGE = 11.5;
-    protected final static double DEFAULT_RESISTANCE = 80.0;
-    protected final static int PDP_ID_STATUS_1 = 0x8041400;
-    protected final static int PDP_ID_STATUS_2 = 0x8041440;
-    protected final static int PDP_ID_STATUS_3 = 0x8041480;
-    protected final static int PDP_ID_STATUS_ENERGY = 0x8041740;
+    protected static final double DEFAULT_VOLTAGE = 11.5;
+    protected static final double DEFAULT_RESISTANCE = 80.0;
+    protected static final int PDP_ID_STATUS_1 = 0x8041400;
+    protected static final int PDP_ID_STATUS_2 = 0x8041440;
+    protected static final int PDP_ID_STATUS_3 = 0x8041480;
+    protected static final int PDP_ID_STATUS_ENERGY = 0x8041740;
     protected final CustomCAN status1;
     protected final CustomCAN status2;
     protected final CustomCAN status3;

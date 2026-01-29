@@ -15,6 +15,7 @@ public class CustomCommandXbox extends CommandXboxController {
         this.deadzone = deadzone;
     }
 
+    @Override
     public double getLeftX() {
         return applyDeadzone(hid.getLeftX(), deadzone);
     }
@@ -24,6 +25,7 @@ public class CustomCommandXbox extends CommandXboxController {
      *
      * @return The axis value.
      */
+    @Override
     public double getRightX() {
         return applyDeadzone(hid.getRightX(), deadzone);
     }
@@ -33,6 +35,7 @@ public class CustomCommandXbox extends CommandXboxController {
      *
      * @return The axis value.
      */
+    @Override
     public double getLeftY() {
         return applyDeadzone(hid.getLeftY(), deadzone);
     }
@@ -42,6 +45,7 @@ public class CustomCommandXbox extends CommandXboxController {
      *
      * @return The axis value.
      */
+    @Override
     public double getRightY() {
         return applyDeadzone(hid.getRightY(), deadzone);
     }
