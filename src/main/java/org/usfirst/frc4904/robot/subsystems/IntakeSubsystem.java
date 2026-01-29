@@ -71,10 +71,7 @@ public class IntakeSubsystem extends MotorSubsystem {
             controller,
             this::getAngle,
             this::setVoltage,
-            (double t) -> {
-                var setpoint = profile.calculate(t, start, goal);
-                return new Pair<>(setpoint.position, setpoint.velocity);
-            },
+            (double elapsed) -> profile.calculate(elapsed, start, goal),
             this
         ).finallyDo(this::stop);
     }
