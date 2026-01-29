@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 import org.usfirst.frc4904.robot.subsystems.ClimberSubsystem;
 import org.usfirst.frc4904.robot.subsystems.IntakeSubsystem;
@@ -73,6 +74,9 @@ public final class RobotMap {
 
         // misc
         public static AddressableLED ledStrip;
+
+        //encoders
+        public static DutyCycleEncoder intakeEncoder;
     }
 
     public static class Input {}
@@ -149,6 +153,9 @@ public final class RobotMap {
         Component.climbMotor = new CustomTalonFX(32);
         Component.intakeVerticalMotor = new CustomTalonFX(64);
         Component.intakeRollerMotor = new CustomTalonFX(68);
+        Component.intakeEncoder = new DutyCycleEncoder(69);
+
+        Component.intake = new IntakeSubsystem(Component.intakeVerticalMotor, Component.intakeRollerMotor, Component.intakeEncoder);
 
         HumanInput.Driver.xyJoystick = new CustomCommandJoystick(
             Port.HumanInput.xyJoystickPort,
