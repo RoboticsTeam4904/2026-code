@@ -17,7 +17,11 @@ public class CustomNavx {
     // units begone
     protected final Navx navx;
 
-    /** See {@link Navx#Navx(int)} */
+    /**
+     * Creates a new NavX
+     *
+     * @param id the CAN id of the navx. For whatever reason, this must be 0. don't ask why.
+     */
     public CustomNavx(int id) {
         navx = new Navx(id);
     }
