@@ -68,7 +68,7 @@ public class RobotMap {
         // misc
         public static AddressableLED ledStrip;
 
-        //encoders
+        // encoders
         public static DutyCycleEncoder intakeEncoder;
     }
 
@@ -142,6 +142,7 @@ public class RobotMap {
             new int[] { 20, 37, 34, 16 },
             new boolean[] { false, true, false, true }
         );
+
         Component.climbMotor = new CustomTalonFX(32);
         Component.intakeVerticalMotor = new CustomTalonFX(64);
         Component.intakeRollerMotor = new CustomTalonFX(68);
