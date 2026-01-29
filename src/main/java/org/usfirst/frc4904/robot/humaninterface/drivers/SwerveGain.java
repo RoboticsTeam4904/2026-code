@@ -52,10 +52,12 @@ public class SwerveGain extends Driver {
 
     @Override
     public Translation2d getTranslation() {
-        double forward = getRawForward(), left = getRawLeft();
+        Translation2d translation = new Translation2d(getRawForward(), getRawLeft());
 
-        Vector<N2> vec = MathUtil.applyDeadband(VecBuilder.fill(left, forward), JOYSTICK_DEADZONE);
-        return new Translation2d(vec);
+        double mag = translation.getNorm();
+        double len = scaleGain(MathUtil.applyDeadband(mag, JOYSTICK_DEADZONE), SPEED_EXP);
+
+        return translation.times(len / mag); // unit translation * len
     }
 
     @Override
