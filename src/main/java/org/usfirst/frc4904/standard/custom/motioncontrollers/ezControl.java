@@ -1,53 +1,38 @@
 package org.usfirst.frc4904.standard.custom.motioncontrollers;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.FeedForward;
+import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion.Setpoint;
 
 public class ezControl {
+
     public final PIDController pid;
-    public final ezFeedForward ff;
+    public final FeedForward ff;
 
     private double setpoint;
     private double setpoint_dt;
 
-    public ezControl(double kP, double kI, double kD, ezFeedForward ff, double errorTolerance) {
-        this(kP, kI, kD, ff);
-        pid.setTolerance(errorTolerance, 1);
+    public ezControl(double kP, double kI, double kD) {
+        this(new PIDController(kP, kI, kD), FeedForward.NOOP);
     }
 
-    public ezControl(double kP, double kI, double kD, ezFeedForward ff) {
+    public ezControl(double kP, double kI, double kD, FeedForward ff) {
         this(new PIDController(kP, kI, kD), ff);
     }
 
     public ezControl(PIDController pid) {
-        this(pid, (pos, mPerSec) -> 0.0);
+        this(pid, FeedForward.NOOP);
     }
 
-    public ezControl(PIDController pid, ezFeedForward ff) {
+    public ezControl(PIDController pid, FeedForward ff) {
         this.pid = pid;
         this.ff = ff;
     }
 
-    public boolean atSetpoint() {
-        return pid.atSetpoint();
-    }
-
-    public void setSetpoint(double setpoint) {
-        this.setpoint = setpoint;
-        this.setpoint_dt = 0;
-        pid.setSetpoint(setpoint);
-    }
-
-    public void updateSetpoint(double setpoint, double setpoint_dt) {
-        if (setpoint != this.setpoint) {
-            pid.setSetpoint(this.setpoint);
-        }
-        this.setpoint = setpoint;
-        this.setpoint_dt = setpoint_dt;
-    }
-
-    public double calculate(double measurement, double elapsed) {
-        double pidOut = pid.calculate(measurement);
-        double ffOut = ff.calculate(setpoint, setpoint_dt);
+    public double calculate(double current, TrapezoidProfile.State setpoint) {
+        double pidOut = pid.calculate(current);
+        double ffOut = ff.calculate(setpoint.position, setpoint.velocity);
         return pidOut + ffOut;
     }
 }
