@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class IntakeSubsystem extends MotorSubsystem{
-    
+public class IntakeSubsystem extends MotorSubsystem {
+
     public static final double kS = 1;
     public static final double kV = 2;
     public static final double kA = 0.4;
@@ -26,23 +26,32 @@ public class IntakeSubsystem extends MotorSubsystem{
     public static final double MAX_VEL = 8;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
 
-    private ArmFeedforward feedforward;
-    private DutyCycleEncoder encoder;
-    
-    public IntakeSubsystem(SmartMotorController intakeVerticalMotor, SmartMotorController intakeRollerMotor, DutyCycleEncoder intakeEncoder){
+    private final ArmFeedforward feedforward;
+    private final DutyCycleEncoder encoder;
+
+    public IntakeSubsystem(
+        SmartMotorController intakeVerticalMotor,
+        SmartMotorController intakeRollerMotor,
+        DutyCycleEncoder intakeEncoder
+    ) {
         super(
-            new SmartMotorController [] {intakeRollerMotor},
+            new SmartMotorController[] { intakeRollerMotor },
             4
         );
-        
+
         this.feedforward = new ArmFeedforward(kS, kG, kV, kA);
         this.encoder = intakeEncoder;
     }
 
-    public Command c_intake () {
-            return c_forward(true);
+    public double getAngle() {
+        return encoder.get();
     }
-    //TODO: actually find the angles
+
+    public Command c_intake() {
+        return c_forward(true);
+    }
+
+    // TODO: actually find the angles
     public Command c_gotoAngle(double angle) {
         return defer(() -> getRawAngleCommand(angle));
     }
@@ -66,10 +75,6 @@ public class IntakeSubsystem extends MotorSubsystem{
         cmd.setName("elevator - c_gotoAngle");
         cmd.addRequirements(this);
         return cmd;
-    }
-
-    public double getAngle() {
-        return encoder.get();
     }
 
     private ezMotion getEzMotion(

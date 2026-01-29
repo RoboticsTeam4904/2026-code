@@ -66,7 +66,7 @@ public final class RobotMap {
         // misc
         public static AddressableLED ledStrip;
 
-        //encoders
+        // encoders
         public static DutyCycleEncoder intakeEncoder;
     }
 
