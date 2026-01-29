@@ -8,6 +8,10 @@ import java.util.Arrays;
 
 import static edu.wpi.first.units.Units.*;
 
+/**
+ * NavX should be mounted to robot according to WPILib coordinates:
+ * +X is forward, +Y is left, +Z is up
+ */
 public class CustomNavx {
 
     // units begone
@@ -18,7 +22,7 @@ public class CustomNavx {
         navx = new Navx(id);
     }
 
-    /** @return current angular velocity around axes {@code {x, y, z}}/{@code {roll, pitch, yaw}}, in rotations/sec */
+    /** @return current angular velocity around axes (in theory {@code {x, y, z}}/{@code {roll, pitch, yaw}}), in rotations/sec */
     public double[] getAngularVel() {
         // TODO test negation
         return Arrays.stream(navx.getAngularVel())
@@ -36,20 +40,20 @@ public class CustomNavx {
 
     /** @return current yaw in rotations; positive = counterclockwise */
     public double getYaw() {
-        return -navx.getYaw().in(Rotations); // TODO test negation
+        return navx.getYaw().in(Rotations);
     }
     /** @return current pitch in rotations; positive = front up */
     public double getPitch() {
-        return navx.getPitch().in(Rotations); // TODO test negation
+        return -navx.getRoll().in(Rotations);
     }
     /** @return current roll in rotations; positive = left side up, right side down */
     public double getRoll() {
-        return navx.getRoll().in(Rotations); // TODO test negation
+        return navx.getPitch().in(Rotations);
     }
 
     /** @return current yaw as a {@link Rotation2d} */
     public Rotation2d getRotation2d() {
-        return navx.getRotation2d().unaryMinus(); // TODO test negation
+        return navx.getRotation2d();
     }
     /** @return current rotation as a {@link Rotation3d} */
     public Rotation3d getRotation3d() {
