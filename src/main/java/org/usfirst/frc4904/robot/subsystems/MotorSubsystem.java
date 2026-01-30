@@ -84,8 +84,10 @@ public class MotorSubsystem extends SubsystemBase {
     }
 
     public Command c_holdVoltage(double voltage, boolean stopOnEnd) {
-        var cmd = run(() -> setVoltage(voltage));
-        return stopOnEnd ? cmd.finallyDo(this::stop) : cmd;
+        return runEnd(
+            () -> setVoltage(voltage),
+            stopOnEnd ? this::stop : () -> {}
+        );
     }
 
     public Command c_forward() {
