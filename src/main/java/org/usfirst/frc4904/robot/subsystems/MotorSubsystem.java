@@ -67,7 +67,7 @@ public class MotorSubsystem extends SubsystemBase {
         this.forwardVoltage = forwardVoltage;
         this.backwardVoltage = backwardVoltage;
 
-        setBrakeOnNeutral();
+        setMotorBrake(true);
     }
 
     public void setVoltage(double voltage) {
@@ -79,12 +79,8 @@ public class MotorSubsystem extends SubsystemBase {
         for (var motor : motors) motor.stopMotor();
     }
 
-    public void setBrakeOnNeutral() {
-        for (var motor : motors) motor.setBrakeOnNeutral();
-    }
-
-    public void setCoastOnNeutral() {
-        for (var motor : motors) motor.setCoastOnNeutral();
+    public void setMotorBrake(boolean brake) {
+        for (var motor : motors) motor.setMotorBrake(brake);
     }
 
     public Command c_holdVoltage(double voltage, boolean stopOnEnd) {

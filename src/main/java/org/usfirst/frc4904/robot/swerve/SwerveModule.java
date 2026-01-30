@@ -49,13 +49,8 @@ public class SwerveModule implements Sendable {
     }
 
     void setMotorBrake(boolean brake) {
-        if (brake) {
-            drive.motor().setBrakeOnNeutral();
-            rotation.motor.setBrakeOnNeutral();
-        } else {
-            drive.motor().setCoastOnNeutral();
-            rotation.motor.setCoastOnNeutral();
-        }
+        drive.motor().setMotorBrake(brake);
+        rotation.motor.setMotorBrake(brake);
     }
 
     void moveTo(double magnitude, double theta) {

@@ -11,7 +11,6 @@ public interface SmartMotorController extends MotorController {
 	boolean isFwdLimitSwitchPressed() throws IllegalAccessException;
 	boolean isRevLimitSwitchPressed() throws IllegalAccessException;
 
-	void setBrakeOnNeutral();
-	void setCoastOnNeutral();
+	void setMotorBrake(boolean brake);
 	void neutralOutput();
 }

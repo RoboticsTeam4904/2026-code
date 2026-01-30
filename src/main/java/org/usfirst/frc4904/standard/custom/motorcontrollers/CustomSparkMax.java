@@ -34,13 +34,8 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
     }
 
     @Override
-    public void setBrakeOnNeutral() {
-        configure(new SparkMaxConfig().idleMode(IdleMode.kBrake));
-    }
-
-    @Override
-    public void setCoastOnNeutral() {
-        configure(new SparkMaxConfig().idleMode(IdleMode.kCoast));
+    public void setMotorBrake(boolean brake) {
+        configure(new SparkMaxConfig().idleMode(brake ? IdleMode.kBrake : IdleMode.kCoast));
     }
 
     @SuppressWarnings("deprecation") // overrides deprecated method

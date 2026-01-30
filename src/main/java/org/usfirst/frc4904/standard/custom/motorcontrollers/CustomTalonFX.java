@@ -20,29 +20,13 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
     }
 
     /**
-     * Setting to enable brake mode on neutral (when .neutralOutput(),
-     * .disable(), or .stopMotor() is called, or when output percent is within
-     * neutralDeadbandPercent of zero).
-     *
-     * This does not brake the motor. Use .neutralOutput() instead, after
-     * setBrakeOnNeutral.
+     * Setting to toggle brake mode on neutral.
+     * <p>
+     * This does not brake the motor. Use {@code .neutralOutput()} instead, after {@code .setMotorBrake(true)}.
      */
     @Override
-    public void setBrakeOnNeutral() {
-        setNeutralMode(NeutralModeValue.Brake);
-    }
-
-    /**
-     * Setting to enable coast mode on neutral (when .neutralOutput(),
-     * .disable(), or .stopMotor() is called, or when output percent is within
-     * neutralDeadbandPercent of zero).
-     *
-     * This does not coast the motor. Use .neutralOutput() instead, after
-     * setCoastOnNeutral.
-     */
-    @Override
-    public void setCoastOnNeutral() {
-        setNeutralMode(NeutralModeValue.Coast);
+    public void setMotorBrake(boolean brake) {
+        setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
 
     // TODO: also support normally closed limit switches
