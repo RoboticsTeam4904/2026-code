@@ -54,13 +54,14 @@ public class IntakeSubsystem extends MotorSubsystem {
             kP, kI, kD,
             (position, velocity) -> feedforward.calculate(getAngle(), velocity)
         );
+        var constraints = new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL);
 
         return new ezMotion(
             controller,
             this::getAngle,
             this::setVoltage,
             angle,
-            new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL),
+            constraints,
             this
         ).finallyDo(this::stop);
     }
