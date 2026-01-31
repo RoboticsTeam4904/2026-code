@@ -4,7 +4,6 @@ import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -51,27 +50,17 @@ public class IntakeSubsystem extends MotorSubsystem {
 
     // TODO: actually find the angles
     public Command c_gotoAngle(double angle) {
-        return defer(() -> getRawAngleCommand(angle));
-    }
-
-    private Command getRawAngleCommand(double angle) {
         ezControl controller = new ezControl(
             kP, kI, kD,
             (position, velocity) -> feedforward.calculate(getAngle(), velocity)
         );
 
-        TrapezoidProfile profile = new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL)
-        );
-
-        var start = new TrapezoidProfile.State(getAngle(), 0);
-        var goal = new TrapezoidProfile.State(angle, 0);
-
         return new ezMotion(
             controller,
             this::getAngle,
             this::setVoltage,
-            (double elapsed) -> profile.calculate(elapsed, start, goal),
+            angle,
+            new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL),
             this
         ).finallyDo(this::stop);
     }
