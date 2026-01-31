@@ -14,15 +14,16 @@ public abstract class Operator extends HumanInput {
     }
 
     protected static Command c_resetOdometry() {
-        return new InstantCommand(() -> Component.chassis.resetOdometry());
+        return new InstantCommand(() -> Component.chassis.resetOdometry()) {
+            @Override
+            public boolean runsWhenDisabled() { return true; }
+        };
     }
 
     protected static Command c_zeroSwerve() {
         return new InstantCommand(() -> Component.chassis.zero()) {
             @Override
-            public boolean runsWhenDisabled() {
-                return true;
-            }
+            public boolean runsWhenDisabled() { return true; }
         };
     }
 

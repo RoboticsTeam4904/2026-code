@@ -83,7 +83,7 @@ public final class RobotMap {
         }
         initialized = true;
 
-        Component.navx = new CustomNavx(59);
+        Component.navx = new CustomNavx(0);
 
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(

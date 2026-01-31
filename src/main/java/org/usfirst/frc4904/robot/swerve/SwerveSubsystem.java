@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.function.DoubleSupplier;
@@ -72,9 +73,9 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param theta Rotation speed in rotations per second. Will be overridden if a c_rotateTo() command is active
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
-        if (rotCommand != null) {
-            theta = rotPIDEffort;
-        }
+        // if (rotCommand != null) {
+            // theta = rotPIDEffort;
+        // }
 
         Translation2d[] translations = new Translation2d[modules.length];
         double maxMag = SwerveConstants.LIN_SPEED;
