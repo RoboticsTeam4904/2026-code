@@ -52,6 +52,14 @@ public final class RobotMap {
         public static VisionSubsystem vision;
 
         // motors
+        public static CustomTalonFX flDrive;
+        public static CustomTalonFX flTurn;
+        public static CustomTalonFX frDrive;
+        public static CustomTalonFX frTurn;
+        public static CustomTalonFX blDrive;
+        public static CustomTalonFX blTurn;
+        public static CustomTalonFX brDrive;
+        public static CustomTalonFX brTurn;
 
         // misc
         public static AddressableLED ledStrip;
@@ -83,34 +91,34 @@ public final class RobotMap {
         }
         initialized = true;
 
-        Component.navx = new CustomNavx(59);
+        Component.navx = new CustomNavx(0);
 
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
                 "Front Left",
-                new CustomTalonFX(2),
-                new CustomTalonFX(17),
+                Component.flDrive = new CustomTalonFX(2),
+                Component.flTurn = new CustomTalonFX(17),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "Front Right",
-                new CustomTalonFX(3),
-                new CustomTalonFX(15),
+                Component.frDrive = new CustomTalonFX(3),
+                Component.frTurn = new CustomTalonFX(15),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
                 "Back Left",
-                new CustomTalonFX(4),
-                new CustomTalonFX(18),
+                Component.blDrive = new CustomTalonFX(4),
+                Component.blTurn = new CustomTalonFX(18),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
                 new Translation2d(-1, -1)
             ),
             new SwerveModule(
                 "Back Right",
-                new CustomTalonFX(1),
-                new CustomTalonFX(16),
+                Component.brDrive = new CustomTalonFX(1),
+                Component.brTurn = new CustomTalonFX(16),
                 new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
                 new Translation2d(1, -1)
             )

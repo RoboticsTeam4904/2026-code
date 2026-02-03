@@ -90,6 +90,6 @@ public class Robot extends CommandRobotBase {
         //     int status = Component.navx.selfTest(test);
         //     System.out.println("navx test: " + status + " test: " + Arrays.toString(test));
         // }
-        Logging.log("navx rot", Component.navx.getYaw());
+        // Logging.log("navx rot", Component.navx.getYaw());
     }
 }
