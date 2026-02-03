@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -114,12 +115,10 @@ public class SwerveSubsystem extends SubsystemBase {
         return estimator.getEstimatedPosition();
     }
 
-    public ChassisSpeeds getVelocityEstimate() {
-        if (!estimatorEnabled) {
-            System.err.println("SwerveSubsystem.getPoseEstimate() called while pose estimator is disabled.");
-            return new ChassisSpeeds();
-        }
-
+    /**
+     * @return current robot-relative {@link ChassisSpeeds} (velocity and direction) according to encoders
+     */
+    public ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
 
@@ -150,8 +149,21 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Drive relative to the current angle of the robot.
+     * @param speeds Target velocity and rotation, deconstructed into a translation and rotation.
+     *               See {@link #driveRobotRelative(Translation2d, double)}
+     */
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        driveRobotRelative(
+            new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond),
+            Units.radiansToRotations(speeds.omegaRadiansPerSecond)
+        );
+    }
+
+    /**
+     * Drive relative to the current angle of the robot.
      * @param translation Movement speed in meters per second
-     * @param theta Rotation speed in rotations per second. Will be overridden if a c_rotateTo() command is active
+     * @param theta Rotation speed in rotations per second.
+     *              Will be overridden if a {@link #c_rotateTo(double) c_rotateTo()} command is active
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
         if (rotCommand != null) {
