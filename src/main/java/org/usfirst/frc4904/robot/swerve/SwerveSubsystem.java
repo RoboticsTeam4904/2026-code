@@ -3,6 +3,7 @@ package org.usfirst.frc4904.robot.swerve;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -104,6 +105,11 @@ public class SwerveSubsystem extends SubsystemBase {
     /** See {@link #driveRobotRelative(Translation2d, double)} */
     public void driveRobotRelative(double x, double y, double theta) {
         driveRobotRelative(new Translation2d(x, y), theta);
+    }
+
+    /** See {@link #driveRobotRelative(Translation2d, double)} */
+    public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
+        driveRobotRelative(new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond), chassisSpeeds.omegaRadiansPerSecond);
     }
 
     public void stop() {
