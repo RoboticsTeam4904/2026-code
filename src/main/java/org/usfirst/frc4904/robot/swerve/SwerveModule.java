@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -52,6 +53,13 @@ public class SwerveModule implements Sendable {
     SwerveModulePosition getModulePosition() {
         return new SwerveModulePosition(
             drive.getDistance(),
+            Rotation2d.fromRotations(rotation.getRotation())
+        );
+    }
+
+    SwerveModuleState getModuleState() {
+        return new SwerveModuleState(
+            drive.getVelocity(),
             Rotation2d.fromRotations(rotation.getRotation())
         );
     }
@@ -109,6 +117,10 @@ record DriveController(CustomTalonFX motor) {
 
     double getDistance() {
         return motor.getPosition().getValueAsDouble() * DRIVE_GEAR_RATIO * WHEEL_CIRC;
+    }
+
+    public double getVelocity() {
+        return motor.getVelocity().getValueAsDouble() * DRIVE_GEAR_RATIO * WHEEL_CIRC;
     }
 }
 

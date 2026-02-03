@@ -5,8 +5,10 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -71,6 +73,12 @@ public class SwerveSubsystem extends SubsystemBase {
                      .toArray(SwerveModulePosition[]::new);
     }
 
+    private SwerveModuleState[] getModuleStates() {
+        return Arrays.stream(modules)
+                     .map(SwerveModule::getModuleState)
+                     .toArray(SwerveModuleState[]::new);
+    }
+
     public void startPoseEstimator(Pose2d currentPose) {
         estimator.resetPose(currentPose);
         estimatorEnabled = true;
@@ -104,6 +112,15 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         return estimator.getEstimatedPosition();
+    }
+
+    public ChassisSpeeds getVelocityEstimate() {
+        if (!estimatorEnabled) {
+            System.err.println("SwerveSubsystem.getPoseEstimate() called while pose estimator is disabled.");
+            return new ChassisSpeeds();
+        }
+
+        return kinematics.toChassisSpeeds(getModuleStates());
     }
 
     /**
