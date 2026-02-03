@@ -3,12 +3,14 @@ package org.usfirst.frc4904.robot.subsystems;
 import com.ctre.phoenix6.Orchestra;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 
 /** Orchestra™ */
@@ -92,7 +94,7 @@ public class OrchestraSubsystem extends SubsystemBase {
      */
     public static Command c_loadAndPlaySong(String name, int tracks, CustomTalonFX... motors) {
         loadSong(name, tracks, motors);
-        return new InstantCommand(() -> playSong(name));
+        return new InstantCommand(() -> playSong(name), Component.chassis);
     }
 
     public static final String PATH = "/home/lvuser/deploy/chirp/";

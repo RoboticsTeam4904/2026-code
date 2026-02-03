@@ -73,9 +73,9 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param theta Rotation speed in rotations per second. Will be overridden if a c_rotateTo() command is active
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
-        // if (rotCommand != null) {
-            // theta = rotPIDEffort;
-        // }
+        if (rotCommand != null) {
+            theta = rotPIDEffort;
+        }
 
         Translation2d[] translations = new Translation2d[modules.length];
         double maxMag = SwerveConstants.LIN_SPEED;

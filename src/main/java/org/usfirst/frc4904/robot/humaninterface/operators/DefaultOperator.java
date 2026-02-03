@@ -4,10 +4,15 @@ import java.util.List;
 
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.subsystems.OrchestraSubsystem;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 
+import com.ctre.phoenix6.Orchestra;
+
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class DefaultOperator extends Operator {
 
@@ -24,6 +29,33 @@ public class DefaultOperator extends Operator {
         var joystick = RobotMap.HumanInput.Operator.joystick;
         var xyJoystick = RobotMap.HumanInput.Driver.xyJoystick;
         var turnJoystick = RobotMap.HumanInput.Driver.turnJoystick;
+
+        CustomTalonFX[] motors = {
+            Component.flDrive,
+            Component.frDrive,
+            Component.blDrive,
+            Component.brDrive,
+            Component.flTurn,
+            null, null, null,
+            Component.frTurn,
+            null, null, null,
+            Component.blTurn,
+            null, null, null,
+            Component.brTurn
+        };
+
+        joystick.button7.onTrue(OrchestraSubsystem.c_loadAndPlaySong(
+            "shreksophone",
+            4,
+            motors
+        ));
+        joystick.button8.onTrue(OrchestraSubsystem.c_loadAndPlaySong(
+            "coconutNyoom",
+            4,
+            motors
+        ));
+
+        joystick.button12.onTrue(new InstantCommand(OrchestraSubsystem::stopAll));
 
         /// VISION
         turnJoystick.button1.onTrue(c_flipZero());
