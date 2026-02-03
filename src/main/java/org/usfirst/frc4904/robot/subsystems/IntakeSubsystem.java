@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class IntakeSubsystem extends MotorSubsystem {
 
+    // TODO change all these
     public static final double kS = 1;
     public static final double kV = 2;
     public static final double kA = 0.4;
@@ -23,21 +24,20 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double MAX_VEL = 8;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
 
-    private final ArmFeedforward feedforward;
+    private final SmartMotorController verticalMotor;
     private final DutyCycleEncoder encoder;
+    private final ArmFeedforward feedforward;
 
     public IntakeSubsystem(
-        SmartMotorController intakeVerticalMotor,
-        SmartMotorController intakeRollerMotor,
-        DutyCycleEncoder intakeEncoder
+        SmartMotorController verticalMotor,
+        SmartMotorController rollerMotor,
+        DutyCycleEncoder encoder
     ) {
-        super(
-            new SmartMotorController[] { intakeRollerMotor },
-            4
-        );
+        super(rollerMotor, 4);
 
+        this.verticalMotor = verticalMotor;
+        this.encoder = encoder;
         this.feedforward = new ArmFeedforward(kS, kG, kV, kA);
-        this.encoder = intakeEncoder;
     }
 
     public double getAngle() {
@@ -59,7 +59,7 @@ public class IntakeSubsystem extends MotorSubsystem {
         return new ezMotion(
             controller,
             this::getAngle,
-            this::setVoltage,
+            verticalMotor::setVoltage,
             angle,
             constraints,
             this
