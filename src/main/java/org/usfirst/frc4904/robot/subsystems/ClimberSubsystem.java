@@ -1,6 +1,6 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
@@ -11,6 +11,7 @@ import org.usfirst.frc4904.standard.custom.sensors.LinearDutyCycleEncoder;
 
 public class ClimberSubsystem extends MotorSubsystem {
 
+    // TODO change all these
     public static final double kS = 1;
     public static final double kV = 2;
     public static final double kA = 0.4;
@@ -23,14 +24,17 @@ public class ClimberSubsystem extends MotorSubsystem {
     public static final double MAX_VEL = 8;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
 
-    private final ArmFeedforward feedforward;
+    private static final double MAX_HEIGHT = 123456789;
+    private static final double MIN_HEIGHT = 0;
 
-    private final LinearDutyCycleEncoder climbEncoder;
+    private final ElevatorFeedforward feedforward;
+    private final LinearDutyCycleEncoder encoder;
 
-    public ClimberSubsystem(SmartMotorController climbMotor, LinearDutyCycleEncoder climbEncoder) {
-        super(climbMotor, 4);
-        this.climbEncoder = climbEncoder;
-        this.feedforward = new ArmFeedforward(kS, kG, kV, kA);
+    public ClimberSubsystem(SmartMotorController motor, LinearDutyCycleEncoder encoder) {
+        super(motor, 4);
+
+        this.encoder = encoder;
+        this.feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
     }
 
     public Command c_up() {
@@ -42,13 +46,13 @@ public class ClimberSubsystem extends MotorSubsystem {
     }
 
     public double getHeight() {
-        return climbEncoder.get();
+        return encoder.get();
     }
 
     public Command c_gotoHeight(double height) {
         ezControl controller = new ezControl(
             kP, kI, kD,
-            (position, velocity) -> feedforward.calculate(getHeight(), velocity)
+            (position, velocity) -> feedforward.calculate(velocity)
         );
         var constraints = new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL);
 
@@ -62,4 +66,20 @@ public class ClimberSubsystem extends MotorSubsystem {
         ).finallyDo(this::stop);
     }
 
+    @Override
+    public void setVoltage(double voltage) {
+        setVoltage(voltage, false);
+    }
+
+    public void setVoltage(double voltage, boolean bypassSoftwareStop) {
+        if (
+            !bypassSoftwareStop && (
+                (this.getHeight() >= MAX_HEIGHT && voltage > 0) ||
+                (this.getHeight() <= MIN_HEIGHT && voltage < 0)
+            )
+        ) {
+            voltage = 0;
+        }
+        super.setVoltage(voltage);
+    }
 }
