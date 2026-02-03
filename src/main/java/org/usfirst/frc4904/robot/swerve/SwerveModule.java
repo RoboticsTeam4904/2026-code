@@ -7,7 +7,9 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.util.Logging;
 
 public class SwerveModule implements Sendable {
 
@@ -76,6 +78,10 @@ public class SwerveModule implements Sendable {
             return MathUtil.inputModulus(delta, -0.25, 0.25);
         }, null);
         builder.addDoubleProperty("zero", rotation.motor::getMechanismRotationOffset, rotation.motor::setMechanismRotationOffset);
+        
+        if (name.equals("Front Left")) {
+            Logging.log("tl rot (like tl draw)", rotation.getRotation());
+        }
     }
 }
 
@@ -87,6 +93,7 @@ record DriveController(SmartMotorController motor) {
     DriveController {
         // TODO feedforward?
         motor.setPID(kP, kI, kD)
+             .setElevFF(0, 0, 1, 0)
              .setMotorMechanismRatio(SwerveConstants.DRIVE_GEAR_RATIO);
     }
 
@@ -115,9 +122,9 @@ class RotationController {
         // since we can just run the wheels backwards
         // TODO feedforward?
         motor.setPID(kP, kI, kD)
-             .setContinuousRange(0.5)
-             .setMotorMechanismRatio(SwerveConstants.ROT_GEAR_RATIO)
-             .setMechanismRotationOffset(Preferences.getDouble(key, 0));
+            //  .setContinuousRange(0.5)
+             .setMotorMechanismRatio(SwerveConstants.ROT_GEAR_RATIO);
+            //  .setMechanismRotationOffset(Preferences.getDouble(key, 0));
     }
 
     Translation2d toTranslation(double theta) {
@@ -131,11 +138,11 @@ class RotationController {
 
     void flipZero() {
         double current = motor.getMechanismRotationOffset();
-        motor.setMechanismRotationOffset((current + 0.5) % 1);
+        // motor.setMechanismRotationOffset((current + 0.5) % 1);
     }
 
     double getRotation() {
-        return motor.getRotation();
+        return MathUtil.inputModulus(motor.getRotation(), 0, 1);
     }
 
     /**

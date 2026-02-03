@@ -19,8 +19,8 @@ import java.util.function.Supplier;
 final class SwerveConstants {
 
     // TODO: get real measurements
-    public static final double DRIVE_GEAR_RATIO = 5.1; // motor rots/wheel rots
-    public static final double ROT_GEAR_RATIO = 5.1; // motor rots/wheel rots
+    public static final double DRIVE_GEAR_RATIO = 5.294; // motor rots/wheel rots
+    public static final double ROT_GEAR_RATIO = 12.6; // motor rots/wheel rots
 
     private static final double WHEEL_RADIUS = 0.07; // m
     private static final double ROBOT_DIAGONAL = 1.15; // m
