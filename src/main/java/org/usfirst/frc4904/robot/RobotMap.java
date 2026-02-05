@@ -150,12 +150,13 @@ public final class RobotMap {
         //     new boolean[] { false, true, false, true }
         // );
 
-        Component.climbMotor = new CustomTalonFX(32);
-        Component.intakeVerticalMotor = new CustomTalonFX(64);
-        Component.intakeRollerMotor = new CustomTalonFX(68);
-        Component.intakeEncoder = new DutyCycleEncoder(69);
+        // Component.climbMotor = new CustomTalonFX(32);
 
-        Component.intake = new IntakeSubsystem(Component.intakeVerticalMotor, Component.intakeRollerMotor, Component.intakeEncoder);
+        // Component.intakeVerticalMotor = new CustomTalonFX(17);
+        // Component.intakeRollerMotor = new CustomTalonFX(2);
+        // Component.intakeEncoder = new DutyCycleEncoder(Port.PWM.ENCODER_FL);
+
+        // Component.intake = new IntakeSubsystem(Component.intakeVerticalMotor, Component.intakeRollerMotor, Component.intakeEncoder);
 
         HumanInput.Driver.xyJoystick = new CustomCommandJoystick(
             Port.HumanInput.xyJoystickPort,

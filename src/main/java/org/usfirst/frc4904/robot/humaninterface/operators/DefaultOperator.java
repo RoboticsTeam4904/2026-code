@@ -2,10 +2,12 @@ package org.usfirst.frc4904.robot.humaninterface.operators;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.subsystems.OrchestraSubsystem;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
+import org.usfirst.frc4904.standard.commands.ConflictingParallelCommandGroup;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.Notifications;
@@ -54,6 +56,15 @@ public class DefaultOperator extends Operator {
         ));
 
         joystick.button12.onTrue(new InstantCommand(OrchestraSubsystem::stopAll));
+
+        /// TEMPORARY INTAKE
+        joystick.button10.whileTrue(
+            new ParallelCommandGroup(
+                Component.intake.c_extend(),
+                Component.intake.c_intake()
+            )
+        );
+        joystick.button10.whileFalse(Component.intake.c_retract());
 
         /// VISION
         turnJoystick.button1.onTrue(c_flipZero());
