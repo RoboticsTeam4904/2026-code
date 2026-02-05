@@ -21,6 +21,9 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double kI = 0;
     public static final double kD = 0;
 
+    public static final double extendAngle = .003;
+    public static final double retractAngle = .997;
+
     public static final double MAX_VEL = 8;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
 
@@ -43,7 +46,7 @@ public class IntakeSubsystem extends MotorSubsystem {
     public double getAngle() {
         return encoder.get();
     }
-
+    
     public Command c_intake() {
         return c_forward(true);
     }
@@ -66,4 +69,12 @@ public class IntakeSubsystem extends MotorSubsystem {
         ).finallyDo(this::stop);
     }
 
+    public Command c_extend() {
+        return c_gotoAngle(extendAngle);
+    }
+
+    public Command c_retract() {
+        return c_gotoAngle(retractAngle);
+    }
 }
+
