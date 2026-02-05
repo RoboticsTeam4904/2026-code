@@ -3,6 +3,7 @@ package org.usfirst.frc4904.standard.util;
 import edu.wpi.first.hal.util.BoundaryException;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.Timer;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
@@ -127,6 +128,17 @@ public final class Util {
         } else {
             return 1.0 / from.convert(1, to);
         }
+    }
+
+    private static Double fpgaTimeOffset;
+
+    public static double epochSecondsToFPGATimestamp(double seconds) {
+        if (fpgaTimeOffset == null) {
+            double now = System.currentTimeMillis() / 1000.0;
+            fpgaTimeOffset = Timer.getFPGATimestamp() - now;
+        }
+
+        return seconds + fpgaTimeOffset;
     }
 
     /**

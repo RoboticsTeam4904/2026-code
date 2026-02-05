@@ -73,9 +73,6 @@ public class VisionSubsystem extends SubsystemBase {
     private final double CANT_SEE_TIMEOUT = 1; // give up if we cant see the april tag for this many seconds
     private final double TOTAL_TIMEOUT = 5; // always give up after this many seconds
 
-    // TODO public for testing
-    public final GoogleTagManager gtm;
-
     // pid controllers
     private final PIDController positionController;
     private final PIDController rotationController;
@@ -87,15 +84,15 @@ public class VisionSubsystem extends SubsystemBase {
     private double lastSeenTagTime = 0;
 
     // ids for all of the possible tags to target
-    private int[] targetTagOptions = null;
+    private int[] targetTagOptions;
 
     // int if aligning to a certain tag, null if not
-    private Integer targetTagId = null;
-    private Transform2d desiredOffset = null;
+    private Integer targetTagId;
+    private Transform2d desiredOffset;
 
     // used to estimate position when we can't see the tag
     private double lastTime;
-    private Transform2d lastSpeed = null;
+    private Transform2d lastSpeed;
 
     // camera positions relative to robot center
     private final Transform2d[] cameraOffsets;
@@ -108,8 +105,6 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public VisionSubsystem(Transform2d... cameraOffsets) {
         this.cameraOffsets = cameraOffsets;
-
-        gtm = new GoogleTagManager();
 
         // initialize pid controllers
         // TODO TUNING: tune pid values
@@ -260,12 +255,11 @@ public class VisionSubsystem extends SubsystemBase {
      * @return A list of possible targets
      */
     List<Tag> getResults() {
-        List<Tag> results = gtm.getTags();
+        List<Tag> results = GoogleTagManager.getTags();
 
-        results.sort(Comparator.comparingDouble(result -> {
-            Translation3d transform = result.pos();
-            return Math.pow(transform.getX(), 2) + Math.pow(transform.getY(), 2);
-        }));
+        results.sort(Comparator.comparingDouble(
+            result -> result.pos().toTranslation2d().getSquaredNorm()
+        ));
 
         return results;
     }
