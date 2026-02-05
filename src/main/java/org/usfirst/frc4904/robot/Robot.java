@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 package org.usfirst.frc4904.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -14,13 +15,14 @@ import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
-import org.usfirst.frc4904.standard.humaninput.Operator;
-import org.usfirst.frc4904.standard.util.Logging;
 
 public class Robot extends CommandRobotBase {
 
     @Override
     public void initialize() {
+        // BEGONE
+        DriverStation.silenceJoystickConnectionWarning(true);
+
         SmartDashboard.putData("scheduler", CommandScheduler.getInstance());
 
         autonChooser.setDefaultOption("none", new NoOp());
@@ -59,7 +61,7 @@ public class Robot extends CommandRobotBase {
 
         Component.chassis.setMotorBrake(false);
         // Component.lights.flashColor(LightSubsystem.Color.DISABLED);
-     }
+    }
 
     @Override
     public void disabledExecute() { }
