@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -16,8 +17,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.Arrays;
@@ -211,10 +216,27 @@ public class SwerveSubsystem extends SubsystemBase {
 
         if (estimatorEnabled) {
             estimator.update(Component.navx.getRotation2d(), getModulePositions());
+
+            var tags = Component.vision.gtm.getTags();
+            Logging.log("TAG COUNT", tags.size());
+            for (var tag : tags) {
+                if (tag.id() == 0) {
+                    Logging.log("WE FOUND A TAG", tag.id());
+                    Translation2d off = tag.pos().toTranslation2d().rotateBy(
+                        Rotation2d.fromRotations(getHeading())
+                    );
+                    Transform2d purePos = tag.fieldPos().minus(new Pose2d(off, Rotation2d.kZero));
+                    Logging.log("WE HAVE A POS", purePos);
+                    addVisionPoseEstimate(
+                        new Pose2d(purePos.getX(), purePos.getY(), Rotation2d.fromRotations(getHeading())),
+                        Timer.getFPGATimestamp()
+                    );
+                }
+            }
         }
     }
 
-    double getHeading() {
+    public double getHeading() {
         return Component.navx.getYaw();
     }
 
