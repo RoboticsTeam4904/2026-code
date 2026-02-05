@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -13,11 +14,17 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.vision.GoogleTagManager;
+import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.Arrays;
@@ -45,7 +52,10 @@ final class SwerveConstants {
 }
 
 public class SwerveSubsystem extends SubsystemBase {
+
     private final SwerveModule[] modules;
+
+    private final Field2d field = new Field2d();
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
     private boolean estimatorEnabled = false;
@@ -66,6 +76,7 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         SmartDashboard.putData("swerve/goal", this);
+        SmartDashboard.putData("swerve/field", field);
     }
 
     private SwerveModulePosition[] getModulePositions() {
@@ -203,6 +214,8 @@ public class SwerveSubsystem extends SubsystemBase {
         driveRobotRelative(0, 0, 0);
     }
 
+    private double lastTagUpdateTime;
+
     @Override
     public void periodic() {
         if (DriverStation.isDisabled()) return;
@@ -211,10 +224,32 @@ public class SwerveSubsystem extends SubsystemBase {
 
         if (estimatorEnabled) {
             estimator.update(Component.navx.getRotation2d(), getModulePositions());
+
+            var tags = GoogleTagManager.getTagsSince(lastTagUpdateTime);
+            lastTagUpdateTime = GoogleTagManager.getLastTime();
+            
+            for (var tag : tags) {
+                if (tag.id() == 0) { // TODO temporary
+                    // all field-relative
+                    Rotation2d heading = Rotation2d.fromRotations(getHeading());
+                    Translation2d robotToTag = tag.pos().toTranslation2d().rotateBy(heading);
+                    Translation2d robotPos = tag.fieldPos().getTranslation().minus(robotToTag);
+                    
+                    Logging.log("WE HAVE A POS", robotPos);
+
+                    addVisionPoseEstimate(
+                        new Pose2d(robotPos, heading),
+                        Timer.getFPGATimestamp() // TODO undo
+                        // tag.time()
+                    );
+                }
+            }
+
+            field.setRobotPose(getPoseEstimate());
         }
     }
 
-    double getHeading() {
+    public double getHeading() {
         return Component.navx.getYaw();
     }
 
