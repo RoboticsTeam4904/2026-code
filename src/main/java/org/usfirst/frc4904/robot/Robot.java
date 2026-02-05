@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 package org.usfirst.frc4904.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -35,11 +36,14 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void teleopInitialize() {
+        Component.chassis.startPoseEstimator(Pose2d.kZero);
         // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
     }
 
     @Override
-    public void teleopExecute() { }
+    public void teleopExecute() {
+        Logging.log("place", Component.chassis.getPoseEstimate());
+    }
 
     @Override
     public void teleopCleanup() { }
