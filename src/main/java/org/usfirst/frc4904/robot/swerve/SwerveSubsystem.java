@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Logging;
@@ -208,6 +209,8 @@ public class SwerveSubsystem extends SubsystemBase {
         driveRobotRelative(0, 0, 0);
     }
 
+    private double lastTagUpdateTime;
+
     @Override
     public void periodic() {
         if (DriverStation.isDisabled()) return;
@@ -217,19 +220,21 @@ public class SwerveSubsystem extends SubsystemBase {
         if (estimatorEnabled) {
             estimator.update(Component.navx.getRotation2d(), getModulePositions());
 
-            var tags = Component.vision.gtm.getTags();
+            var tags = GoogleTagManager.getTagsSince(lastTagUpdateTime);
+            lastTagUpdateTime = GoogleTagManager.getLastTime();
+            
             Logging.log("TAG COUNT", tags.size());
             for (var tag : tags) {
                 if (tag.id() == 0) {
-                    Logging.log("WE FOUND A TAG", tag.id());
-                    Translation2d off = tag.pos().toTranslation2d().rotateBy(
-                        Rotation2d.fromRotations(getHeading())
-                    );
-                    Transform2d purePos = tag.fieldPos().minus(new Pose2d(off, Rotation2d.kZero));
-                    Logging.log("WE HAVE A POS", purePos);
+                    // all field-relative
+                    Rotation2d heading = Rotation2d.fromRotations(getHeading());
+                    Translation2d robotToTag = tag.pos().toTranslation2d().rotateBy(heading);
+                    Translation2d robotPos = tag.fieldPos().getTranslation().minus(robotToTag);
+                    Logging.log("WE HAVE A POS", robotPos);
+
                     addVisionPoseEstimate(
-                        new Pose2d(purePos.getX(), purePos.getY(), Rotation2d.fromRotations(getHeading())),
-                        Timer.getFPGATimestamp()
+                        new Pose2d(robotPos, heading),
+                        tag.time()
                     );
                 }
             }

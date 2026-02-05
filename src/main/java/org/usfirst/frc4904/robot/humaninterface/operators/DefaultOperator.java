@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.subsystems.OrchestraSubsystem;
+import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.humaninput.Operator;
@@ -58,7 +59,7 @@ public class DefaultOperator extends Operator {
         /// VISION
         turnJoystick.button1.onTrue(c_flipZero());
         turnJoystick.button2.whileTrue(Component.chassis.c_controlRotation(() -> {
-            List<Tag> tags = Component.vision.gtm.getTags();
+            List<Tag> tags = GoogleTagManager.getTags();
             if (tags.isEmpty()) return 0;
             Tag tag = tags.get(0);
             return Units.radiansToRotations(
