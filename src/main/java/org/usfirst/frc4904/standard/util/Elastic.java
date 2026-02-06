@@ -91,7 +91,7 @@ public final class Elastic {
             "!!!!!"
         };
 
-        return new InstantCommand(() -> randomNotif(insults, NotificationLevel.WARNING));
+        return new InstantCommand(() -> randomNotif(notifs, NotificationLevel.WARNING));
     }
 
     private static final Random random = new Random();
