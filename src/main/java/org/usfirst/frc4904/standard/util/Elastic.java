@@ -18,6 +18,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import java.util.Random;
 
 public final class Elastic {
+
+    private Elastic() {}
+
     private static final StringTopic notificationTopic =
         NetworkTableInstance.getDefault().getStringTopic("/Elastic/RobotNotifications");
     private static final StringPublisher notificationPublisher =
@@ -56,29 +59,50 @@ public final class Elastic {
             e.printStackTrace();
         }
     }
-    public static Command c_testNotif(){
+
+    /// NOTIFICATION PRESETS
+
+    public static Command c_testNotif() {
         var notif = new Notification();
         notif.setTitle("Cheese");
         notif.setDescription("try some.");
         return new InstantCommand(() -> sendNotification(notif));
     }
 
-    public static Command c_bensults(){
+    public static Command c_bensults() {
+        String[] insults = {
+            "You look very daunted",
+            "Good job working toward 4904 ref provoking",
+            "WARNING: driving subpar",
+            "You'll always be Alon's son",
+            "Are you no longer noteworthy???",
+            "He's behind you",
+            "WARNING: TalonFX on CAN ID 6 not responding",
+            "WARNING: Self destruct in 10 seconds",
+            "I am in your walls",
+            "Minor malfunction found",
+            "You're doing good, son",
+            "Nice work!",
+            "Have you had some cheese today?",
+            "Ben. Ben BEn BEN.",
+            "Robot has possessed by 5940",
+            "Wow, such a big strong",
+            "B̸̛̼̗̟̰̦̘͌͑̀̎̉̉͛͌̊̄̽͠E̷̡̛̛̤̼͖̮̿̊̍̅͐̌̄́̒̆̈́̌̅͝Ņ̵̺͖͖͓̪̱̫̮̣͚͓̻͇̦͎̆́̒̈̕̚͝"
+        };
 
-        String[] insults = {"You look very daunted","Good job working toward 4904 ref provoking", "WARNING: driving subpar", "You'll always be Alon's son", "Are you no longer noteworthy???", "He's behind you","WARNING: TalonFX on CAN ID 6 not responding", "WARNING: Self destruct in 10 seconds", "I am in your walls", "Minor malfunction found", "You're doing good, son", "Nice work!", "Have you had some cheese today?", "Ben. Ben BEn BEN.", "Robot has possessed by 5940", "Wow, such a big strong", "B̸̛̼̗̟̰̦̘͌͑̀̎̉̉͛͌̊̄̽͠E̷̡̛̛̤̼͖̮̿̊̍̅͐̌̄́̒̆̈́̌̅͝Ņ̵̺͖͖͓̪̱̫̮̣͚͓̻͇̦͎̆́̒̈̕̚͝"};
-
-
-        return new InstantCommand(() -> Randomnote(insults));
+        return new InstantCommand(() -> randomNotif(insults, NotificationLevel.WARNING));
     }
 
-    public static void Randomnote(String[] insults){
+    private static final Random random = new Random();
 
+    public static void randomNotif(String[] options, NotificationLevel level) {
+        String title = options[random.nextInt(options.length)];
         var notif = new Notification();
-        String Insult = insults[new Random().nextInt(insults.length)];
-        notif.setTitle(Insult);
-        notif.setLevel(NotificationLevel.WARNING);
+        notif.setTitle(title);
+        notif.setLevel(level);
         sendNotification(notif);
     }
+
     /**
      * Selects the tab of the dashboard with the given name. If no tab matches the name, this will
      * have no effect on the widgets or tabs in view.
