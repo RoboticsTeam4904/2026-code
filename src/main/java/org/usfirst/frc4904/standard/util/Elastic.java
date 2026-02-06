@@ -96,6 +96,12 @@ public final class Elastic {
 
     private static final Random random = new Random();
 
+    /**
+     * Send a random Elastic™ notification to the dashboard
+     *
+     * @param options An array of possible notifications
+     * @param level a {@link NotificationLevel} that the notification displays as
+     */
     public static void randomNotif(String[] options, NotificationLevel level) {
         String title = options[random.nextInt(options.length)];
         sendNotification(new Notification(level, title, ""));
