@@ -75,5 +75,7 @@ public class DefaultOperator extends Operator {
 
         // NOTIFS TEST
         joystick.button10.onTrue(Elastic.c_testNotif());
+        joystick.button11.onTrue(Elastic.c_bensults());
+       
     }
 }

@@ -5,6 +5,12 @@
 
 package org.usfirst.frc4904.standard.util;
 
+import java.util.Random;
+import java.util.function.IntSupplier;
+
+import org.usfirst.frc4904.standard.util.Elastic.Notification;
+import org.usfirst.frc4904.standard.util.Elastic.NotificationLevel;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,37 +32,48 @@ public final class Elastic {
       selectedTabTopic.publish(PubSubOption.keepDuplicates(true));
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  /**
-   * Represents the possible levels of notifications for the Elastic dashboard. These levels are
-   * used to indicate the severity or type of notification.
-   */
-  public enum NotificationLevel {
-    /** Informational Message */
-    INFO,
-    /** Warning message */
-    WARNING,
-    /** Error message */
-    ERROR
-  }
-
-  /**
-   * Sends an notification to the Elastic dashboard. The notification is serialized as a JSON string
-   * before being published.
-   *
-   * @param notification the {@link Notification} object containing notification details
-   */
-  public static void sendNotification(Notification notification) {
-    try {
-      notificationPublisher.set(objectMapper.writeValueAsString(notification));
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
+  
+  
+    /**
+     * Represents the possible levels of notifications for the Elastic dashboard. These levels are
+     * used to indicate the severity or type of notification.
+     */
+    public enum NotificationLevel {
+      /** Informational Message */
+      INFO,
+      /** Warning message */
+      WARNING,
+      /** Error message */
+      ERROR
     }
-  }
-    public static Command c_testNotif(){
-    var notif = new Notification();
-    notif.setTitle("Cheese");
-    notif.setDescription("try some.");
-    return new InstantCommand(() -> sendNotification(notif));
+  
+    /**
+     * Sends an notification to the Elastic dashboard. The notification is serialized as a JSON string
+     * before being published.
+     *
+     * @param notification the {@link Notification} object containing notification details
+     */
+    public static void sendNotification(Notification notification) {
+      try {
+        notificationPublisher.set(objectMapper.writeValueAsString(notification));
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      }
+    }
+      public static Command c_testNotif(){
+      var notif = new Notification();
+      notif.setTitle("Cheese");
+      notif.setDescription("try some.");
+      return new InstantCommand(() -> sendNotification(notif));
+    }
+  
+      public static Command c_bensults(){
+      String[] insults = {"a","b","c"};
+      String Insult = insults[new Random().nextInt(insults.length)];
+      var notif = new Notification();
+      notif.setTitle(Insult);
+     
+      return new InstantCommand(() -> sendNotification(notif));
   }
 
   /**
