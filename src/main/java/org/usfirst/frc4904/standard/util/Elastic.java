@@ -68,14 +68,21 @@ public final class Elastic {
     }
   
       public static Command c_bensults(){
-      String[] insults = {"a","b","c"};
-      String Insult = insults[new Random().nextInt(insults.length)];
-      var notif = new Notification();
-      notif.setTitle(Insult);
      
-      return new InstantCommand(() -> sendNotification(notif));
+      String[] insults = {"You look very daunted","Good job working toward 4904 ref provoking","Not even the caroline panthers would call that defense", "WARNING: driving subpar"};
+     
+     
+      return new InstantCommand(() -> Randomnote(insults));
   }
 
+    public static void Randomnote(String[] insults){
+     
+      var notif = new Notification();
+      String Insult = insults[new Random().nextInt(insults.length)];
+      notif.setTitle(Insult);
+      notif.setLevel(NotificationLevel.WARNING);
+      sendNotification(notif);
+    }
   /**
    * Selects the tab of the dashboard with the given name. If no tab matches the name, this will
    * have no effect on the widgets or tabs in view.
