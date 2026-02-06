@@ -69,7 +69,7 @@ public final class Elastic {
   
       public static Command c_bensults(){
      
-      String[] insults = {"You look very daunted","Good job working toward 4904 ref provoking","Not even the caroline panthers would call that defense", "WARNING: driving subpar"};
+      String[] insults = {"You look very daunted","Good job working toward 4904 ref provoking", "WARNING: driving subpar", "You'll always be Alon's son", "Are you no longer noteworthy???", "He's behind you","WARNING: TalonFX on CAN ID 6 not responding", "WARNING: Self destruct in 10 seconds", "I am in your walls", "Minor malfunction found", "You're doing good, son", "Nice work!", "Have you had some cheese today?", "Ben. Ben BEn BEN.", "Robot has possessed by 5940", "Wow, such a big strong", "B̸̛̼̗̟̰̦̘͌͑̀̎̉̉͛͌̊̄̽͠E̷̡̛̛̤̼͖̮̿̊̍̅͐̌̄́̒̆̈́̌̅͝Ņ̵̺͖͖͓̪̱̫̮̣͚͓̻͇̦͎̆́̒̈̕̚͝"};
      
      
       return new InstantCommand(() -> Randomnote(insults));
