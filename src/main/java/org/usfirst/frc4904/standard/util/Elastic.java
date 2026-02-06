@@ -69,10 +69,10 @@ public final class Elastic {
         return new InstantCommand(() -> sendNotification(notif));
     }
 
-    public static Command c_bensults() {
-        String[] insults = {
+    public static Command c_sendRandom() {
+        String[] notifs = {
             "You look very daunted",
-            "Good job working toward 4904 ref provoking",
+            "Are you trying to bring back 4904 ref provoking?",
             "WARNING: driving subpar",
             "You'll always be Alon's son",
             "Are you no longer noteworthy???",
@@ -87,7 +87,8 @@ public final class Elastic {
             "Ben. Ben BEn BEN.",
             "Robot has possessed by 5940",
             "Wow, such a big strong",
-            "B̸̛̼̗̟̰̦̘͌͑̀̎̉̉͛͌̊̄̽͠E̷̡̛̛̤̼͖̮̿̊̍̅͐̌̄́̒̆̈́̌̅͝Ņ̵̺͖͖͓̪̱̫̮̣͚͓̻͇̦͎̆́̒̈̕̚͝"
+            "ENCODER HALP",
+            "!!!!!"
         };
 
         return new InstantCommand(() -> randomNotif(insults, NotificationLevel.WARNING));
