@@ -85,10 +85,9 @@ public final class Elastic {
             "Nice work!",
             "Have you had some cheese today?",
             "Ben. Ben BEn BEN.",
-            "Robot has possessed by 5940",
+            "Robot has been possessed by 5940",
             "Wow, such a big strong",
-            "ENCODER HALP",
-            "!!!!!"
+            "WARNING: robor is cooked"
         };
 
         return new InstantCommand(() -> randomNotif(notifs, NotificationLevel.WARNING));
