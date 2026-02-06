@@ -1,7 +1,7 @@
 package org.usfirst.frc4904.robot.humaninterface.operators;
 
-import java.util.List;
-
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.subsystems.OrchestraSubsystem;
@@ -10,10 +10,7 @@ import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.Elastic;
 
-import com.ctre.phoenix6.Orchestra;
-
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import java.util.List;
 
 public class DefaultOperator extends Operator {
 
@@ -73,9 +70,9 @@ public class DefaultOperator extends Operator {
         xyJoystick.button1.onTrue(c_resetOdometry());
         xyJoystick.button2.onTrue(c_zeroSwerve());
 
-        // NOTIFS TEST
+        /// NOTIFS TEST
         joystick.button10.onTrue(Elastic.c_testNotif());
         joystick.button11.onTrue(Elastic.c_bensults());
-       
+
     }
 }

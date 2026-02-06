@@ -97,10 +97,7 @@ public final class Elastic {
 
     public static void randomNotif(String[] options, NotificationLevel level) {
         String title = options[random.nextInt(options.length)];
-        var notif = new Notification();
-        notif.setTitle(title);
-        notif.setLevel(level);
-        sendNotification(notif);
+        sendNotification(new Notification(level, title, ""));
     }
 
     /**
