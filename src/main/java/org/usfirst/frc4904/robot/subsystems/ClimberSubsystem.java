@@ -1,13 +1,13 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
-
-import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc4904.standard.custom.sensors.LinearDutyCycleEncoder;
+
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class ClimberSubsystem extends MotorSubsystem {
 
@@ -45,12 +45,10 @@ public class ClimberSubsystem extends MotorSubsystem {
         return c_backward(true);
     }
 
-<<<<<<< Updated upstream
     public double getHeight() {
         return encoder.get();
     }
-=======
->>>>>>> Stashed changes
+
 
     public Command c_gotoHeight(double height) {
         ezControl controller = new ezControl(
