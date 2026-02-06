@@ -8,6 +8,7 @@ import org.usfirst.frc4904.robot.subsystems.OrchestraSubsystem;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.humaninput.Operator;
+import org.usfirst.frc4904.standard.util.Elastic;
 
 import com.ctre.phoenix6.Orchestra;
 
@@ -71,5 +72,8 @@ public class DefaultOperator extends Operator {
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(c_resetOdometry());
         xyJoystick.button2.onTrue(c_zeroSwerve());
+
+        // NOTIFS TEST
+        joystick.button10.onTrue(Elastic.c_testNotif());
     }
 }

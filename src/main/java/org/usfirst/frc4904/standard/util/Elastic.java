@@ -12,6 +12,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StringTopic;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public final class Elastic {
   private static final StringTopic notificationTopic =
@@ -49,6 +51,12 @@ public final class Elastic {
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }
+  }
+    public static Command c_testNotif(){
+    var notif = new Notification();
+    notif.setTitle("Cheese");
+    notif.setDescription("try some.");
+    return new InstantCommand(() -> sendNotification(notif));
   }
 
   /**
