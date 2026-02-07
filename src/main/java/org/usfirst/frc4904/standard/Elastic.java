@@ -3,7 +3,7 @@
 // defined by the Elastic license:
 // https://github.com/Gold872/elastic_dashboard/blob/main/LICENSE
 
-package org.usfirst.frc4904.standard.util;
+package org.usfirst.frc4904.standard;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,10 +12,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StringTopic;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-
-import java.util.Random;
 
 public final class Elastic {
 
@@ -58,52 +54,6 @@ public final class Elastic {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-    }
-
-    /// NOTIFICATION PRESETS
-
-    public static Command c_testNotif() {
-        var notif = new Notification();
-        notif.setTitle("Cheese");
-        notif.setDescription("try some.");
-        return new InstantCommand(() -> sendNotification(notif));
-    }
-
-    public static Command c_sendRandom() {
-        String[] notifs = {
-            "You look very daunted",
-            "Are you trying to bring back 4904 ref provoking?",
-            "WARNING: driving subpar",
-            "You'll always be Alon's son",
-            "Are you no longer noteworthy???",
-            "He's behind you",
-            "WARNING: TalonFX on CAN ID 6 not responding",
-            "WARNING: Self destruct in 10 seconds",
-            "I am in your walls",
-            "Minor malfunction found",
-            "You're doing good, son",
-            "Nice work!",
-            "Have you had some cheese today?",
-            "Ben. Ben BEn BEN.",
-            "Robot has been possessed by 5940",
-            "Wow, such a big strong",
-            "WARNING: robor is cooked"
-        };
-
-        return new InstantCommand(() -> randomNotif(notifs, NotificationLevel.WARNING));
-    }
-
-    private static final Random random = new Random();
-
-    /**
-     * Send a random Elastic™ notification to the dashboard
-     *
-     * @param options An array of possible notifications
-     * @param level a {@link NotificationLevel} that the notification displays as
-     */
-    public static void randomNotif(String[] options, NotificationLevel level) {
-        String title = options[random.nextInt(options.length)];
-        sendNotification(new Notification(level, title, ""));
     }
 
     /**

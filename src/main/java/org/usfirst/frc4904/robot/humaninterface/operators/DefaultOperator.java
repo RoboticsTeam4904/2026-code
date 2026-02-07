@@ -8,7 +8,7 @@ import org.usfirst.frc4904.robot.subsystems.OrchestraSubsystem;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.humaninput.Operator;
-import org.usfirst.frc4904.standard.util.Elastic;
+import org.usfirst.frc4904.standard.util.Notifications;
 
 import java.util.List;
 
@@ -71,8 +71,8 @@ public class DefaultOperator extends Operator {
         xyJoystick.button2.onTrue(c_zeroSwerve());
 
         /// NOTIFS TEST
-        joystick.button10.onTrue(Elastic.c_testNotif());
-        joystick.button11.onTrue(Elastic.c_sendRandom());
+        joystick.button10.onTrue(Notifications.c_testNotif());
+        joystick.button11.onTrue(Notifications.c_sendRandom());
 
     }
 }
