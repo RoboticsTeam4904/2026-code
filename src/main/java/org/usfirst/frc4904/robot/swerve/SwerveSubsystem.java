@@ -14,6 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -51,7 +52,10 @@ final class SwerveConstants {
 }
 
 public class SwerveSubsystem extends SubsystemBase {
+
     private final SwerveModule[] modules;
+
+    private final Field2d field = new Field2d();
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
     private boolean estimatorEnabled = false;
@@ -72,6 +76,7 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         SmartDashboard.putData("swerve/goal", this);
+        SmartDashboard.putData("swerve/field", field);
     }
 
     private SwerveModulePosition[] getModulePositions() {
@@ -238,6 +243,8 @@ public class SwerveSubsystem extends SubsystemBase {
                     );
                 }
             }
+
+            field.setRobotPose(getPoseEstimate());
         }
     }
 
