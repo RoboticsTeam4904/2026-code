@@ -9,9 +9,6 @@ public class ezControl {
     public final PIDController pid;
     public final FeedForward ff;
 
-    private double setpoint;
-    private double setpoint_dt;
-
     public ezControl(double kP, double kI, double kD) {
         this(new PIDController(kP, kI, kD), FeedForward.NOOP);
     }
@@ -30,7 +27,7 @@ public class ezControl {
     }
 
     public double calculate(double current, TrapezoidProfile.State setpoint) {
-        double pidOut = pid.calculate(current);
+        double pidOut = pid.calculate(current, setpoint.position);
         double ffOut = ff.calculate(setpoint.position, setpoint.velocity);
         return pidOut + ffOut;
     }
