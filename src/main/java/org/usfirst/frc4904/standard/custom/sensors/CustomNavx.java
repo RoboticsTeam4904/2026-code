@@ -71,9 +71,9 @@ public class CustomNavx {
         navx.resetYaw();
     }
 
-    /** Get current gyroscope chip temperature in correct units (°C) */
+    /** Get current gyroscope chip temperature in freedom units (°F) */
     public double getGyroTemperature() {
-        return navx.getTemperature().in(Celsius);
+        return navx.getTemperature().in(Fahrenheit);
     }
 
     public int selfTest(int[] test) {
