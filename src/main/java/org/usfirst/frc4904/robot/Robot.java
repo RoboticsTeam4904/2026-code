@@ -80,6 +80,7 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void alwaysExecute() {
+        SmartDashboard.putNumber("navxTemp", Component.navx.getGyroTemperature());
         // if (Logging.cooldown("Robot.alwaysExecute", 1)) {
         //     List<Tag> tags = Component.vision.gtm.getTags();
         //     if (!tags.isEmpty()) System.out.println("WE FOUND A TAG: " + tags);
@@ -91,5 +92,6 @@ public class Robot extends CommandRobotBase {
         //     System.out.println("navx test: " + status + " test: " + Arrays.toString(test));
         // }
         // Logging.log("navx rot", Component.navx.getYaw());
+
     }
 }
