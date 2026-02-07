@@ -63,7 +63,7 @@ public final class GoogleTagManager {
 
                 double[] pos = mapper.treeToValue(el.path("pos"), double[].class);
 
-                Optional<Pose3d> tagPose = field.getTagPose(id);
+                Optional<Pose3d> tagPose = field.getTagPose(1 /* TODO temporary */);
                 if (tagPose.isEmpty()) {
                     System.err.println("Tag id " + id + " does not exist on field layout");
                     continue;
@@ -98,7 +98,9 @@ public final class GoogleTagManager {
      */
     public static List<Tag> getTagsSince(double time) {
         List<Tag> tags = getTags();
-        return time < lastTime ? tags : List.of();
+        return tags;
+        // TODO reinstate once time networktable entry is implemented
+        // return time < lastTime ? tags : List.of();
     }
 
 }

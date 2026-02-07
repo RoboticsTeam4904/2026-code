@@ -228,18 +228,19 @@ public class SwerveSubsystem extends SubsystemBase {
             var tags = GoogleTagManager.getTagsSince(lastTagUpdateTime);
             lastTagUpdateTime = GoogleTagManager.getLastTime();
             
-            Logging.log("TAG COUNT", tags.size());
             for (var tag : tags) {
-                if (tag.id() == 0) {
+                if (tag.id() == 0) { // TODO temporary
                     // all field-relative
                     Rotation2d heading = Rotation2d.fromRotations(getHeading());
                     Translation2d robotToTag = tag.pos().toTranslation2d().rotateBy(heading);
                     Translation2d robotPos = tag.fieldPos().getTranslation().minus(robotToTag);
+                    
                     Logging.log("WE HAVE A POS", robotPos);
 
                     addVisionPoseEstimate(
                         new Pose2d(robotPos, heading),
-                        tag.time()
+                        Timer.getFPGATimestamp() // TODO undo
+                        // tag.time()
                     );
                 }
             }
