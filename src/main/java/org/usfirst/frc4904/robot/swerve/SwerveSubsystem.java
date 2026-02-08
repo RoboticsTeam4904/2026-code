@@ -453,7 +453,7 @@ public class SwerveSubsystem extends SubsystemBase {
         for (var module : modules) module.setMotorBrake(brake);
     }
 
-    public Command getAutonomousCommand(String path, boolean setOdom, boolean flipSide) {
+    public Command getAutonomousCommand() {
         return autoChooser.getSelected();
     }
 

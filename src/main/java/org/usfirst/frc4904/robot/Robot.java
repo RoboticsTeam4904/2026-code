@@ -16,6 +16,7 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.AnnaOperator;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
+import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Logging;
@@ -28,9 +29,9 @@ public class Robot extends CommandRobotBase {
 
         SmartDashboard.putData("scheduler", CommandScheduler.getInstance());
 
-        autonChooser.setDefaultOption("none", new NoOp());
-        autonChooser.addOption("straight", Auton.c_straight());
-        autonChooser.addOption("reverse", Auton.c_jankReverse());
+        // autonChooser.setDefaultOption("none", new NoOp());
+        // autonChooser.addOption("straight", Auton.c_straight());
+        // autonChooser.addOption("reverse", Auton.c_jankReverse());
 
         driverChooser.setDefaultOption("swerve", new SwerveGain());
 
@@ -53,7 +54,9 @@ public class Robot extends CommandRobotBase {
     public void teleopCleanup() { }
 
     @Override
-    public void autonomousInitialize() { }
+    public void autonomousInitialize() {
+        RobotMap.Component.chassis.getAutonomousCommand().schedule();
+    }
 
     @Override
     public void autonomousExecute() { }
