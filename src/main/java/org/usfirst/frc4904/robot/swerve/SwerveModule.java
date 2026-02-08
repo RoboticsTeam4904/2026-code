@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
-import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import static org.usfirst.frc4904.robot.swerve.SwerveConstants.*;
@@ -116,11 +115,11 @@ record DriveController(CustomTalonFX motor) {
     }
 
     double getDistance() {
-        return motor.getPosition().getValueAsDouble() * DRIVE_GEAR_RATIO * WHEEL_CIRC;
+        return motor.getPosition().getValueAsDouble() / DRIVE_GEAR_RATIO * WHEEL_CIRC;
     }
 
     public double getVelocity() {
-        return motor.getVelocity().getValueAsDouble() * DRIVE_GEAR_RATIO * WHEEL_CIRC;
+        return motor.getVelocity().getValueAsDouble() / DRIVE_GEAR_RATIO * WHEEL_CIRC;
     }
 }
 

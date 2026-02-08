@@ -11,9 +11,9 @@ public final class Auton {
     /**
      * Move straight out of the starting zone and do nothing.
      */
-    public static Command c_straight() {
-        return Component.chassis.getAutonomousCommand("straight", true, false);
-    }
+    // public static Command c_straight() {
+    //     return Component.chassis.getAutonomousCommand("straight", true, false);
+    // }
 
    // actually moves backwards - robot must be placed physically backwards on the field
     public static Command c_jankStraight() {
