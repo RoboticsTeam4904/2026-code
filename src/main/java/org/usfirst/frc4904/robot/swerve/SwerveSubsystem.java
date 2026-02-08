@@ -15,6 +15,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +27,10 @@ import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPLTVController;
 
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
@@ -58,6 +63,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private final Field2d field = new Field2d();
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
+    private SendableChooser<Command> autoChooser;
+    
     private boolean estimatorEnabled = false;
 
     public SwerveSubsystem(SwerveModule... modules) {
@@ -77,6 +84,36 @@ public class SwerveSubsystem extends SubsystemBase {
 
         SmartDashboard.putData("swerve/goal", this);
         SmartDashboard.putData("swerve/field", field);
+
+        //PATHPLANNER STUFF
+        RobotConfig config = null;
+        try{
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        AutoBuilder.configure(
+            this::getPoseEstimate, // Robot pose supplier
+            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
+            config, // The robot configuration
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private SwerveModulePosition[] getModulePositions() {
@@ -124,6 +161,15 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         return estimator.getEstimatedPosition();
+    }
+
+    /**
+     * Reset the robot's pose estimator to the given {@link Pose2d}
+     *
+     * @param pose the {@link Pose2d} to reset the estimator to
+     */
+    public void resetPose(Pose2d pose){
+        estimator.resetPose(pose);
     }
 
     /**
@@ -408,7 +454,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command getAutonomousCommand(String path, boolean setOdom, boolean flipSide) {
-        return new NoOp(); // TODO
+        return autoChooser.getSelected();
     }
 
     @Override
