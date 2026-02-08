@@ -59,7 +59,7 @@ public class Robot extends CommandRobotBase {
 
         Component.chassis.setMotorBrake(false);
         // Component.lights.flashColor(LightSubsystem.Color.DISABLED);
-     }
+    }
 
     @Override
     public void disabledExecute() { }

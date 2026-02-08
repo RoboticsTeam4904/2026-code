@@ -55,6 +55,13 @@ public class DefaultOperator extends Operator {
 
         joystick.button12.onTrue(new InstantCommand(OrchestraSubsystem::stopAll));
 
+        /// TEMPORARY INTAKE
+        joystick.button10.whileTrue(
+            Component.intake.c_extend()
+            // .andThen(Component.intake.c_intake())
+        );
+        joystick.button10.whileFalse(Component.intake.c_retract());
+
         /// VISION
         turnJoystick.button1.onTrue(c_flipZero());
         turnJoystick.button2.whileTrue(Component.chassis.c_rotateTo(() -> {
