@@ -26,6 +26,10 @@ public class ezControl {
         this.ff = ff;
     }
 
+    public void reset() {
+        pid.reset();
+    }
+
     public double calculate(double current, TrapezoidProfile.State setpoint) {
         double pidOut = pid.calculate(current, setpoint.position);
         double ffOut = ff.calculate(setpoint.position, setpoint.velocity);

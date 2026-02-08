@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.NoOp;
-import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.function.DoubleSupplier;
@@ -122,24 +121,45 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /// COMMANDS
 
-    private RotateToCommand rotCommand; // non-null when a rot command is running
+    private RotateCommand rotCommand; // non-null when a rot command is running
     private double rotPIDEffort;
 
+    /**
+     * @param theta Field-relative angle to rotate to
+     * @return A command that uses PID to rotate to the provided angle.
+     *         Overrides any rotation from any other drive commands or methods while the command is running
+     */
     public Command c_rotateTo(double theta) {
         return c_rotateTo(() -> theta);
     }
 
-    public Command c_rotateTo(Supplier<Double> getTheta) {
-        return new RotateToCommand(getTheta);
+    /**
+     * @param getTheta Supplier of field-relative angles to rotate to
+     * @return A command that uses PID to rotate to the provided angle.
+     *         Overrides any rotation from any other drive commands or methods while the command is running
+     */
+    public Command c_rotateTo(DoubleSupplier getTheta) {
+        return new RotateCommand(getTheta, true);
     }
 
-    private class RotateToCommand extends Command {
+    /**
+     * @param getTheta Supplies doubles representing the difference between the current heading and target angle
+     * @return A command that uses PID to rotate to the provided angle.
+     *         Overrides any rotation from any other drive commands or methods while the command is running
+     */
+    public Command c_controlRotation(DoubleSupplier getTheta) {
+        return new RotateCommand(getTheta, false);
+    }
+
+    private class RotateCommand extends Command {
 
         private final PIDController rotPID;
-        private final Supplier<Double> getTheta;
+        private final DoubleSupplier getTheta;
+        private final boolean fieldRelative;
 
-        RotateToCommand(Supplier<Double> getTheta) {
+        RotateCommand(DoubleSupplier getTheta, boolean fieldRelative) {
             this.getTheta = getTheta;
+            this.fieldRelative = fieldRelative;
 
             rotPID = new PIDController(20, 0, 0);
             rotPID.enableContinuousInput(0, 1);
@@ -151,27 +171,19 @@ public class SwerveSubsystem extends SubsystemBase {
             // manually cancel any other active rotate command
             if (rotCommand != null) rotCommand.cancel();
             rotCommand = this;
+            rotPID.reset();
         }
-
-        private Double lastGoal;
 
         @Override
         public void execute() {
-            double current = getHeading();
-            Double nextGoal = getTheta.get();
+            double current = fieldRelative ? getHeading() : 0;
+            double goal = getTheta.getAsDouble();
 
-            if (nextGoal == null && lastGoal == null) {
-                rotPIDEffort = 0;
-            } else {
-                double goal = nextGoal == null ? lastGoal : nextGoal;
-                lastGoal = goal;
-                System.out.println("goal: " + goal);
-                rotPIDEffort = Util.clamp(
-                    rotPID.calculate(0, goal), // TODO change back to current
-                    -SwerveConstants.ROT_SPEED,
-                    SwerveConstants.ROT_SPEED
-                );
-            }
+            rotPIDEffort = Util.clamp(
+                rotPID.calculate(current, goal),
+                -SwerveConstants.ROT_SPEED,
+                SwerveConstants.ROT_SPEED
+            );
         }
 
         @Override

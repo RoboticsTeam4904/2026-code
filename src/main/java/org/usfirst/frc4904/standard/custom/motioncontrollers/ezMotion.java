@@ -75,6 +75,7 @@ public class ezMotion extends Command {
     public void initialize() {
         initialTimestamp = Timer.getFPGATimestamp();
         setpointDealer = setpointDealerDealer.get();
+        control.reset();
     }
 
     @Override

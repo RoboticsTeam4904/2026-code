@@ -57,9 +57,9 @@ public class DefaultOperator extends Operator {
 
         /// VISION
         turnJoystick.button1.onTrue(c_flipZero());
-        turnJoystick.button2.whileTrue(Component.chassis.c_rotateTo(() -> {
+        turnJoystick.button2.whileTrue(Component.chassis.c_controlRotation(() -> {
             List<Tag> tags = Component.vision.gtm.getTags();
-            if (tags.isEmpty()) return null;
+            if (tags.isEmpty()) return 0;
             Tag tag = tags.get(0);
             return Units.radiansToRotations(
                 Math.atan2(tag.pos().getY() + 0.25, tag.pos().getX())
