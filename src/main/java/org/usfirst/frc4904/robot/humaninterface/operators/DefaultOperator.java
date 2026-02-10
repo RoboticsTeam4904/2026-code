@@ -11,6 +11,7 @@ import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
 import org.usfirst.frc4904.standard.commands.ConflictingParallelCommandGroup;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.humaninput.Operator;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Notifications;
 
 import java.util.List;
@@ -73,7 +74,7 @@ public class DefaultOperator extends Operator {
             List<Tag> tags = GoogleTagManager.getTags();
             if (tags.isEmpty()) return 0;
             Tag tag = tags.get(0);
-            return Units.radiansToRotations(
+            return -Units.radiansToRotations(
                 Math.atan2(tag.pos().getY() + 0.25, tag.pos().getX())
             );
         }));

@@ -79,7 +79,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
         SmartDashboard.putData("swerve/goal", this);
         SmartDashboard.putData("swerve/field", field);
-
         //PATHPLANNER STUFF
         RobotConfig config = null;
         try{
