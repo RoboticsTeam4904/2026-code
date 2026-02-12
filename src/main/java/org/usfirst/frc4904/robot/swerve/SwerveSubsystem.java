@@ -34,16 +34,17 @@ import java.util.function.Supplier;
 final class SwerveConstants {
     private SwerveConstants() {}
 
-    static final double DRIVE_GEAR_RATIO = 5.294; // motor rots/wheel rots
+    // 16:30 -- 15:45
+    static final double DRIVE_GEAR_RATIO = 5.625; // motor rots/wheel rots
 
     // TODO: get real measurements
     static final double DRIVE_RPM = 6380;
 
     // TODO: get real measurements
-    static final double WHEEL_RADIUS = 0.07; // meters
+    static final double WHEEL_DIAMETER = Units.inchesToMeters(3.5); // meters
     static final double ROBOT_DIAGONAL = 1.15; // meters
 
-    static final double WHEEL_CIRC = 2 * Math.PI * WHEEL_RADIUS; // meters
+    static final double WHEEL_CIRC = Math.PI * WHEEL_DIAMETER; // meters
 
     // m/s
     static final double LIN_SPEED = DRIVE_RPM / 60.0 / DRIVE_GEAR_RATIO * WHEEL_CIRC;
