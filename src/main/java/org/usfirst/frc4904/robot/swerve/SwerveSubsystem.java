@@ -110,6 +110,7 @@ public class SwerveSubsystem extends SubsystemBase {
             },
             this // Reference to this subsystem to set requirements
     );
+    // TODO use other auton chooser from CommandRobotBase
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     }
