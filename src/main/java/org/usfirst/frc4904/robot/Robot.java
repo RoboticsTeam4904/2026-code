@@ -17,6 +17,7 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.standard.CommandRobotBase;
+import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Logging;
 
 public class Robot extends CommandRobotBase {
@@ -55,7 +56,7 @@ public class Robot extends CommandRobotBase {
     @Override
     public void autonomousInitialize() {
         Component.chassis.startPoseEstimator(Pose2d.kZero);
-        RobotMap.Component.chassis.getAutonomousCommand().schedule();
+        CmdUtil.schedule(Component.chassis.getAutonomousCommand());
     }
 
     @Override
