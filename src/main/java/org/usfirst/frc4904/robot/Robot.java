@@ -71,7 +71,8 @@ public class Robot extends CommandRobotBase {
     public void disabledInitialize() {
         Component.vision.stopPositioning("Robot disabled", false);
 
-        Component.chassis.setMotorBrake(false);
+        Component.chassis.stop();
+
         // Component.lights.flashColor(LightSubsystem.Color.DISABLED);
     }
 
