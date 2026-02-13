@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.standard.util;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public final class Logging {
      * @return Whether the value was logged or skipped on cooldown
      */
     public static boolean log(String key, Object... values) {
-        return log(key, values.length == 1 ? values[0] : values, 0.5);
+        return logWithDelay(key, values.length == 1 ? values[0] : values, 0.5);
     }
 
     /**
@@ -47,17 +48,24 @@ public final class Logging {
      * @param delaySeconds Minimum cooldown between logs
      * @return Whether the value was logged or skipped on cooldown
      */
-    public static boolean log(String key, Object value, double delaySeconds) {
+    public static boolean logWithDelay(String key, Object value, double delaySeconds) {
         if (!cooldown(key, delaySeconds)) return false;
 
-        if (value != null && value.getClass().isArray()) {
+        String str;
+        if (value == null) {
+            str = "null";
+        } else if (value.getClass().isArray()) {
             // outermost array passed to deepToString can't be primitive, but nested ones can
-            String str = Arrays.deepToString(new Object[] { value });
-            System.out.println(key + ": " + str.substring(1, str.length() - 1));
+            String arrayStr = Arrays.deepToString(new Object[] { value });
+            str = arrayStr.substring(1, arrayStr.length() - 1);
+        } else if (value instanceof Pose2d pose) {
+            // easier to read - default toString does Pose2d(Translation2d(...), Rotation2d(...))
+            str = String.format("Pose2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", pose.getX(), pose.getY(), pose.getRotation().getDegrees());
         } else {
-            System.out.println(key + ": " + value);
+            str = value.toString();
         }
 
+        System.out.println(key + ": " + str);
         return true;
     }
 }
