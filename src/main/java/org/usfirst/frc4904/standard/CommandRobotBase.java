@@ -95,6 +95,12 @@ public abstract class CommandRobotBase extends TimedRobot {
 		}
 	}
 
+	/** Use {@link #alwaysExecute()} for year-specific code. */
+	@Override
+	public void robotPeriodic() {
+		alwaysExecute();
+	}
+
 	/** Use {@link #teleopInitialize()} for year-specific code. */
 	@Override
 	public final void teleopInit() {
@@ -106,7 +112,6 @@ public abstract class CommandRobotBase extends TimedRobot {
 	public final void teleopPeriodic() {
 		CommandScheduler.getInstance().run();
 		teleopExecute();
-		alwaysExecute();
 	}
 
 	/** Use {@link #teleopCleanup()} for year-specific code. */
@@ -131,7 +136,6 @@ public abstract class CommandRobotBase extends TimedRobot {
 	public final void autonomousPeriodic() {
 		CommandScheduler.getInstance().run();
 		autonomousExecute();
-		alwaysExecute();
 	}
 
 	/** Use {@link #autonomousCleanup()} for year-specific code. */
@@ -155,7 +159,6 @@ public abstract class CommandRobotBase extends TimedRobot {
 	public final void disabledPeriodic() {
 		CommandScheduler.getInstance().run();
 		disabledExecute();
-		alwaysExecute();
 	}
 
 	/** Use {@link #disabledCleanup()} for year-specific code. */
@@ -175,7 +178,6 @@ public abstract class CommandRobotBase extends TimedRobot {
 	public final void testPeriodic() {
 		CommandScheduler.getInstance().run();
 		testExecute();
-		alwaysExecute();
 	}
 
 	/** Use {@link #testCleanup()} for year-specific code. */
@@ -186,7 +188,7 @@ public abstract class CommandRobotBase extends TimedRobot {
 
 
 	/**
-	 * Function for year-specific code to be run on robot code launch.
+	 * Function for year-specific code to be run on robot code launch, after {@link RobotMap#initialize() RobotMap initialization}.
 	 * Driver/operator/auton chooser options should be added here.
 	 */
 	public abstract void initialize();

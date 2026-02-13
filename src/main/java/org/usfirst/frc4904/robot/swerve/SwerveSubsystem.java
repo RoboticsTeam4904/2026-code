@@ -1,13 +1,10 @@
 package org.usfirst.frc4904.robot.swerve;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -18,15 +15,17 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
+import javax.xml.crypto.dsig.Transform;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -59,7 +58,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private final Field2d field = new Field2d();
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
-    private SendableChooser<Command> autoChooser;
 
     private boolean estimatorEnabled = false;
 
@@ -80,39 +78,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
         SmartDashboard.putData("swerve/goal", this);
         SmartDashboard.putData("swerve/field", field);
-        //PATHPLANNER STUFF
-        RobotConfig config = null;
-        try{
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        AutoBuilder.configure(
-            this::getPoseEstimate, // Robot pose supplier
-            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-            ),
-            config, // The robot configuration
-            () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            this // Reference to this subsystem to set requirements
-    );
-    // TODO use other auton chooser from CommandRobotBase
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     private SwerveModulePosition[] getModulePositions() {
@@ -218,13 +183,13 @@ public class SwerveSubsystem extends SubsystemBase {
     /**
      * Drive relative to the current angle of the robot.
      * @param translation Movement speed in meters per second
+     *                    Will be overridden if a {@link #c_gotoPos(Supplier) c_gotoPos()} command is active
      * @param theta Rotation speed in rotations per second.
      *              Will be overridden if a {@link #c_rotateTo(double) c_rotateTo()} command is active
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
-        if (rotCommand != null) {
-            theta = rotPIDEffort;
-        }
+        if (posCommand != null) translation = posPIDEffort;
+        if (rotCommand != null) theta = rotPIDEffort;
 
         Translation2d[] translations = new Translation2d[modules.length];
         double maxMag = SwerveConstants.LIN_SPEED;
@@ -302,6 +267,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private RotateCommand rotCommand; // non-null when a rot command is running
     private double rotPIDEffort;
+    private PositionCommand posCommand; // non-null when a pos command is running
+    private Translation2d posPIDEffort;
 
     /**
      * @param theta Field-relative angle to rotate to
@@ -318,7 +285,7 @@ public class SwerveSubsystem extends SubsystemBase {
      *         Overrides any rotation from any other drive commands or methods while the command is running
      */
     public Command c_rotateTo(DoubleSupplier getTheta) {
-        return new RotateCommand(getTheta, true);
+        return new RotateCommand(getTheta);
     }
 
     /**
@@ -327,18 +294,16 @@ public class SwerveSubsystem extends SubsystemBase {
      *         Overrides any rotation from any other drive commands or methods while the command is running
      */
     public Command c_controlRotation(DoubleSupplier getTheta) {
-        return new RotateCommand(getTheta, false);
+        return new RotateCommand(() -> getTheta.getAsDouble() + getHeading());
     }
 
     private class RotateCommand extends Command {
 
         private final PIDController rotPID;
         private final DoubleSupplier getTheta;
-        private final boolean fieldRelative;
 
-        RotateCommand(DoubleSupplier getTheta, boolean fieldRelative) {
+        RotateCommand(DoubleSupplier getTheta) {
             this.getTheta = getTheta;
-            this.fieldRelative = fieldRelative;
 
             rotPID = new PIDController(20, 0, 0);
             rotPID.enableContinuousInput(0, 1);
@@ -355,7 +320,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public void execute() {
-            double current = fieldRelative ? getHeading() : 0;
+            double current = getHeading();
             double goal = getTheta.getAsDouble();
 
             rotPIDEffort = Util.clamp(
@@ -369,6 +334,72 @@ public class SwerveSubsystem extends SubsystemBase {
         public void end(boolean interrupted) {
             rotCommand = null;
         }
+    }
+
+    /**
+     * @param getPos Supplier of field-relative translations to go to
+     * @return A command that uses PID and the {@link #startPoseEstimator(Pose2d) pose estimator} to follow a stream of positions.
+     *         Overrides any movement from any other drive commands or methods while the command is running
+     */
+    public Command c_gotoPos(Supplier<? extends Translation2d> getPos) {
+        return new PositionCommand(getPos);
+    }
+
+    private class PositionCommand extends Command {
+
+        private final PIDController posPID;
+        private final Supplier<? extends Translation2d> getPos;
+
+        PositionCommand(Supplier<? extends Translation2d> getPos) {
+            this.getPos = getPos;
+
+            posPID = new PIDController(20, 0, 0);
+            // don't require swerve subsystem so that it can run in parallel to other swerve commands
+        }
+
+        @Override
+        public void initialize() {
+            // manually cancel any other active position command
+            if (posCommand != null) posCommand.cancel();
+            posCommand = this;
+            posPID.reset();
+        }
+
+        @Override
+        public void execute() {
+            Translation2d current = getPoseEstimate().getTranslation();
+            Translation2d goal = getPos.get();
+
+            Translation2d diff = goal.minus(current);
+
+            double pidEffort = Util.clamp(
+                posPID.calculate(0, diff.getNorm()),
+                -SwerveConstants.LIN_SPEED,
+                SwerveConstants.LIN_SPEED
+            );
+
+            posPIDEffort = diff.times(pidEffort);
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            posCommand = null;
+        }
+    }
+
+    /**
+     * Combination of {@link #c_rotateTo(DoubleSupplier) c_rotateTo} and {@link #c_gotoPos(Supplier) c_gotoPos}.
+     */
+    public Command c_gotoPose(Supplier<? extends Pose2d> getPose) {
+        return new ParallelCommandGroup() {
+            Pose2d lastPose;
+            {
+                addCommands(
+                    c_rotateTo(() -> (lastPose = getPose.get()).getRotation().getRotations()),
+                    c_gotoPos(() -> lastPose.getTranslation())
+                );
+            }
+        };
     }
 
     /**
@@ -450,10 +481,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void setMotorBrake(boolean brake) {
         for (var module : modules) module.setMotorBrake(brake);
-    }
-
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
     }
 
     @Override
