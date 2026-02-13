@@ -97,14 +97,14 @@ public final class Auton {
         );
 
         for (var name : names) {
-            // autonChooser.addOption(name, c_pathPlanner(name));
-            autonChooser.addOption(name, new PathPlannerAuto(name));
+            autonChooser.addOption(name, c_pathPlanner(name));
+            // autonChooser.addOption(name, new PathPlannerAuto(name));
         }
     }
 
     public static Command c_pathPlanner(String file) {
         try {
-            PathPlannerPath path = PathPlannerPath.fromPathFile("MyPath");
+            PathPlannerPath path = PathPlannerPath.fromPathFile(file);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
 
             final var holder = new Object() { double startTime; Transform2d offset; };
