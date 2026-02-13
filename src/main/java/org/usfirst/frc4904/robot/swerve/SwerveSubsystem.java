@@ -4,7 +4,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -17,7 +16,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
@@ -25,7 +23,6 @@ import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
-import javax.xml.crypto.dsig.Transform;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -228,10 +225,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (DriverStation.isDisabled()) return;
-
-        for (var module : modules) module.periodic();
-
         if (estimatorEnabled) {
             estimator.update(Component.navx.getRotation2d(), getModulePositions());
 
@@ -249,13 +242,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
                     addVisionPoseEstimate(
                         new Pose2d(robotPos, heading),
-                        Timer.getFPGATimestamp() // TODO undo
-                        // tag.time()
+                        tag.time()
                     );
                 }
             }
 
             field.setRobotPose(getPoseEstimate());
+        }
+
+        if (DriverStation.isEnabled()) {
+            for (var module : modules) module.periodic();
         }
     }
 

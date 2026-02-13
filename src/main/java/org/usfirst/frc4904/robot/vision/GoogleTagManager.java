@@ -44,8 +44,7 @@ public final class GoogleTagManager {
     public static List<Tag> getTags() {
         double timeSeconds = timeEntry.getDouble(0);
 
-        // TODO reinstate once time networktable entry is implemented
-        // if (lastTime == timeSeconds && lastTags != null) return lastTags;
+        if (lastTime == timeSeconds && lastTags != null) return lastTags;
         lastTime = timeSeconds;
 
         double time = Util.epochSecondsToFPGATimestamp(timeSeconds);
@@ -100,9 +99,7 @@ public final class GoogleTagManager {
      */
     public static List<Tag> getTagsSince(double time) {
         List<Tag> tags = getTags();
-        return tags;
-        // TODO reinstate once time networktable entry is implemented
-        // return time < lastTime ? tags : List.of();
+        return time < lastTime ? tags : List.of();
     }
 
 }

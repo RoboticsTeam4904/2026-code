@@ -81,8 +81,8 @@ public final class Auton {
             swerve::getChassisSpeeds,
             (speeds, feedforwards) -> swerve.driveRobotRelative(speeds),
             new PPHolonomicDriveController(
-                new PIDConstants(5.0, 0.0, 0.0),
-                new PIDConstants(5.0, 0.0, 0.0)
+                new PIDConstants(5, 0, 0),
+                new PIDConstants(5, 0, 0)
             ),
             pathPlannerConfig,
             () -> {
