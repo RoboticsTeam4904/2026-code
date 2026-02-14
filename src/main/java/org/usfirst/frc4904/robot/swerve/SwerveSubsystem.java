@@ -237,7 +237,7 @@ public class SwerveSubsystem extends SubsystemBase {
             for (var tag : tags) {
                 if (tag.id() == 0) { // TODO temporary
                     // all field-relative
-                    Rotation2d heading = Rotation2d.fromRotations(getHeading());
+                    Rotation2d heading = getRotation();
                     Translation2d robotToTag = tag.pos().toTranslation2d().rotateBy(heading);
                     Translation2d robotPos = tag.fieldPos().getTranslation().minus(robotToTag);
 
@@ -260,6 +260,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public double getHeading() {
         return Component.navx.getYaw();
+    }
+
+    private Rotation2d getRotation() {
+        return Component.navx.getRotation2d();
     }
 
     /// COMMANDS
@@ -427,7 +431,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 SwerveConstants.LIN_SPEED
             );
 
-            posPIDEffort = diff.times(pidEffort);
+            posPIDEffort = diff.times(pidEffort).rotateBy(getRotation());
         }
 
         @Override

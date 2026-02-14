@@ -6,7 +6,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 
 import java.util.Arrays;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Fahrenheit;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 /**
  * NavX should be mounted to robot according to WPILib coordinates:
@@ -57,7 +60,8 @@ public class CustomNavx {
 
     /** @return current yaw as a {@link Rotation2d} */
     public Rotation2d getRotation2d() {
-        return navx.getRotation2d();
+        // i don't trust the navx getRotation2d() to be in the right units/direction/etc.
+        return Rotation2d.fromRotations(getYaw());
     }
     /** @return current rotation as a {@link Rotation3d} */
     public Rotation3d getRotation3d() {
