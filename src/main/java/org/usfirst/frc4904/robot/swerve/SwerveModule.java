@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import static org.usfirst.frc4904.robot.swerve.SwerveConstants.*;
@@ -41,8 +42,8 @@ public class SwerveModule implements Sendable {
 
         Translation2d direction = position.rotateBy(Rotation2d.kCCW_90deg);
 
-        drive = driveMotor != null ? new DriveController(driveMotor) : null;
-        rotation = new RotationController(rotMotor, rotEncoder, direction);
+        drive = driveMotor != null ? new DriveController(name, driveMotor) : null;
+        rotation = new RotationController(name, rotMotor, rotEncoder, direction);
 
         theta = rotation.getRotation();
 
@@ -109,7 +110,7 @@ public class SwerveModule implements Sendable {
     }
 }
 
-record DriveController(CustomTalonFX motor) {
+record DriveController(String name, CustomTalonFX motor) {
     public void setMagnitude(double magnitude) {
         motor.set(magnitude / LIN_SPEED);
     }
@@ -128,6 +129,8 @@ class RotationController {
 
     private static final double MAX_VOLTAGE = 4;
 
+    final String name;
+
     final SmartMotorController motor;
     final CustomDutyCycleEncoder encoder;
 
@@ -136,12 +139,13 @@ class RotationController {
     private final PIDController pid;
 
     public RotationController(
+        String name,
         SmartMotorController motor,
         CustomDutyCycleEncoder encoder,
         Translation2d direction
     ) {
+        this.name = name;
         this.motor = motor;
-
         this.encoder = encoder;
 
         this.direction = direction.div(direction.getNorm());

@@ -30,8 +30,7 @@ import java.util.function.Supplier;
 final class SwerveConstants {
     private SwerveConstants() {}
 
-    // 16:30 -- 15:45
-    static final double DRIVE_GEAR_RATIO = 5.625; // motor rots/wheel rots
+    static final double DRIVE_GEAR_RATIO = 1.0545; // 5.625; // motor rots/wheel rots
 
     // TODO: get real measurements
     static final double DRIVE_RPM = 6380;
@@ -90,7 +89,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void startPoseEstimator(Pose2d currentPose) {
-        estimator.resetPose(currentPose);
+        estimator.resetPose(
+            currentPose
+            // new Pose2d(currentPose.getTranslation(), Rotation2d.fromRotations(getHeading()))
+        );
         estimatorEnabled = true;
     }
 

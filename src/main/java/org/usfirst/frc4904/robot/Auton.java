@@ -12,7 +12,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -21,6 +23,7 @@ import org.json.simple.parser.ParseException;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Logging;
 
 import javax.xml.crypto.dsig.Transform;
 import java.io.IOException;
@@ -28,6 +31,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public final class Auton {
+    private static final Field2d field = new Field2d();
+
+    static {
+        SmartDashboard.putData("auton/field", field);
+    }
+
     private Auton() {}
 
     /**
@@ -107,17 +116,20 @@ public final class Auton {
             PathPlannerPath path = PathPlannerPath.fromPathFile(file);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
 
-            final var holder = new Object() { double startTime; Transform2d offset; };
+            final var holder = new Object() { double startTime; Translation2d offset; };
 
             return new WrapperCommand(Component.chassis.c_gotoPose(() -> {
                 double now = Timer.getFPGATimestamp();
-                Pose2d idealPose = traj.sample(now - holder.startTime).pose;
-                return idealPose.plus(holder.offset);
+                Pose2d idealPose = traj.sample((now - holder.startTime) / 2).pose;
+                Pose2d target = new Pose2d(idealPose.getX() + holder.offset.getX(), idealPose.getY() + holder.offset.getY(), idealPose.getRotation());
+                field.setRobotPose(target);
+                return target;
             })) {
                 @Override
                 public void initialize() {
                     holder.startTime = Timer.getFPGATimestamp();
-                    holder.offset = Component.chassis.getPoseEstimate().minus(traj.getInitialPose());
+                    Pose2d current = Component.chassis.getPoseEstimate(), initial = traj.getInitialPose();
+                    holder.offset = current.getTranslation().minus(initial.getTranslation());
                     super.initialize();
                 }
             };

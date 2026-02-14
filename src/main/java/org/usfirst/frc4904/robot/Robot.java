@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import java.util.List;
+
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
@@ -33,7 +35,7 @@ public class Robot extends CommandRobotBase {
         autonChooser.setDefaultOption("none", new NoOp());
         autonChooser.addOption("straight", Auton.c_jankStraight());
         autonChooser.addOption("reverse", Auton.c_jankReverse());
-        Auton.initPathplanner(autonChooser);
+        Auton.initPathplanner(autonChooser, List.of("STRET", "4", "7", "romtater"));
 
         driverChooser.setDefaultOption("swerve", new SwerveGain());
 
@@ -49,7 +51,7 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void teleopExecute() {
-        Logging.log("place", Component.chassis.getPoseEstimate());
+        // Logging.log("place", Component.chassis.getPoseEstimate());
     }
 
     @Override
@@ -97,6 +99,9 @@ public class Robot extends CommandRobotBase {
     public void alwaysExecute() {
         SmartDashboard.putNumber("navxTemp", Component.navx.getGyroTemperature());
         SmartDashboard.putNumber("match time", Timer.getMatchTime());
+
+        Pose2d poze = Component.chassis.getPoseEstimate();
+        Logging.log("cheese diff", Component.navx.getYaw() - poze.getRotation().getRotations());
         // if (Logging.cooldown("Robot.alwaysExecute", 1)) {
         //     List<Tag> tags = Component.vision.gtm.getTags();
         //     if (!tags.isEmpty()) System.out.println("WE FOUND A TAG: " + tags);
