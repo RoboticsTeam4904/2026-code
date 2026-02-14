@@ -89,6 +89,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void startPoseEstimator(Pose2d currentPose) {
+        System.out.println("reset btro");
         estimator.resetPose(
             currentPose
             // new Pose2d(currentPose.getTranslation(), Rotation2d.fromRotations(getHeading()))
@@ -303,7 +304,7 @@ public class SwerveSubsystem extends SubsystemBase {
         RotateCommand(DoubleSupplier getTheta) {
             this.getTheta = getTheta;
 
-            rotPID = new PIDController(20, 0, 0);
+            rotPID = new PIDController(40, 0, 0);
             rotPID.enableContinuousInput(0, 1);
             // don't require swerve subsystem so that it can run in parallel to other swerve commands
         }

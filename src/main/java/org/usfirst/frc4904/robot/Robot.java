@@ -40,12 +40,13 @@ public class Robot extends CommandRobotBase {
         driverChooser.setDefaultOption("swerve", new SwerveGain());
 
         operatorChooser.setDefaultOption("default", new DefaultOperator());
+
+        Component.chassis.startPoseEstimator(Pose2d.kZero);
     
     }
 
     @Override
     public void teleopInitialize() {
-        Component.chassis.startPoseEstimator(Pose2d.kZero);
         // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
     }
 
@@ -59,7 +60,6 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void autonomousInitialize() {
-        Component.chassis.startPoseEstimator(Pose2d.kZero);
         CmdUtil.schedule(autonChooser.getSelected());
     }
 
@@ -100,8 +100,6 @@ public class Robot extends CommandRobotBase {
         SmartDashboard.putNumber("navxTemp", Component.navx.getGyroTemperature());
         SmartDashboard.putNumber("match time", Timer.getMatchTime());
 
-        Pose2d poze = Component.chassis.getPoseEstimate();
-        Logging.log("cheese diff", Component.navx.getYaw() - poze.getRotation().getRotations());
         // if (Logging.cooldown("Robot.alwaysExecute", 1)) {
         //     List<Tag> tags = Component.vision.gtm.getTags();
         //     if (!tags.isEmpty()) System.out.println("WE FOUND A TAG: " + tags);

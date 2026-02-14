@@ -119,6 +119,7 @@ public final class Auton {
             final var holder = new Object() { double startTime; Translation2d offset; };
 
             return new WrapperCommand(Component.chassis.c_gotoPose(() -> {
+                System.out.println("run the auton (btro)");
                 double now = Timer.getFPGATimestamp();
                 Pose2d idealPose = traj.sample((now - holder.startTime) / 2).pose;
                 Pose2d target = new Pose2d(idealPose.getX() + holder.offset.getX(), idealPose.getY() + holder.offset.getY(), idealPose.getRotation());
@@ -129,6 +130,8 @@ public final class Auton {
                 public void initialize() {
                     holder.startTime = Timer.getFPGATimestamp();
                     Pose2d current = Component.chassis.getPoseEstimate(), initial = traj.getInitialPose();
+                    System.out.println("cur: " + current);
+                    System.out.println("init: " + initial.getTranslation());
                     holder.offset = current.getTranslation().minus(initial.getTranslation());
                     super.initialize();
                 }
