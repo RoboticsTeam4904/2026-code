@@ -36,7 +36,7 @@ public class Robot extends CommandRobotBase {
         operatorChooser.setDefaultOption("default", new DefaultOperator());
 
         Component.chassis.startPoseEstimator(Pose2d.kZero);
-    
+
     }
 
     @Override
