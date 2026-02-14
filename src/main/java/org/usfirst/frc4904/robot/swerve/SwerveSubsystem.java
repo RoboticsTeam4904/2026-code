@@ -281,7 +281,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return A command that uses PID to rotate to the provided angle.
      *         Overrides any rotation from any other drive commands or methods while the command is running
      */
-    public Command c_rotateTo(DoubleSupplier getTheta) {
+    public Command c_rotateTo(Supplier<Double> getTheta) {
         return new RotateCommand(getTheta);
     }
 
@@ -296,10 +296,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private class RotateCommand extends Command {
 
-        private final PIDController rotPID;
-        private final DoubleSupplier getTheta;
+        private static final double ROT_DIST_THRESHOLD = Units.degreesToRotations(5);
 
-        RotateCommand(DoubleSupplier getTheta) {
+        private final PIDController rotPID;
+        private final Supplier<Double> getTheta;
+
+        RotateCommand(Supplier<Double> getTheta) {
             this.getTheta = getTheta;
 
             rotPID = new PIDController(40, 0, 0);
@@ -307,18 +309,37 @@ public class SwerveSubsystem extends SubsystemBase {
             // don't require swerve subsystem so that it can run in parallel to other swerve commands
         }
 
+        Double lastGoal;
+        boolean done;
+
         @Override
         public void initialize() {
             // manually cancel any other active rotate command
             if (rotCommand != null) rotCommand.cancel();
             rotCommand = this;
             rotPID.reset();
+            done = false;
         }
 
         @Override
         public void execute() {
             double current = getHeading();
-            double goal = getTheta.getAsDouble();
+            Double goal = getTheta.get();
+
+            if (goal == null) {
+                if (lastGoal == null) {
+                    rotPIDEffort = 0;
+                    return;
+                } else {
+                    goal = lastGoal;
+
+                    if (Math.abs(current - goal) <= ROT_DIST_THRESHOLD) {
+                        done = true;
+                    }
+                }
+            } else {
+                lastGoal = goal;
+            }
 
             rotPIDEffort = Util.clamp(
                 rotPID.calculate(current, goal),
@@ -330,6 +351,11 @@ public class SwerveSubsystem extends SubsystemBase {
         @Override
         public void end(boolean interrupted) {
             rotCommand = null;
+        }
+
+        @Override
+        public boolean isFinished() {
+            return done;
         }
     }
 
@@ -416,15 +442,18 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Combination of {@link #c_rotateTo(DoubleSupplier) c_rotateTo} and {@link #c_gotoPos(Supplier) c_gotoPos}.
+     * Combination of {@link #c_rotateTo(Supplier) c_rotateTo} and {@link #c_gotoPos(Supplier) c_gotoPos}.
      */
     public Command c_gotoPose(Supplier<? extends Pose2d> getPose) {
         return new ParallelCommandGroup() {
             Pose2d lastPose;
             {
                 addCommands(
-                    c_rotateTo(() -> (lastPose = getPose.get()).getRotation().getRotations()),
-                    c_gotoPos(() -> lastPose.getTranslation())
+                    c_rotateTo(() -> {
+                        lastPose = getPose.get();
+                        return lastPose != null ? lastPose.getRotation().getRotations() : null;
+                    }),
+                    c_gotoPos(() -> lastPose != null ? lastPose.getTranslation() : null)
                 );
             }
         };
