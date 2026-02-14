@@ -1,43 +1,41 @@
 package org.usfirst.frc4904.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WrapperCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import org.json.simple.parser.ParseException;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.standard.commands.NoOp;
-import org.usfirst.frc4904.standard.util.Logging;
+import org.usfirst.frc4904.standard.util.Util;
 
-import javax.xml.crypto.dsig.Transform;
 import java.io.IOException;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 public final class Auton {
+
+    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1;
+
+    private Auton() {}
+
     private static final Field2d field = new Field2d();
+    private static final FieldObject2d fieldTraj = field.getObject("traj");
 
     static {
         SmartDashboard.putData("auton/field", field);
     }
-
-    private Auton() {}
 
     /**
      * Move straight out of the starting zone and do nothing.
@@ -75,11 +73,7 @@ public final class Auton {
         }
     }
 
-    public static void initPathplanner(SendableChooser<? super Command> autonChooser) {
-        initPathplanner(autonChooser, AutoBuilder.getAllAutoNames());
-    }
-
-    public static void initPathplanner(SendableChooser<? super Command> autonChooser, List<String> names) {
+    public static void initPathplanner(SendableChooser<? super Command> autonChooser, String... names) {
         SwerveSubsystem swerve = Component.chassis;
 
         if (pathPlannerConfig == null) return;
@@ -115,27 +109,52 @@ public final class Auton {
         try {
             PathPlannerPath path = PathPlannerPath.fromPathFile(file);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
+            double dur = traj.getTotalTimeSeconds();
 
-            final var holder = new Object() { double startTime; Translation2d offset; };
+            final var holder = new Object() { double startTime; Translation2d offset; boolean atEnd; };
 
-            return new WrapperCommand(Component.chassis.c_gotoPose(() -> {
-                System.out.println("run the auton (btro)");
-                double now = Timer.getFPGATimestamp();
-                Pose2d idealPose = traj.sample((now - holder.startTime) / 2).pose;
-                Pose2d target = new Pose2d(idealPose.getX() + holder.offset.getX(), idealPose.getY() + holder.offset.getY(), idealPose.getRotation());
-                field.setRobotPose(target);
-                return target;
-            })) {
-                @Override
-                public void initialize() {
-                    holder.startTime = Timer.getFPGATimestamp();
-                    Pose2d current = Component.chassis.getPoseEstimate(), initial = traj.getInitialPose();
-                    System.out.println("cur: " + current);
-                    System.out.println("init: " + initial.getTranslation());
-                    holder.offset = current.getTranslation().minus(initial.getTranslation());
-                    super.initialize();
+            return new ParallelCommandGroup(
+                new InstantCommand(
+                    // SETUP:
+                    () -> {
+                        holder.startTime = Timer.getFPGATimestamp();
+                        Pose2d current = Component.chassis.getPoseEstimate(), initial = traj.getInitialPose();
+                        holder.offset = current.getTranslation().minus(initial.getTranslation());
+                        holder.atEnd = false;
+
+                        int steps = Util.clamp((int) Math.round(dur * 4), 2, 50); // 4 steps per second, 50 max
+                        double timePerStep = dur / steps;
+
+                        Pose2d[] poses = new Pose2d[steps];
+                        for (int step = 0; step < steps; step++) {
+                            poses[step] = sampleTraj(traj, step * timePerStep, holder.offset);
+                        }
+                        fieldTraj.setPoses(poses);
+                    }
+                ),
+                // RUN CONTINUOUSLY:
+                Component.chassis.c_gotoPose(() -> {
+                    double time = (Timer.getFPGATimestamp() - holder.startTime) / PATHPLANNER_SLOWDOWN_FACTOR;
+                    if (time >= dur) {
+                        if (holder.atEnd) {
+                            return null;
+                        } else {
+                            time = dur;
+                            holder.atEnd = true;
+                        }
+                    };
+
+                    Pose2d target = sampleTraj(traj, time, holder.offset);
+                    field.setRobotPose(target);
+                    return target;
+                })
+            ).finallyDo(
+                // CLEANUP:
+                () -> {
+                    fieldTraj.setPoses();
+                    field.getRobotObject().setPoses();
                 }
-            };
+            );
         } catch (IOException | ParseException e) {
             System.err.println("Failed to load PathPlanner path '" + file + "':\n" + e.getMessage());
         } catch (NoSuchElementException e) {
@@ -143,5 +162,10 @@ public final class Auton {
         }
 
         return new NoOp();
+    }
+
+    private static Pose2d sampleTraj(PathPlannerTrajectory traj, double time, Translation2d offset) {
+        Pose2d idealPose = traj.sample(time).pose;
+        return new Pose2d(idealPose.getX() + offset.getX(), idealPose.getY() + offset.getY(), idealPose.getRotation());
     }
 }

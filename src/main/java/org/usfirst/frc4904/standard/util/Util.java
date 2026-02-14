@@ -69,6 +69,18 @@ public final class Util {
         return Math.max(min, Math.min(max, value));
     }
 
+    /**
+     * Clamp a value between a minimum and maximum
+     *
+     * @param value The input value
+     * @param min The minimum allowed value
+     * @param max The maximum allowed value
+     * @return The clamped value
+     */
+    public static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
     public record Range(double min, double max) {
         public Range {
             if (min > max) {

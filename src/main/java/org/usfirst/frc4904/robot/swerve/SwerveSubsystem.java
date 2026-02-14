@@ -266,8 +266,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private RotateCommand rotCommand; // non-null when a rot command is running
     private double rotPIDEffort;
-    private PositionCommand posCommand; // non-null when a pos command is running
-    private Translation2d posPIDEffort;
 
     /**
      * @param theta Field-relative angle to rotate to
@@ -335,8 +333,13 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
+    private PositionCommand posCommand; // non-null when a pos command is running
+    private Translation2d posPIDEffort;
+
     /**
-     * @param getPos Supplier of field-relative translations to go to
+     * @param getPos Supplier of field-relative translations to go to.
+     *               Return {@code null} to signal that the last pose was the final pose of the path, and the command
+     *               will end once the robot is within {@code PositionCommand.DISTANCE_THRESHOLD} of the final pose.
      * @return A command that uses PID and the {@link #startPoseEstimator(Pose2d) pose estimator} to follow a stream of positions.
      *         Overrides any movement from any other drive commands or methods while the command is running
      */
@@ -345,6 +348,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private class PositionCommand extends Command {
+
+        private static final double DISTANCE_THRESHOLD = 0.02; // 2 cm
 
         private final PIDController posPID;
         private final Supplier<? extends Translation2d> getPos;
@@ -356,18 +361,37 @@ public class SwerveSubsystem extends SubsystemBase {
             // don't require swerve subsystem so that it can run in parallel to other swerve commands
         }
 
+        Translation2d lastGoal;
+        boolean done;
+
         @Override
         public void initialize() {
             // manually cancel any other active position command
             if (posCommand != null) posCommand.cancel();
             posCommand = this;
             posPID.reset();
+            done = false;
         }
 
         @Override
         public void execute() {
             Translation2d current = getPoseEstimate().getTranslation();
             Translation2d goal = getPos.get();
+
+            if (goal == null) {
+                if (lastGoal == null) {
+                    posPIDEffort = Translation2d.kZero;
+                    return;
+                } else {
+                    goal = lastGoal;
+
+                    if (current.getDistance(goal) <= DISTANCE_THRESHOLD) {
+                        done = true;
+                    }
+                }
+            } else {
+                lastGoal = goal;
+            }
 
             Translation2d diff = goal.minus(current);
 
@@ -383,6 +407,11 @@ public class SwerveSubsystem extends SubsystemBase {
         @Override
         public void end(boolean interrupted) {
             posCommand = null;
+        }
+
+        @Override
+        public boolean isFinished() {
+            return done;
         }
     }
 
