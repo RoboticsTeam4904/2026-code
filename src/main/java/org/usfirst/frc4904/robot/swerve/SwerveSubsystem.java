@@ -433,7 +433,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 SwerveConstants.LIN_SPEED
             );
 
-            posPIDEffort = diff.times(pidEffort).rotateBy(getRotation());
+            posPIDEffort = diff.times(pidEffort).rotateBy(getRotation().unaryMinus());
         }
 
         @Override

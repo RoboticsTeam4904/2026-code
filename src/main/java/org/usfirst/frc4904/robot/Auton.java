@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
 
 public final class Auton {
 
-    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1;
+    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1.5;
 
     private Auton() {}
 
@@ -122,7 +122,7 @@ public final class Auton {
                         holder.offset = current.getTranslation().minus(initial.getTranslation());
                         holder.atEnd = false;
 
-                        int steps = Util.clamp((int) Math.round(dur * 4), 2, 50); // 4 steps per second, 50 max
+                        int steps = Util.clamp((int) Math.round(dur * 8), 2, 50); // 8 steps per second, 50 max
                         double timePerStep = dur / steps;
 
                         Pose2d[] poses = new Pose2d[steps];
