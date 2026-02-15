@@ -1,7 +1,0 @@
-package org.usfirst.frc4904.robot.subsystems; 
-
-public interface ClimberIO {
-    public ClimberState.InputState  getState();
-    public double getVelocity();
-    public void setState(Armstate.OutputState ob); 
-}
