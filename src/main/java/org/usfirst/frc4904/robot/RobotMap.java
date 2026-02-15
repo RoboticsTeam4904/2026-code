@@ -6,7 +6,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc4904.robot.subsystems.ClimberSubsystem;
 import org.usfirst.frc4904.robot.subsystems.IntakeSubsystem;
 import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
@@ -30,11 +31,10 @@ public final class RobotMap {
             public static final int zJoystickPort = 1;
 
             public static final int joystick = 2;
-        }
-
-        public static class CANMotor {
 
         }
+
+        public static class CANMotor {}
 
         public static class PWM {
 
@@ -44,6 +44,7 @@ public final class RobotMap {
             public static final int ENCODER_BR = 3;
 
             public static final int LED_STRIP = 9;
+
         }
     }
 
@@ -77,6 +78,7 @@ public final class RobotMap {
 
         // encoders
         public static DutyCycleEncoder intakeEncoder;
+
     }
 
     public static class Input {}
@@ -88,12 +90,26 @@ public final class RobotMap {
             public static CustomCommandXbox xbox;
             public static CustomCommandJoystick xyJoystick;
             public static CustomCommandJoystick turnJoystick;
+
         }
 
         public static class Operator {
 
             public static CustomCommandJoystick joystick;
+
         }
+    }
+
+    public static class Dashboard {
+
+        public static final Field2d liveField = new Field2d();
+        public static final Field2d previewField = new Field2d();
+
+        static {
+            SmartDashboard.putData("field/live", liveField);
+            SmartDashboard.putData("field/preview", previewField);
+        }
+
     }
 
     private static boolean initialized = false;

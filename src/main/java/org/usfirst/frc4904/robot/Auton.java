@@ -10,13 +10,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.json.simple.parser.ParseException;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Util;
@@ -26,16 +27,15 @@ import java.util.NoSuchElementException;
 
 public final class Auton {
 
+    // apparently cannot be higher than 85 (????) - see javadoc for FieldObject2d.setPoses()
+    private static final int PATHPLANNER_PREVIEW_STEPS = 50;
+
     private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1.5;
 
     private Auton() {}
 
-    private static final Field2d field = new Field2d();
-    private static final FieldObject2d fieldTraj = field.getObject("traj");
-
-    static {
-        SmartDashboard.putData("auton/field", field);
-    }
+    private static final FieldObject2d liveTraj = Dashboard.liveField.getObject("auton_traj");
+    private static final FieldObject2d liveTarget = Dashboard.liveField.getObject("auton_next");
 
     /**
      * Move straight out of the starting zone and do nothing.
@@ -109,52 +109,7 @@ public final class Auton {
         try {
             PathPlannerPath path = PathPlannerPath.fromPathFile(file);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
-            double dur = traj.getTotalTimeSeconds();
-
-            final var holder = new Object() { double startTime; Translation2d offset; boolean atEnd; };
-
-            return new ParallelCommandGroup(
-                new InstantCommand(
-                    // SETUP:
-                    () -> {
-                        holder.startTime = Timer.getFPGATimestamp();
-                        Pose2d current = Component.chassis.getPoseEstimate(), initial = traj.getInitialPose();
-                        holder.offset = current.getTranslation().minus(initial.getTranslation());
-                        holder.atEnd = false;
-
-                        int steps = Util.clamp((int) Math.round(dur * 8), 2, 50); // 8 steps per second, 50 max
-                        double timePerStep = dur / steps;
-
-                        Pose2d[] poses = new Pose2d[steps];
-                        for (int step = 0; step < steps; step++) {
-                            poses[step] = sampleTraj(traj, step * timePerStep, holder.offset);
-                        }
-                        fieldTraj.setPoses(poses);
-                    }
-                ),
-                // RUN CONTINUOUSLY:
-                Component.chassis.c_gotoPose(() -> {
-                    double time = (Timer.getFPGATimestamp() - holder.startTime) / PATHPLANNER_SLOWDOWN_FACTOR;
-                    if (time >= dur) {
-                        if (holder.atEnd) {
-                            return null;
-                        } else {
-                            time = dur;
-                            holder.atEnd = true;
-                        }
-                    };
-
-                    Pose2d target = sampleTraj(traj, time, holder.offset);
-                    field.setRobotPose(target);
-                    return target;
-                })
-            ).finallyDo(
-                // CLEANUP:
-                () -> {
-                    fieldTraj.setPoses();
-                    field.getRobotObject().setPoses();
-                }
-            );
+            return new PathPlannerCommand(traj);
         } catch (IOException | ParseException e) {
             System.err.println("Failed to load PathPlanner path '" + file + "':\n" + e.getMessage());
         } catch (NoSuchElementException e) {
@@ -162,6 +117,90 @@ public final class Auton {
         }
 
         return new NoOp();
+    }
+
+    public static class PathPlannerCommand extends Command {
+
+        public final PathPlannerTrajectory traj;
+        public final double duration;
+
+        private Pose2d[] trajPreview; // cache
+        public Pose2d[] getTrajPreview() {
+            if (trajPreview != null) return trajPreview;
+            return trajPreview = makeTrajPreview(traj, Translation2d.kZero);
+        }
+
+
+        private double startTime;
+        private Translation2d offset;
+        private boolean atEnd;
+
+        private final Command gotoPoseCommand;
+
+        private PathPlannerCommand(PathPlannerTrajectory traj) {
+            this.traj = traj;
+            duration = traj.getTotalTimeSeconds();
+
+            addRequirements(Component.chassis);
+
+            // effectively a WrapperCommand of this c_gotoPose() command
+            // ...BUT WrapperCommand requires that the command is provided in the super() call,
+            // which can't reference class fields like `startTime` or `offset`.
+            // so i'll wrap it myself i guess.
+            gotoPoseCommand = Component.chassis.c_gotoPose(() -> {
+                double time = (Timer.getFPGATimestamp() - startTime) / PATHPLANNER_SLOWDOWN_FACTOR;
+                if (time >= duration) {
+                    if (atEnd) return null;
+                    else atEnd = true;
+                }
+
+                Pose2d target = sampleTraj(traj, time, offset);
+                liveTarget.setPose(target);
+                return target;
+            });
+        }
+
+        @Override
+        public void initialize() {
+            startTime = Timer.getFPGATimestamp();
+            Pose2d current = Component.chassis.getPoseEstimate(), initial = traj.getInitialPose();
+            offset = current.getTranslation().minus(initial.getTranslation());
+            atEnd = false;
+
+            Pose2d[] poses = makeTrajPreview(traj, offset);
+            liveTraj.setPoses(poses);
+
+            gotoPoseCommand.initialize();
+        }
+
+        @Override
+        public void execute() {
+            gotoPoseCommand.execute();
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            Util.clearPose(liveTraj, liveTarget);
+
+            gotoPoseCommand.end(interrupted);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return gotoPoseCommand.isFinished();
+        }
+    }
+
+    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj, Translation2d offset) {
+        double dur = traj.getTotalTimeSeconds();
+        int steps = Math.min(PATHPLANNER_PREVIEW_STEPS, (int) Math.round(dur * 10));
+        double timePerStep = dur / steps;
+
+        Pose2d[] poses = new Pose2d[steps];
+        for (int step = 0; step < steps; step++) {
+            poses[step] = sampleTraj(traj, step * timePerStep, offset);
+        }
+        return poses;
     }
 
     private static Pose2d sampleTraj(PathPlannerTrajectory traj, double time, Translation2d offset) {

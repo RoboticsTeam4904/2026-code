@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
@@ -198,6 +199,13 @@ public final class Util {
      */
     public static Transform3d transform3d(double x, double y, double z, double rotations) {
         return new Transform3d(x, y, z, new Rotation3d(0, 0, Units.rotationsToRadians(rotations)));
+    }
+
+    /**
+     * Clears the pose(s) from {@link FieldObject2d} instances
+     */
+    public static void clearPose(FieldObject2d... poses) {
+        for (var pose : poses) pose.setPoses();
     }
 
 }

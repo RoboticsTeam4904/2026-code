@@ -9,20 +9,28 @@ package org.usfirst.frc4904.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.usfirst.frc4904.robot.Auton.PathPlannerCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.util.Util;
 
 public class Robot extends CommandRobotBase {
 
+    private static final FieldObject2d
+        autonPreview = Dashboard.previewField.getObject("auton_preview"),
+        autonStart   = Dashboard.previewField.getObject("auton_start"),
+        autonEnd     = Dashboard.previewField.getObject("auton_end");
+
     @Override
     public void initialize() {
-        // BEGONE
-        DriverStation.silenceJoystickConnectionWarning(true);
+        DriverStation.silenceJoystickConnectionWarning(true); // BEGONE
 
         SmartDashboard.putData("scheduler", CommandScheduler.getInstance());
 
@@ -35,8 +43,18 @@ public class Robot extends CommandRobotBase {
 
         operatorChooser.setDefaultOption("default", new DefaultOperator());
 
-        Component.chassis.startPoseEstimator(Pose2d.kZero);
+        // show selected auton path in elastic dashboard
+        autonChooser.onChange(cmd -> {
+            if (cmd instanceof PathPlannerCommand pathCmd) {
+                autonPreview.setPoses(pathCmd.getTrajPreview());
+                autonStart.setPose(pathCmd.traj.getInitialPose());
+                autonEnd.setPose(pathCmd.traj.getEndState().pose);
+            } else {
+                Util.clearPose(autonPreview, autonStart, autonEnd);
+            }
+        });
 
+        Component.chassis.startPoseEstimator(Pose2d.kZero);
     }
 
     @Override
