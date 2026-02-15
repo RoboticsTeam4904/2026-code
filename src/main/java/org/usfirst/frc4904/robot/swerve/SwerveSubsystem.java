@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
-import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
@@ -95,6 +94,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void stopPoseEstimator() {
         estimatorEnabled = false;
+    }
+
+    public boolean poseEstimatorEnabled() {
+        return estimatorEnabled;
     }
 
     /**
@@ -224,6 +227,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (DriverStation.isEnabled()) {
+            for (var module : modules) module.periodic();
+        }
+
         if (estimatorEnabled) {
             estimator.update(Component.navx.getRotation2d(), getModulePositions());
 
@@ -245,12 +252,6 @@ public class SwerveSubsystem extends SubsystemBase {
                     Timer.getFPGATimestamp() // TODO VISION use frame time (probably fixed now?)
                 );
             }
-
-            Dashboard.liveField.setRobotPose(getPoseEstimate());
-        }
-
-        if (DriverStation.isEnabled()) {
-            for (var module : modules) module.periodic();
         }
     }
 

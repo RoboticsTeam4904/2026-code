@@ -64,7 +64,11 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void teleopExecute() {
-        // Logging.log("place", Component.chassis.getPoseEstimate());
+        if (Component.chassis.poseEstimatorEnabled()) {
+            Dashboard.liveField.setRobotPose(Component.chassis.getPoseEstimate());
+        } else {
+            Util.clearPose(Dashboard.liveField.getRobotObject());
+        }
     }
 
     @Override
