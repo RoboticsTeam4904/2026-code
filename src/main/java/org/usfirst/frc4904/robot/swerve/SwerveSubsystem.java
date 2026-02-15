@@ -318,6 +318,7 @@ public class SwerveSubsystem extends SubsystemBase {
             // manually cancel any other active rotate command
             if (rotCommand != null) rotCommand.cancel();
             rotCommand = this;
+
             rotPID.reset();
             done = false;
         }
@@ -370,7 +371,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return A command that uses PID and the {@link #startPoseEstimator(Pose2d) pose estimator} to follow a stream of positions.
      *         Overrides any movement from any other drive commands or methods while the command is running
      */
-    public Command c_gotoPos(Supplier<? extends Translation2d> getPos) {
+    public Command c_gotoPos(Supplier<Translation2d> getPos) {
         return new PositionCommand(getPos);
     }
 
@@ -379,9 +380,9 @@ public class SwerveSubsystem extends SubsystemBase {
         private static final double DISTANCE_THRESHOLD = 0.02; // 2 cm
 
         private final PIDController posPID;
-        private final Supplier<? extends Translation2d> getPos;
+        private final Supplier<Translation2d> getPos;
 
-        PositionCommand(Supplier<? extends Translation2d> getPos) {
+        PositionCommand(Supplier<Translation2d> getPos) {
             this.getPos = getPos;
 
             posPID = new PIDController(20, 0, 0);
@@ -396,6 +397,7 @@ public class SwerveSubsystem extends SubsystemBase {
             // manually cancel any other active position command
             if (posCommand != null) posCommand.cancel();
             posCommand = this;
+
             posPID.reset();
             done = false;
         }
@@ -428,6 +430,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 SwerveConstants.LIN_SPEED
             );
 
+            //                  pid              convert to robot relative
             posPIDEffort = diff.times(pidEffort).rotateBy(getRotation().unaryMinus());
         }
 

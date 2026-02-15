@@ -7,7 +7,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
@@ -127,12 +128,12 @@ public final class Auton {
         private Pose2d[] trajPreview; // cache
         public Pose2d[] getTrajPreview() {
             if (trajPreview != null) return trajPreview;
-            return trajPreview = makeTrajPreview(traj, Translation2d.kZero);
+            return trajPreview = makeTrajPreview(traj);
         }
 
 
         private double startTime;
-        private Translation2d offset;
+        private Pose2d start;
         private boolean atEnd;
 
         private final Command gotoPoseCommand;
@@ -154,7 +155,7 @@ public final class Auton {
                     else atEnd = true;
                 }
 
-                Pose2d target = sampleTraj(traj, time, offset);
+                Pose2d target = sampleTraj(traj, start, time);
                 liveTarget.setPose(target);
                 return target;
             });
@@ -163,12 +164,12 @@ public final class Auton {
         @Override
         public void initialize() {
             startTime = Timer.getFPGATimestamp();
-            Pose2d current = Component.chassis.getPoseEstimate(), initial = traj.getInitialPose();
-            offset = current.getTranslation().minus(initial.getTranslation());
+            Pose2d current = Component.chassis.getPoseEstimate();
+            // orientation/rotation of path is always field relative
+            start = new Pose2d(current.getTranslation(), Rotation2d.kZero);
             atEnd = false;
 
-            Pose2d[] poses = makeTrajPreview(traj, offset);
-            liveTraj.setPoses(poses);
+            liveTraj.setPoses(makeTrajPreview(traj, start));
 
             gotoPoseCommand.initialize();
         }
@@ -191,20 +192,26 @@ public final class Auton {
         }
     }
 
-    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj, Translation2d offset) {
+    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj) {
+        return makeTrajPreview(traj, traj.getInitialPose());
+    }
+
+    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj, Pose2d start) {
         double dur = traj.getTotalTimeSeconds();
         int steps = Math.min(PATHPLANNER_PREVIEW_STEPS, (int) Math.round(dur * 10));
         double timePerStep = dur / steps;
 
         Pose2d[] poses = new Pose2d[steps];
         for (int step = 0; step < steps; step++) {
-            poses[step] = sampleTraj(traj, step * timePerStep, offset);
+            poses[step] = sampleTraj(traj, start, step * timePerStep);
         }
         return poses;
     }
 
-    private static Pose2d sampleTraj(PathPlannerTrajectory traj, double time, Translation2d offset) {
-        Pose2d idealPose = traj.sample(time).pose;
-        return new Pose2d(idealPose.getX() + offset.getX(), idealPose.getY() + offset.getY(), idealPose.getRotation());
+    private static Pose2d sampleTraj(PathPlannerTrajectory traj, Pose2d start, double time) {
+        Pose2d pose = traj.sample(time).pose, initial = traj.getInitialPose();
+        if (start == initial) return pose; // should be exactly equal if getInitialPose() was used
+        return start.plus(new Transform2d(initial, pose));
     }
+
 }

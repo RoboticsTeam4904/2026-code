@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,7 +93,7 @@ public final class GoogleTagManager {
      */
     public static List<Tag> getTagsSince(double time) {
         List<Tag> tags = getTags();
-        return time < lastTime ? tags : List.of();
+        return time < lastTime ? tags : Collections.emptyList();
     }
 
 }
