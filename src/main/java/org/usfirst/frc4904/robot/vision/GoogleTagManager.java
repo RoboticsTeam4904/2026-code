@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import org.usfirst.frc4904.standard.util.Util;
@@ -14,23 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-<<<<<<< HEAD
-=======
-import com.fasterxml.jackson.core.JsonProcessingException;
-import edu.wpi.first.math.geometry.*;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableEntry;
-
-import org.usfirst.frc4904.standard.util.Logging;
-import org.usfirst.frc4904.standard.util.Util;
-
->>>>>>> 477b994 (misc)
 /** Manages Google tags */
 public final class GoogleTagManager {
 
@@ -73,7 +57,7 @@ public final class GoogleTagManager {
                 int id = idPath.asInt();
 
                 double[] pos = mapper.treeToValue(el.path("pos"), double[].class);
- 
+
                 Optional<Pose3d> tagPose = field.getTagPose(id);
                 if (tagPose.isEmpty()) {
                     System.err.println("Tag id " + id + " does not exist on field layout");
@@ -82,10 +66,7 @@ public final class GoogleTagManager {
 
                 tags.add(new Tag(
                     id,
-                    new Transform3d(
-                        new Translation3d(pos[2], pos[0], pos[1]),
-                        new Rotation3d(Rotation2d.fromRotations(el.path("rot").asDouble()))
-                    ),
+                    Util.transform3d(pos[2], pos[0], pos[1], el.path("rot").asDouble()),
                     tagPose.get(),
                     time,
                     0

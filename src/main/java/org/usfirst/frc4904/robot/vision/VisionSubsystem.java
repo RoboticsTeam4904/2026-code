@@ -176,7 +176,7 @@ public class VisionSubsystem extends SubsystemBase {
         Component.chassis.driveRobotRelative(xSpeed, ySpeed, rotSpeed);
 
         lastTime = currentTime;
-        lastSpeed = Util.transform(xSpeed, ySpeed, rotSpeed);
+        lastSpeed = Util.transform2d(xSpeed, ySpeed, rotSpeed);
 
         // log positioning data
         System.out.printf(

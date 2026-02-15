@@ -2,7 +2,10 @@ package org.usfirst.frc4904.standard.util;
 
 import edu.wpi.first.hal.util.BoundaryException;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 
 import java.util.concurrent.TimeUnit;
@@ -186,8 +189,15 @@ public final class Util {
     /**
      * Utility for creating Transform2D instances
      */
-    public static Transform2d transform(double x, double y, double rotations) {
+    public static Transform2d transform2d(double x, double y, double rotations) {
         return new Transform2d(x, y, Rotation2d.fromRotations(rotations));
+    }
+
+    /**
+     * Utility for creating Transform3D instances
+     */
+    public static Transform3d transform3d(double x, double y, double z, double rotations) {
+        return new Transform3d(x, y, z, new Rotation3d(0, 0, Units.rotationsToRadians(rotations)));
     }
 
 }
