@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager.Tag;
-import org.usfirst.frc4904.standard.util.Util;
 import org.usfirst.frc4904.standard.commands.WaitWhileCommand;
+import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -258,7 +258,7 @@ public class VisionSubsystem extends SubsystemBase {
         List<Tag> results = GoogleTagManager.getTags();
 
         results.sort(Comparator.comparingDouble(
-            result -> result.pos().toTranslation2d().getSquaredNorm()
+            result -> result.pos().getTranslation().getSquaredNorm()
         ));
 
         return results;
@@ -306,12 +306,12 @@ public class VisionSubsystem extends SubsystemBase {
      * @return The transform from current position to desired position
      */
     private Transform2d calculatePositionError(Tag target) {
-        Translation3d rawOffset = target.pos();
+        Translation3d rawOffset = target.pos().getTranslation();
 
         Transform2d targetOffset = new Transform2d(
             rawOffset.getX(),
             rawOffset.getY(),
-            target.rot()
+            target.pos().getRotation().toRotation2d()
         );
 
         Transform2d cameraOffset = cameraOffsets[target.camera()];

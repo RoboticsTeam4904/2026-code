@@ -1,9 +1,11 @@
 package org.usfirst.frc4904.robot.swerve;
 
+import edu.wpi.first.math.ComputerVisionUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -235,19 +237,19 @@ public class SwerveSubsystem extends SubsystemBase {
             lastTagUpdateTime = GoogleTagManager.getLastTime();
 
             for (var tag : tags) {
-                if (tag.id() == 0) { // TODO temporary
-                    // all field-relative
-                    Rotation2d heading = getRotation();
-                    Translation2d robotToTag = tag.pos().toTranslation2d().rotateBy(heading);
-                    Translation2d robotPos = tag.fieldPos().getTranslation().minus(robotToTag);
+                // all field-relative
+                Pose2d pose = ComputerVisionUtil.objectToRobotPose(
+                    tag.fieldPos(),
+                    tag.pos(),
+                    Transform3d.kZero // TODO camera offset
+                ).toPose2d();
 
-                    Logging.log("WE HAVE A POS", robotPos);
+                Logging.log("WE HAVE A POS", pose);
 
-                    addVisionPoseEstimate(
-                        new Pose2d(robotPos, heading),
-                        tag.time()
-                    );
-                }
+                addVisionPoseEstimate(
+                    new Pose2d(pose.getTranslation(), getRotation()),
+                    tag.time()
+                );
             }
 
             field.setRobotPose(getPoseEstimate());

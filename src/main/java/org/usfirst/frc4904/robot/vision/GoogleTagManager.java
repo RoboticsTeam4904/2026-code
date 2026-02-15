@@ -1,32 +1,25 @@
 package org.usfirst.frc4904.robot.vision;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import edu.wpi.first.math.geometry.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.NetworkTableEntry;
-
-import org.usfirst.frc4904.standard.util.Logging;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import org.usfirst.frc4904.standard.util.Util;
 
-import javax.swing.text.html.Option;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /** Manages Google tags */
 public final class GoogleTagManager {
 
     private GoogleTagManager() {}
 
-    public record Tag(int id, Rotation2d rot, Translation3d pos, Pose2d fieldPos, double time, int camera) {}
+    public record Tag(int id, Transform3d pos, Pose3d fieldPos, double time, int camera) {}
 
     private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -72,9 +65,11 @@ public final class GoogleTagManager {
 
                 tags.add(new Tag(
                     id,
-                    Rotation2d.fromRotations(el.path("rot").asDouble()),
-                    new Translation3d(pos[2], pos[0], pos[1]),
-                    tagPose.get().toPose2d(),
+                    new Transform3d(
+                        new Translation3d(pos[2], pos[0], pos[1]),
+                        new Rotation3d(Rotation2d.fromRotations(el.path("rot").asDouble()))
+                    ),
+                    tagPose.get(),
                     time,
                     0
                 ));
