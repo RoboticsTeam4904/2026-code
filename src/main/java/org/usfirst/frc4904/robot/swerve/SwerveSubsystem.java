@@ -233,11 +233,12 @@ public class SwerveSubsystem extends SubsystemBase {
         if (estimatorEnabled) {
             estimator.update(Component.navx.getRotation2d(), getModulePositions());
 
-            var tags = GoogleTagManager.getTagsSince(lastTagUpdateTime);
+            var tags = GoogleTagManager.getTagsSince(-1234567);
             lastTagUpdateTime = GoogleTagManager.getLastTime();
 
             for (var tag : tags) {
                 // all field-relative
+<<<<<<< HEAD
                 Pose2d pose = ComputerVisionUtil.objectToRobotPose(
                     tag.fieldPos(),
                     tag.pos(),
@@ -249,6 +250,17 @@ public class SwerveSubsystem extends SubsystemBase {
                 addVisionPoseEstimate(
                     new Pose2d(pose.getTranslation(), getRotation()),
                     tag.time()
+=======
+                Rotation2d heading = getRotation();
+                Translation2d robotToTag = tag.pos().toTranslation2d().rotateBy(heading);
+                Translation2d robotPos = tag.fieldPos().getTranslation().minus(robotToTag);
+
+                Logging.log("WE HAVE A POS", robotPos);
+
+                addVisionPoseEstimate(
+                    new Pose2d(robotPos, heading),
+                    Timer.getFPGATimestamp()
+>>>>>>> 477b994 (misc)
                 );
             }
 

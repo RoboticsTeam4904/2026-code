@@ -14,6 +14,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+<<<<<<< HEAD
+=======
+import com.fasterxml.jackson.core.JsonProcessingException;
+import edu.wpi.first.math.geometry.*;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableEntry;
+
+import org.usfirst.frc4904.standard.util.Logging;
+import org.usfirst.frc4904.standard.util.Util;
+
+>>>>>>> 477b994 (misc)
 /** Manages Google tags */
 public final class GoogleTagManager {
 
@@ -21,7 +38,7 @@ public final class GoogleTagManager {
 
     public record Tag(int id, Transform3d pos, Pose3d fieldPos, double time, int camera) {}
 
-    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final NetworkTableEntry tagsEntry, timeEntry;
@@ -56,8 +73,8 @@ public final class GoogleTagManager {
                 int id = idPath.asInt();
 
                 double[] pos = mapper.treeToValue(el.path("pos"), double[].class);
-
-                Optional<Pose3d> tagPose = field.getTagPose(1 /* TODO temporary */);
+ 
+                Optional<Pose3d> tagPose = field.getTagPose(id);
                 if (tagPose.isEmpty()) {
                     System.err.println("Tag id " + id + " does not exist on field layout");
                     continue;
