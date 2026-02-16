@@ -128,6 +128,13 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
+     * @return The current position estimate, equivalent to {@code getPoseEstimate().getTranslation()}
+     */
+    public Translation2d getPositionEstimate() {
+        return getPoseEstimate().getTranslation();
+    }
+
+    /**
      * @return current robot-relative {@link ChassisSpeeds} (velocity and direction) according to encoders
      */
     public ChassisSpeeds getChassisSpeeds() {
@@ -396,7 +403,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public void execute() {
-            Translation2d current = getPoseEstimate().getTranslation();
+            Translation2d current = getPositionEstimate();
             Translation2d goal = getPos.get();
 
             if (goal == null) {

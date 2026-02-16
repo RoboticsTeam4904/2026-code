@@ -110,7 +110,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         return new SwitchingIfElseCommand(
             c_controlVelocity(() -> calcShooterVelocity(getOwnHub().pos)),
             c_stop(), // TODO fun lights, elastic notif?, etc. on fail
-            () -> getOwnHub().isInRange(Component.chassis.getPoseEstimate().getTranslation()),
+            () -> getOwnHub().isInRange(Component.chassis.getPositionEstimate()),
             () -> hasSufficientDistance(getOwnHub().pos)
         ).andThen(this::stop);
     }
@@ -131,7 +131,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     }
 
     public static double calcRobotAngle(Translation2d pos) {
-        Translation2d robotPos = Component.chassis.getPoseEstimate().getTranslation();
+        Translation2d robotPos = Component.chassis.getPositionEstimate();
         Translation2d dist = pos.minus(robotPos);
 
         double angle = Math.atan2(dist.getY(), dist.getX());
@@ -142,14 +142,14 @@ public class ShooterSubsystem extends MotorSubsystem {
     }
 
     private static double calcShooterVelocity(Translation2d pos) {
-        Translation2d robotPos = Component.chassis.getPoseEstimate().getTranslation();
+        Translation2d robotPos = Component.chassis.getPositionEstimate();
 
         double dist = pos.getDistance(robotPos) - SHOOTER_POS.getX();
         return getShooterVelocityForDistance(dist);
     }
 
     private static boolean hasSufficientDistance(Translation2d pos) {
-        Translation2d robotPos = Component.chassis.getPoseEstimate().getTranslation();
+        Translation2d robotPos = Component.chassis.getPositionEstimate();
 
         double dx = pos.getDistance(robotPos) - SHOOTER_POS.getX();
         // TODO tune
