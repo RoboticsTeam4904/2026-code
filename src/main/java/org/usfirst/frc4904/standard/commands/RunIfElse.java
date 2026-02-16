@@ -9,7 +9,7 @@ import java.util.function.BooleanSupplier;
 
 public class RunIfElse extends ConditionalCommand {
     /**
-     * Similar to {@link RunIf}.
+     * Combination of {@link RunIf} and {@link RunUnless}.
      * <p>
      * Conditions are AND-ed together:
      * <ul>
