@@ -9,7 +9,6 @@ package org.usfirst.frc4904.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -24,7 +23,6 @@ import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Logging;
 
 public class Robot extends CommandRobotBase {
-
     @Override
     public void initialize() {
         // BEGONE
@@ -40,6 +38,7 @@ public class Robot extends CommandRobotBase {
         driverChooser.setDefaultOption("swerve", new SwerveGain());
 
         operatorChooser.setDefaultOption("default", new DefaultOperator());
+
     
     }
 
@@ -113,5 +112,13 @@ public class Robot extends CommandRobotBase {
         //     System.out.println("navx test: " + status + " test: " + Arrays.toString(test));
         // }
         // Logging.log("navx rot", Component.navx.getYaw());
+    }
+
+    @Override
+    public void  simulationInit() {}
+
+    @Override
+    public void simulationPeriodic() {
+        Component.sim.periodic();
     }
 }
