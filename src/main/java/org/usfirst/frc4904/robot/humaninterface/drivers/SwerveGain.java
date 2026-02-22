@@ -1,12 +1,12 @@
 package org.usfirst.frc4904.robot.humaninterface.drivers;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.wpilibj.DriverStation;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
+import org.usfirst.frc4904.standard.commands.AlwaysRunnableInstantCommand;
+import org.usfirst.frc4904.standard.commands.RunUnless;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
@@ -25,17 +25,32 @@ public class SwerveGain extends Driver {
 
     @Override
     public void bindCommands() {
+        var xyJoystick = HumanInput.Driver.xyJoystick;
+        var turnJoystick = HumanInput.Driver.turnJoystick;
+
         Component.chassis.setDefaultCommand(
             Component.chassis.c_input(this::getTranslation, this::getTurnSpeed)
                 .withName("Driver - swerve drive")
         );
 
-        // RobotMap.HumanInput.Driver.turnJoystick.button1.onTrue(
-        //     new InstantCommand(() -> RobotMap.Component.chassis.brickMode())
-        // );
-        // RobotMap.HumanInput.Driver.turnJoystick.button2.onTrue(
-        //     new InstantCommand(() -> RobotMap.Component.chassis.zeroGyro())
-        // );
+        /// ODOMETRY RESETTING
+        xyJoystick.button1.onTrue(
+            new AlwaysRunnableInstantCommand(() -> Component.chassis.resetOdometry())
+        );
+
+        // no zeroing when enabled (prevent accidental mid-match zeroing)
+        xyJoystick.button2.onTrue(
+            new RunUnless(
+                new AlwaysRunnableInstantCommand(() -> Component.chassis.zero()),
+                DriverStation::isTeleopEnabled
+            )
+        );
+        turnJoystick.button1.onTrue(
+            new RunUnless(
+                new AlwaysRunnableInstantCommand(() -> Component.chassis.flipZero()),
+                DriverStation::isTeleopEnabled
+            )
+        );
     }
 
     @Override

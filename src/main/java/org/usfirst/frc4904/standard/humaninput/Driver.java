@@ -21,4 +21,5 @@ public abstract class Driver extends HumanInput {
      * @return Turn speed that the driver wants in the range [-1, 1], positive = counterclockwise
      */
     public abstract double getTurnSpeed();
+
 }
