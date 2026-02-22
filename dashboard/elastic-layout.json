@@ -45,6 +45,22 @@
               "period": 0.06,
               "data_type": "int[]"
             }
+          },
+          {
+            "title": "match time",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "/SmartDashboard/match time",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
           }
         ]
       }
@@ -89,19 +105,6 @@
             "type": "ComboBox Chooser",
             "properties": {
               "topic": "/SmartDashboard/chooser/auton",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
-            "title": "Auto Chooser",
-            "x": 384.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Auto Chooser",
               "period": 0.06,
               "sort_options": false
             }
@@ -344,7 +347,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 256.0,
-            "height": 512.0,
+            "height": 256.0,
             "type": "Scheduler",
             "properties": {
               "topic": "/SmartDashboard/scheduler",
@@ -374,7 +377,7 @@
           },
           {
             "title": "NavX Temp",
-            "x": 256.0,
+            "x": 0.0,
             "y": 256.0,
             "width": 256.0,
             "height": 256.0,
@@ -395,49 +398,53 @@
           },
           {
             "title": "MatchNumber",
-            "x": 512.0,
+            "x": 768.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
-            "type": "Text Display",
+            "type": "Large Text Display",
             "properties": {
               "topic": "/FMSInfo/MatchNumber",
               "period": 0.06,
-              "data_type": "int",
-              "show_submit_button": false
+              "data_type": "int"
             }
           },
           {
-            "title": "IsRedAlliance",
-            "x": 640.0,
+            "title": "Alliance",
+            "x": 896.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/FMSInfo/IsRedAlliance",
-              "period": 0.06,
+              "period": 1.0,
               "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
+              "true_color": 4294901760,
+              "false_color": 4278192639,
               "true_icon": "None",
               "false_icon": "None"
             }
           },
           {
-            "title": "match time",
-            "x": 512.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Match Time",
+            "title": "auton target",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Field",
             "properties": {
-              "topic": "/SmartDashboard/match time",
+              "topic": "/SmartDashboard/auton/field",
               "period": 0.06,
-              "data_type": "double",
-              "time_display_mode": "Minutes and Seconds",
-              "red_start_time": 20,
-              "yellow_start_time": 30
+              "field_game": "Rebuilt",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
             }
           }
         ]
