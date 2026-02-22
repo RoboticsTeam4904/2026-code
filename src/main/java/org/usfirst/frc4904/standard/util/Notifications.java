@@ -36,7 +36,8 @@ public final class Notifications {
         "Ben. Ben BEn BEN.",
         "Robot has been possessed by 5940",
         "Wow, such a big strong",
-        "WARNING: robor is cooked"
+        "WARNING: robor is cooked",
+        "Ben, the steaks are high 🥩"
     };
 
     public static Command c_sendRandom() {
