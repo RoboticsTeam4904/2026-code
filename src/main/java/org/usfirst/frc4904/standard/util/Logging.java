@@ -1,11 +1,13 @@
 package org.usfirst.frc4904.standard.util;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Timer;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static edu.wpi.first.units.Units.Degrees;
 
 public final class Logging {
 
@@ -59,13 +61,30 @@ public final class Logging {
             String arrayStr = Arrays.deepToString(new Object[] { value });
             str = arrayStr.substring(1, arrayStr.length() - 1);
         } else if (value instanceof Pose2d pose) {
-            // easier to read - default toString does Pose2d(Translation2d(...), Rotation2d(...))
             str = String.format("Pose2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", pose.getX(), pose.getY(), pose.getRotation().getDegrees());
+        } else if (value instanceof Translation2d trns) {
+            str = String.format("Translation2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", trns.getX(), trns.getY(), trns.getAngle().getDegrees());
+        } else if (value instanceof Rotation3d rot) {
+            str = String.format("Rotation3d(%s)", rot3dToString(rot));
+        } else if (value instanceof Pose3d pose) {
+            str = String.format("Pose3d(X: %.2f, Y: %.2f, Z: %.2f, %s)", pose.getX(), pose.getY(), pose.getZ(), rot3dToString(pose.getRotation()));
+        } else if (value instanceof Transform3d trns) {
+            str = String.format("Pose3d(X: %.2f, Y: %.2f, Z: %.2f, %s)", trns.getX(), trns.getY(), trns.getZ(), rot3dToString(trns.getRotation()));
         } else {
             str = value.toString();
         }
 
         System.out.println(key + ": " + str);
         return true;
+    }
+
+    private static String rot3dToString(Rotation3d rot) {
+        double x = rot.getMeasureX().in(Degrees);
+        double y = rot.getMeasureY().in(Degrees);
+        double z = rot.getMeasureZ().in(Degrees);
+
+        return x == 0 && y == 0
+            ? String.format("Yaw: %.1fdeg", z)
+            : String.format("X/Roll: %.1fdeg, Y/Pitch: %.1fdeg, Z/Yaw: %.1fdeg", x, y, z);
     }
 }
