@@ -3,7 +3,7 @@ package org.usfirst.frc4904.standard.util;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.Timer;
 
-import java.util.Arrays;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,43 +39,49 @@ public final class Logging {
      * @return Whether the value was logged or skipped on cooldown
      */
     public static boolean log(String key, Object... values) {
-        return logWithDelay(key, values.length == 1 ? values[0] : values, 0.5);
+        return logWithDelay(key, 0.5, values);
     }
 
     /**
      * Log values with a cooldown to not flood the RioLog™. Formatted as 'key: value'
      *
      * @param key          Key that is used to determine the cooldown since the last message with the same key was sent
-     * @param value        Value to log
      * @param delaySeconds Minimum cooldown between logs
+     * @param values       Value(s) to log
      * @return Whether the value was logged or skipped on cooldown
      */
-    public static boolean logWithDelay(String key, Object value, double delaySeconds) {
+    public static boolean logWithDelay(String key, double delaySeconds, Object... values) {
         if (!cooldown(key, delaySeconds)) return false;
 
-        String str;
-        if (value == null) {
-            str = "null";
-        } else if (value.getClass().isArray()) {
-            // outermost array passed to deepToString can't be primitive, but nested ones can
-            String arrayStr = Arrays.deepToString(new Object[] { value });
-            str = arrayStr.substring(1, arrayStr.length() - 1);
-        } else if (value instanceof Pose2d pose) {
-            str = String.format("Pose2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", pose.getX(), pose.getY(), pose.getRotation().getDegrees());
-        } else if (value instanceof Translation2d trns) {
-            str = String.format("Translation2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", trns.getX(), trns.getY(), trns.getAngle().getDegrees());
-        } else if (value instanceof Rotation3d rot) {
-            str = String.format("Rotation3d(%s)", rot3dToString(rot));
-        } else if (value instanceof Pose3d pose) {
-            str = String.format("Pose3d(X: %.2f, Y: %.2f, Z: %.2f, %s)", pose.getX(), pose.getY(), pose.getZ(), rot3dToString(pose.getRotation()));
-        } else if (value instanceof Transform3d trns) {
-            str = String.format("Pose3d(X: %.2f, Y: %.2f, Z: %.2f, %s)", trns.getX(), trns.getY(), trns.getZ(), rot3dToString(trns.getRotation()));
-        } else {
-            str = value.toString();
-        }
-
-        System.out.println(key + ": " + str);
+        System.out.println(key + ": " + formatValue(values, false));
         return true;
+    }
+
+    private static String formatValue(Object value, boolean arrayBrackets) {
+        if (value == null) {
+            return "null";
+        } else if (value.getClass().isArray()) {
+            var sb = new StringBuilder(arrayBrackets ? "[" : "");
+            int len = Array.getLength(value);
+            for (int i = 0; i < len; i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(formatValue(Array.get(value, i), true));
+            }
+            if (arrayBrackets) sb.append("]");
+            return sb.toString();
+        } else if (value instanceof Pose2d pose) {
+            return String.format("Pose2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", pose.getX(), pose.getY(), pose.getRotation().getDegrees());
+        } else if (value instanceof Translation2d trns) {
+            return String.format("Translation2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", trns.getX(), trns.getY(), trns.getAngle().getDegrees());
+        } else if (value instanceof Rotation3d rot) {
+            return String.format("Rotation3d(%s)", rot3dToString(rot));
+        } else if (value instanceof Pose3d pose) {
+            return String.format("Pose3d(X: %.2f, Y: %.2f, Z: %.2f, %s)", pose.getX(), pose.getY(), pose.getZ(), rot3dToString(pose.getRotation()));
+        } else if (value instanceof Transform3d trns) {
+            return String.format("Pose3d(X: %.2f, Y: %.2f, Z: %.2f, %s)", trns.getX(), trns.getY(), trns.getZ(), rot3dToString(trns.getRotation()));
+        } else {
+            return value.toString();
+        }
     }
 
     private static String rot3dToString(Rotation3d rot) {
