@@ -111,7 +111,7 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void alwaysExecute() {
-        SmartDashboard.putNumber("navxTemp", Component.navx.getGyroTemperature());
+        SmartDashboard.putNumber("navxTemp", Component.navx.getTemperature());
         SmartDashboard.putNumber("match time", Timer.getMatchTime());
 
         // if (Logging.cooldown("Robot.alwaysExecute", 1)) {

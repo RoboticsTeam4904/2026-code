@@ -127,15 +127,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Reset the robot's pose estimator to the given {@link Pose2d}
-     *
-     * @param pose the {@link Pose2d} to reset the estimator to
-     */
-    public void resetPose(Pose2d pose){
-        estimator.resetPose(pose);
-    }
-
-    /**
      * @return current robot-relative {@link ChassisSpeeds} (velocity and direction) according to encoders
      */
     public ChassisSpeeds getChassisSpeeds() {

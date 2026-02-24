@@ -81,7 +81,7 @@ public final class Auton {
 
         AutoBuilder.configure(
             swerve::getPoseEstimate,
-            swerve::resetPose,
+            swerve::startPoseEstimator,
             swerve::getChassisSpeeds,
             (speeds, feedforwards) -> swerve.driveRobotRelative(speeds),
             new PPHolonomicDriveController(
