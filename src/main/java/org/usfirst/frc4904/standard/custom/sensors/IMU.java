@@ -32,6 +32,7 @@ public interface IMU {
 
     /** @return current rotation as a {@link Rotation3d} */
     default Rotation3d getRotation3d() {
+        // TODO some of these are probably negated
         return new Rotation3d(
             Units.rotationsToRadians(getRoll()),
             Units.rotationsToRadians(getPitch()),
