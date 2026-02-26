@@ -1,12 +1,11 @@
 package org.usfirst.frc4904.robot.humaninterface.operators;
 
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick.Axis;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.Util;
-
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 public class DefaultOperator extends Operator {
 
@@ -19,13 +18,10 @@ public class DefaultOperator extends Operator {
     }
 
     double getVelocity() {
- 
         var joystick = RobotMap.HumanInput.Operator.joystick;
 
         double value = joystick.getAxis(Axis.SLIDER);
-
         double distance = Util.transformRange(value, 1, -1, 2, 5);
-
         double velocity = Component.shooter.getShooterVelocityForDistance(distance);
 
         return velocity;
@@ -43,8 +39,6 @@ public class DefaultOperator extends Operator {
             )
         );
         joystick.button10.whileFalse(Component.intake.c_retract());
-
-
 
         /// SHOOTER
         joystick.button1.whileTrue(Component.shooter.c_smartShoot());

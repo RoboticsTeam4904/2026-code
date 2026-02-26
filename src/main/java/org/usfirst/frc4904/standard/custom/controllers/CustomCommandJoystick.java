@@ -27,7 +27,9 @@ public class CustomCommandJoystick extends CommandJoystick {
         }
     }
 
-    private final EventLoop loop;
+    // public so that the loop can be used with custom triggers. for example:
+    // new Trigger(joystick.loop, () -> joystick.getAxis(Axis.X) > 0.5)
+    public final EventLoop loop;
 
     protected final double deadzone;
     protected final int port;

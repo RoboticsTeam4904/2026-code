@@ -102,6 +102,11 @@ public final class Util {
         return (x - fromMin) / fromMax * toMax + toMin;
     }
 
+    /** See {@link #transformRange(double, double, double, double, double)} */
+    public static double transformRange(double x, Range from, Range to) {
+        return transformRange(x, from.min, from.max, to.min, to.max);
+    }
+
     public record Range(double min, double max) {
         public Range {
             if (min > max) {
