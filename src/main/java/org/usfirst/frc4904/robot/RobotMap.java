@@ -60,6 +60,7 @@ public final class RobotMap {
         public static IntakeSubsystem intake;
         public static ShooterSubsystem shooter;
         public static MotorSubsystem indexer;
+        public static MotorSubsystem TEMPORARY_INTAKE_SHENANIGANS;
 
         // motors
         public static CustomTalonFX flDrive;
@@ -187,6 +188,10 @@ public final class RobotMap {
         Component.indexerMotorBottom = new CustomTalonFX(-1);
         Component.indexerMotorTop = new CustomTalonFX(-1);
 
+        Component.TEMPORARY_INTAKE_SHENANIGANS = new MotorSubsystem(
+            Component.intakeVerticalMotor,
+            2
+        );
 
         Component.intake = new IntakeSubsystem(Component.intakeVerticalMotor, Component.intakeRollerMotor, Component.intakeEncoder);
         Component.climber = new ClimberSubsystem(Component.climbMotor, Component.climberEncoder);
