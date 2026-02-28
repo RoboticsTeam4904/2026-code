@@ -38,11 +38,6 @@ public final class RobotMap {
 
         public static class PWM {
 
-            public static final int ENCODER_FL = 0;
-            public static final int ENCODER_FR = 1;
-            public static final int ENCODER_BL = 2;
-            public static final int ENCODER_BR = 3;
-
             public static final int LED_STRIP = 9;
 
         }
@@ -77,8 +72,8 @@ public final class RobotMap {
         public static SmartMotorController intakeRollerMotor;
         public static SmartMotorController indexerMotorBottom;
         public static SmartMotorController indexerMotorTop;
-        public static CustomTalonFX shooterMotorOne;
-        public static CustomTalonFX shooterMotorTwo;
+        public static CustomTalonFX shooterMotorRight;
+        public static CustomTalonFX shooterMotorLeft;
 
 
 
@@ -138,30 +133,30 @@ public final class RobotMap {
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
                 "Front Left",
-                Component.flDrive = new CustomTalonFX(2),
-                Component.flTurn = new CustomTalonFX(17),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FL),
+                Component.flDrive = new CustomTalonFX(3),
+                Component.flTurn = new CustomTalonFX(15),
+                new CustomDutyCycleEncoder(0),
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
                 "Front Right",
-                Component.frDrive = new CustomTalonFX(3),
-                Component.frTurn = new CustomTalonFX(15),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_FR),
+                Component.frDrive = new CustomTalonFX(2),
+                Component.frTurn = new CustomTalonFX(17),
+                new CustomDutyCycleEncoder(1),
                 new Translation2d(1, -1)
             ),
             new SwerveModule(
                 "Back Left",
-                Component.blDrive = new CustomTalonFX(4),
-                Component.blTurn = new CustomTalonFX(18),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BL),
+                Component.blDrive = new CustomTalonFX(10),
+                Component.blTurn = new CustomTalonFX(16),
+                new CustomDutyCycleEncoder(2),
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "Back Right",
-                Component.brDrive = new CustomTalonFX(1),
-                Component.brTurn = new CustomTalonFX(16),
-                new CustomDutyCycleEncoder(Port.PWM.ENCODER_BR),
+                Component.brDrive = new CustomTalonFX(4),
+                Component.brTurn = new CustomTalonFX(18),
+                new CustomDutyCycleEncoder(3),
                 new Translation2d(-1, -1)
             )
         );
@@ -178,15 +173,18 @@ public final class RobotMap {
         //     new boolean[] { false, true, false, true }
         // );
 
-        Component.climbMotor = new CustomTalonFX(32);
-        Component.climberEncoder = new LinearDutyCycleEncoder(-1);
+        Component.climbMotor = new CustomTalonFX(1);
+        Component.climberEncoder = new LinearDutyCycleEncoder(9);
 
-        Component.intakeVerticalMotor = new CustomTalonFX(17);
-        Component.intakeRollerMotor = new CustomTalonFX(2);
-        Component.intakeEncoder = new DutyCycleEncoder(-1);
+        Component.intakeVerticalMotor = new CustomTalonFX(22);
+        Component.intakeRollerMotor = new CustomTalonFX(21);
+        Component.intakeEncoder = new DutyCycleEncoder(8);
 
-        Component.indexerMotorBottom = new CustomTalonFX(-1);
-        Component.indexerMotorTop = new CustomTalonFX(-1);
+        Component.shooterMotorLeft = new CustomTalonFX(23);
+        Component.shooterMotorRight = new CustomTalonFX(0);
+
+        Component.indexerMotorBottom = new CustomTalonFX(42);
+        Component.indexerMotorTop = new CustomTalonFX(41);
 
         Component.TEMPORARY_INTAKE_SHENANIGANS = new MotorSubsystem(
             Component.intakeVerticalMotor,
@@ -195,7 +193,7 @@ public final class RobotMap {
 
         Component.intake = new IntakeSubsystem(Component.intakeVerticalMotor, Component.intakeRollerMotor, Component.intakeEncoder);
         Component.climber = new ClimberSubsystem(Component.climbMotor, Component.climberEncoder);
-        Component.shooter = new ShooterSubsystem(Component.shooterMotorOne, Component.shooterMotorTwo);
+        Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorLeft);
         Component.indexer = new MotorSubsystem(
             new SmartMotorController[] { Component.indexerMotorBottom, Component.indexerMotorTop },
             4
