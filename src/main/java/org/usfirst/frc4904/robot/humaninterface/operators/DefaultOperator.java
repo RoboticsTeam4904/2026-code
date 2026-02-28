@@ -31,9 +31,9 @@ public class DefaultOperator extends Operator {
         var joystick = RobotMap.HumanInput.Operator.joystick;
 
         /// INTAKE
-        joystick.button5.onTrue(Component.intake.c_retract());
+        // joystick.button5.onTrue(Component.intake.c_retract());
 
-        joystick.button3.onTrue(Component.intake.c_extend());
+        // joystick.button3.onTrue(Component.intake.c_extend());
         joystick.button3.whileTrue(Component.intake.c_intake());
 
         joystick.button4.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_forward(true));
@@ -43,12 +43,14 @@ public class DefaultOperator extends Operator {
         joystick.button1.whileTrue(Component.shooter.c_smartShoot());
         joystick.button2.whileTrue(Component.shooter.c_controlVelocity(this::getVelocity));
 
+        joystick.button11.whileTrue(Component.shooter.c_forward(true));
+
         /// CLIMBER
         joystick.button7.onTrue(Component.climber.c_down());
         joystick.button8.onTrue(Component.climber.c_up());
 
         /// INDEXER
-        joystick.button9.whileTrue(Component.indexer.c_forward());
+        joystick.button9.whileTrue(Component.indexer.c_forward(true));
 
         /// NOTIFS TEST
         // joystick.button10.onTrue(Notifications.c_testNotif());

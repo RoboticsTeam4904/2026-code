@@ -8,7 +8,7 @@ import org.usfirst.frc4904.standard.util.Util;
 public class MotorSubsystem extends SubsystemBase {
 
     // for minimizing the damage of the first physical testing
-    public static final double MAX_VOLTAGE = 1.5;
+    public static final double MAX_VOLTAGE = Double.POSITIVE_INFINITY;
 
     public final SmartMotorController[] motors;
 

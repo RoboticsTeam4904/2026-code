@@ -39,7 +39,7 @@ public class IntakeSubsystem extends MotorSubsystem {
         SmartMotorController rollerMotor,
         DutyCycleEncoder encoder
     ) {
-        super(rollerMotor, 8);
+        super(rollerMotor, 6);
 
         this.verticalMotor = verticalMotor;
         this.encoder = encoder;
