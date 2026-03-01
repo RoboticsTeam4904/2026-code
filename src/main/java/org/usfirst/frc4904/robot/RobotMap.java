@@ -196,7 +196,7 @@ public final class RobotMap {
         Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorLeft);
         Component.indexer = new MotorSubsystem(
             new SmartMotorController[] { Component.indexerMotorBottom },
-            2
+            0.5
         );
 
 

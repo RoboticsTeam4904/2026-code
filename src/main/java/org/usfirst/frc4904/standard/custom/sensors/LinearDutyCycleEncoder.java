@@ -18,10 +18,8 @@ public class LinearDutyCycleEncoder {
     Double lastReading;
 
     public LinearDutyCycleEncoder(int channel) {
-        encoder = new DutyCycleEncoder(channel);
-        reset();
-
         key = "linearOffsets/" + channel;
+        encoder = new DutyCycleEncoder(channel);
 
         Preferences.initInt(key, 0);
         revolutions = Preferences.getInt(key, 0);
