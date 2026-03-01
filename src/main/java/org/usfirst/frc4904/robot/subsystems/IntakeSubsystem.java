@@ -26,6 +26,7 @@ public class IntakeSubsystem extends MotorSubsystem {
 
     public static final double retractAngle = 0.4;
     public static final double extendAngle = 0.7;
+    //TODO: find real angles
 
     public static final double MAX_VEL = 8;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second

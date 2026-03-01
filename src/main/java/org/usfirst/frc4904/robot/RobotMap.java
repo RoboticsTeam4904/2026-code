@@ -173,18 +173,18 @@ public final class RobotMap {
         //     new boolean[] { false, true, false, true }
         // );
 
-        Component.climbMotor = new CustomTalonFX(1);
+        Component.climbMotor = new CustomTalonFX(1, true);
         Component.climberEncoder = new LinearDutyCycleEncoder(9);
 
         Component.intakeVerticalMotor = new CustomTalonFX(22);
         Component.intakeRollerMotor = new CustomTalonFX(21, true);
         Component.intakeEncoder = new DutyCycleEncoder(8);
 
-        // Component.shooterMotorLeft = new CustomTalonFX(23);
-        Component.shooterMotorRight = new CustomTalonFX(0);
+        Component.shooterMotorLeft = new CustomTalonFX(23);
+        Component.shooterMotorRight = new CustomTalonFX(24, true);
 
         Component.indexerMotorBottom = new CustomTalonFX(42);
-        Component.indexerMotorTop = new CustomTalonFX(41);
+        Component.indexerMotorTop = new CustomTalonFX(41, true);
 
         Component.TEMPORARY_INTAKE_SHENANIGANS = new MotorSubsystem(
             Component.intakeVerticalMotor,
@@ -193,9 +193,9 @@ public final class RobotMap {
 
         Component.intake = new IntakeSubsystem(Component.intakeVerticalMotor, Component.intakeRollerMotor, Component.intakeEncoder);
         Component.climber = new ClimberSubsystem(Component.climbMotor, Component.climberEncoder);
-        Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorRight); //TODO: shooterMotorLeft
+        Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorLeft);
         Component.indexer = new MotorSubsystem(
-            new SmartMotorController[] { Component.indexerMotorBottom, Component.indexerMotorTop },
+            new SmartMotorController[] { Component.indexerMotorBottom },
             2
         );
 

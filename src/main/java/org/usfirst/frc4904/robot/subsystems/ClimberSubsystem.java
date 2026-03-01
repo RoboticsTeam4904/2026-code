@@ -31,7 +31,7 @@ public class ClimberSubsystem extends MotorSubsystem {
     private final LinearDutyCycleEncoder encoder;
 
     public ClimberSubsystem(SmartMotorController motor, LinearDutyCycleEncoder encoder) {
-        super(motor, 4);
+        super(motor, 3);
 
         this.encoder = encoder;
         this.feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
