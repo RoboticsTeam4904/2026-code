@@ -1,28 +1,38 @@
 package org.usfirst.frc4904.standard.custom.sensors;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Preferences;
 
 /**
  * Converts a DutyCycleEncoder into encoding a linear position
  * by storing the number of full revolutions since initialization.
  */
 public class LinearDutyCycleEncoder {
+
+    private final String key;
     public final DutyCycleEncoder encoder;
 
     private double resetOffset = 0;
 
+    int revolutions;
+    Double lastReading;
+
     public LinearDutyCycleEncoder(int channel) {
         encoder = new DutyCycleEncoder(channel);
         reset();
+
+        key = "linearOffsets/" + channel;
+
+        Preferences.initInt(key, 0);
+        revolutions = Preferences.getInt(key, 0);
     }
 
     public void reset() {
         revolutions = 0;
         resetOffset = encoder.get();
-    }
 
-    int revolutions = 0;
-    Double lastReading = null;
+        Preferences.setInt(key, revolutions);
+    }
 
     public double get() {
         double reading = encoder.get();
@@ -38,6 +48,8 @@ public class LinearDutyCycleEncoder {
             } else {
                 revolutions--;
             }
+
+            Preferences.setInt(key, revolutions);
         }
 
         lastReading = reading;

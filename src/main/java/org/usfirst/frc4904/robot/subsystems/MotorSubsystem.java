@@ -95,16 +95,8 @@ public class MotorSubsystem extends SubsystemBase {
         );
     }
 
-    public Command c_forward() {
-        return c_holdVoltage(forwardVoltage, false);
-    }
-
     public Command c_forward(boolean stopOnEnd) {
         return c_holdVoltage(forwardVoltage, stopOnEnd);
-    }
-
-    public Command c_backward() {
-        return c_holdVoltage(-backwardVoltage, false);
     }
 
     public Command c_backward(boolean stopOnEnd) {
