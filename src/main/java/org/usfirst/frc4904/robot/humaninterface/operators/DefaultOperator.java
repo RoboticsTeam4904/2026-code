@@ -2,6 +2,7 @@ package org.usfirst.frc4904.robot.humaninterface.operators;
 
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick.Axis;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.Util;
@@ -21,7 +22,7 @@ public class DefaultOperator extends Operator {
 
         double value = joystick.getAxis(Axis.SLIDER);
         double distance = Util.transformRange(value, 1, -1, 2, 5);
-        double velocity = Component.shooter.getShooterVelocityForDistance(distance);
+        double velocity = ShooterSubsystem.getShooterVelocityForDistance(distance);
 
         return velocity;
     }
