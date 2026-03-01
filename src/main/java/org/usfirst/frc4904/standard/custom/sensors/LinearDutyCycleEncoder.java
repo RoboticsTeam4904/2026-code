@@ -12,24 +12,21 @@ public class LinearDutyCycleEncoder {
     private final String key;
     public final DutyCycleEncoder encoder;
 
-    private double resetOffset = 0;
+    private double resetOffset;
 
-    int revolutions;
     Double lastReading;
 
     public LinearDutyCycleEncoder(int channel) {
-        key = "linearOffsets/" + channel;
+        key = "zeros/" + channel;
         encoder = new DutyCycleEncoder(channel);
 
-        Preferences.initInt(key, 0);
-        revolutions = Preferences.getInt(key, 0);
+        Preferences.initDouble(key, 0);
+        resetOffset = Preferences.getDouble(key, 0);
     }
 
     public void reset() {
-        revolutions = 0;
         resetOffset = encoder.get();
-
-        Preferences.setInt(key, revolutions);
+        Preferences.setDouble(key, resetOffset);
     }
 
     public double get() {
@@ -37,21 +34,21 @@ public class LinearDutyCycleEncoder {
 
         if (lastReading == null) {
             lastReading = reading;
-            return reading;
+            return reading - resetOffset;
         }
 
         if (Math.abs(reading - lastReading) >= 0.5) {
             if (reading < lastReading) {
-                revolutions++;
+                resetOffset--;
             } else {
-                revolutions--;
+                resetOffset++;
             }
 
-            Preferences.setInt(key, revolutions);
+            Preferences.setDouble(key, resetOffset);
         }
 
         lastReading = reading;
 
-        return reading + revolutions - resetOffset;
+        return reading - resetOffset;
     }
 }
