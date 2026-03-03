@@ -45,6 +45,7 @@ public final class Silly {
             if (lastPos != null) {
                 odometerDistance += pos.getDistance(lastPos);
                 Preferences.setDouble(odometerDistanceKey, odometerDistance);
+                SmartDashboard.putNumber("odometer", odometerDistance);
             }
             lastPos = pos;
         } else {
