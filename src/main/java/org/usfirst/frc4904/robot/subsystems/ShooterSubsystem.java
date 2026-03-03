@@ -63,7 +63,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     /// TUNING
 
     // TODO tune
-    private static final double MAX_VEL = 10;
+    private static final double MAX_VEL = 43;
 
     private static final Slot0Configs pidfConfig = new Slot0Configs();
     static {
@@ -82,7 +82,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     public ShooterSubsystem(CustomTalonFX motor1, CustomTalonFX motor2) {
         super(
             new SmartMotorController[] { motor1, motor2 },
-            4
+            7.5
         );
 
         motor1.getConfigurator().apply(pidfConfig);
