@@ -17,8 +17,8 @@ public final class Silly {
     private static double odometerDistance;
     private static Translation2d lastPos;
 
-    private static final String progressCompletedKey = "progress-completed";
-    private static double progress = 0, progressChance = 0.1;
+    private static final String progressKey = "progress", progressCompletedKey = "progress-completed";
+    private static double progress, progressChance = 0.1;
     private static int progressCompleted;
 
     // i wonder whose birthday this is
@@ -30,8 +30,9 @@ public final class Silly {
         odometerDistance = Preferences.getDouble(odometerDistanceKey, 0);
 
         // progress
-        SmartDashboard.putString("progress", "0.0%");
+        Preferences.initDouble(progressKey, 0);
         Preferences.initInt(progressCompletedKey, 0);
+        progress = Preferences.getDouble(progressKey, 0);
         progressCompleted = Preferences.getInt(progressCompletedKey, 0);
 
         // birthday
@@ -62,7 +63,8 @@ public final class Silly {
                 progress = 0;
                 Preferences.setInt(progressCompletedKey, ++progressCompleted);
             }
-            SmartDashboard.putString("progress", String.format("%.1f%%", progress));
+            Preferences.setDouble(progressKey, progress);
+            SmartDashboard.putString("progress", String.format("%.1f%% (%d done)", progress, progressCompleted));
         } else {
             progressChance += 0.00001;
         }
