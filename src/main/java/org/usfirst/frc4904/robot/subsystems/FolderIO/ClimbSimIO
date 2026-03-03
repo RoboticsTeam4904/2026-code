@@ -1,0 +1,34 @@
+package org.usfirst.frc4904.robot.subsystems.IO;
+
+import org.usfirst.frc4904.robot.subsystems.IO.ArmState.InputState;
+import org.usfirst.frc4904.robot.subsystems.IO.ArmState.OutputState;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+
+public class ClimbSimIO implements ClimbIO{
+//TODO: Find all the parameters for actual motors we use
+    private final ElevatorSim climber = new ElevatorSim(
+        
+    )
+
+
+    @Override
+    public InputState getInstance() {
+        sim.update(0.02);
+        return new ClimbState.InputState(
+            Units.radiansToDegrees(sim.getAngleRads()),
+            Units.radiansToDegrees(sim.getVelocityRadPerSec())
+            );
+    }
+
+    @Override
+    public void setState(OutputState output) {
+        output.voltage().ifPresent((Volts) -> {
+            sim.setInputVoltage(Volts);
+        });
+    }
+
+}
+//Info for the sim to make inputs and outputs
