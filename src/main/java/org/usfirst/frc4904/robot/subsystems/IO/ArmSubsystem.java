@@ -26,7 +26,7 @@ public class ArmSubsystem extends SubsystemBase{
         this.io = armIO;
 
         this.controller = new ProfiledPIDController(0.001, 0, 0, new Constraints(100, 100));
-        this.ff = new ArmFeedforward(0, 2.6057, 0);
+        this.ff = new ArmFeedforward(0, 3.8, 0);
     }
 
     @Override
