@@ -116,6 +116,8 @@ public class Robot extends CommandRobotBase {
     public void alwaysExecute() {
         Silly.periodic();
 
+        SmartDashboard.putNumber("velocidad", Component.shooterMotorLeft.getVelocity().getValueAsDouble());
+
         SmartDashboard.putNumber("imu temp", Component.imu.getTemperature());
         SmartDashboard.putNumber("pdh temp", Util.fahrenheit(Component.pdh.getTemperature()));
         SmartDashboard.putNumber("match time", Timer.getMatchTime());

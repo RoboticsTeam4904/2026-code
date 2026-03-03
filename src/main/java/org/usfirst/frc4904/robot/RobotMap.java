@@ -197,8 +197,8 @@ public final class RobotMap {
         Component.climber = new ClimberSubsystem(Component.climbMotor, Component.climberEncoder);
         Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorLeft);
         Component.indexer = new MotorSubsystem(
-            //new SmartMotorController[] { Component.indexerMotorTop },
-            new SmartMotorController[] { Component.indexerMotorBottom },
+            new SmartMotorController[] { Component.indexerMotorTop },
+            // new SmartMotorController[] { Component.indexerMotorBottom },
             3
         );
 

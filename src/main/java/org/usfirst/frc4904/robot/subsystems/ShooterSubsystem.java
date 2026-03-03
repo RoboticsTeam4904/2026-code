@@ -12,6 +12,7 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.SwitchingIfElseCommand;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
@@ -63,12 +64,12 @@ public class ShooterSubsystem extends MotorSubsystem {
     /// TUNING
 
     // TODO tune
-    private static final double MAX_VEL = 43;
+    private static final double MAX_VEL = 8;
 
     private static final Slot0Configs pidfConfig = new Slot0Configs();
     static {
         // TODO tune
-        pidfConfig.kP = 1;
+        pidfConfig.kP = 0.75;
         pidfConfig.kI = 0;
         pidfConfig.kD = 0;
         pidfConfig.kS = 0;
@@ -78,6 +79,8 @@ public class ShooterSubsystem extends MotorSubsystem {
     }
 
     /// IMPL
+    
+    private final CustomTalonFX motor1, motor2;
 
     public ShooterSubsystem(CustomTalonFX motor1, CustomTalonFX motor2) {
         super(
@@ -87,6 +90,9 @@ public class ShooterSubsystem extends MotorSubsystem {
 
         motor1.getConfigurator().apply(pidfConfig);
         motor2.getConfigurator().apply(pidfConfig);
+
+        this.motor1 = motor1;
+        this.motor2 = motor2;
     }
 
     public Command c_basicShoot() {
@@ -97,10 +103,11 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     public Command c_controlVelocity(DoubleSupplier getVelocity) {
         return runEnd(() -> {
-            velocityRequest.withVelocity(getVelocity.getAsDouble());
-            for (var motor : motors) {
-                ((CustomTalonFX) motor).setControl(velocityRequest);
-            }
+            // double vel = Util.clamp(getVelocity.getAsDouble(), -MAX_VEL, MAX_VEL);
+            double vel = 0.5;
+            // TODO bad
+            motor1.setControl(velocityRequest.withVelocity(vel));
+            // motor2.setControl(velocityRequest.withVelocity(-vel));
         }, this::stop);
     }
 
@@ -126,8 +133,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         double determinant = dist * tanA - dz;
         if (determinant <= 0) return MAX_VEL;
 
-        double vel = dist * secA * Math.sqrt(GRAVITY / (2 * determinant));
-        return Math.min(vel, MAX_VEL);
+        return dist * secA * Math.sqrt(GRAVITY / (2 * determinant));
     }
 
     public static double calcRobotAngle(Translation2d pos) {
