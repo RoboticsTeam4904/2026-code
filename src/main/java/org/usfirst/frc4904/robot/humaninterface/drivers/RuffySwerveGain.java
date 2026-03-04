@@ -8,18 +8,17 @@ import org.usfirst.frc4904.robot.RobotMap.HumanInput;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.commands.AlwaysRunnableInstantCommand;
 import org.usfirst.frc4904.standard.commands.RunUnless;
-import org.usfirst.frc4904.standard.custom.controllers.CustomCommandPS4;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
 import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.calcRobotAngle;
 
-public class SwerveGain extends Driver {
+public class RuffySwerveGain extends Driver {
 
     private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
 
-    public SwerveGain() {
-        super("SwerveGain");
+    public RuffySwerveGain() {
+        super("RuffySwerveGain");
     }
 
     protected double scaleGain(double input, double exp) {
@@ -28,64 +27,36 @@ public class SwerveGain extends Driver {
 
     @Override
     public void bindCommands() {
-        CustomCommandPS4 ps4 = HumanInput.Driver.ps4;
+        var xyJoystick = HumanInput.Driver.xyJoystick;
+        var turnJoystick = HumanInput.Driver.turnJoystick;
 
         Component.chassis.setDefaultCommand(
             Component.chassis.c_input(this::getTranslation, this::getTurnSpeed)
                 .withName("Driver - swerve drive")
         );
 
-        // navx reset
-        ps4.povUp().onTrue(
+        turnJoystick.button1.whileTrue(
+            Component.chassis.c_rotateTo(() -> calcRobotAngle(ShooterSubsystem.getOwnHub().pos))
+        );
+
+        /// ODOMETRY RESETTING
+        xyJoystick.button1.onTrue(
             new AlwaysRunnableInstantCommand(() -> Component.chassis.resetOdometry())
         );
 
-        // flip zeroes
-        ps4.povLeft().onTrue(
-            new RunUnless(
-                new AlwaysRunnableInstantCommand(() -> Component.chassis.flipZero()),
-                DriverStation::isTeleopEnabled
-            )
-        );
-
-        // explode operator joystick
-        ps4.povRight().whileTrue(Component.shooter.c_forward(true));
-
-        // swerve reset
-        ps4.povDown().onTrue(
+        // no zeroing when enabled (prevent accidental mid-match zeroing)
+        xyJoystick.button2.onTrue(
             new RunUnless(
                 new AlwaysRunnableInstantCommand(() -> Component.chassis.zero()),
                 DriverStation::isTeleopEnabled
             )
         );
-
-        // climber up
-        ps4.triangle().whileTrue(Component.climber.c_up());
-
-        // testing shooter
-        ps4.square().whileTrue(
-            Component.shooter.c_controlVelocity(() -> ShooterSubsystem.getShooterVelocityForDistance(2))
+        turnJoystick.button2.onTrue(
+            new RunUnless(
+                new AlwaysRunnableInstantCommand(() -> Component.chassis.flipZero()),
+                DriverStation::isTeleopEnabled
+            )
         );
-
-        // indexer
-        ps4.circle().whileTrue(Component.indexer.c_forward(true));
-
-        // climber down
-        ps4.cross().whileTrue(Component.climber.c_down());
-
-        // retract
-        ps4.L1().onTrue(Component.intake.c_retract());
-
-        // (extend and) intake
-        ps4.L2().onTrue(Component.intake.c_intake());
-
-        // align
-        ps4.R1().whileTrue(
-            Component.chassis.c_rotateTo(() -> calcRobotAngle(ShooterSubsystem.getOwnHub().pos))
-        );
-
-        // (index and) shooter
-        ps4.R2().whileTrue(Component.shooter.c_smartShoot());
     }
 
     @Override
@@ -94,10 +65,10 @@ public class SwerveGain extends Driver {
     }
 
     protected double getRawForward() {
-        return -HumanInput.Driver.ps4.getLeftX();
+        return -HumanInput.Driver.xyJoystick.getY();
     }
     protected double getRawLeft() {
-        return -HumanInput.Driver.ps4.getLeftY();
+        return -HumanInput.Driver.xyJoystick.getX();
     }
 
     @Override

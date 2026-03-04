@@ -58,15 +58,15 @@ public class CustomCommandJoystick extends CommandJoystick {
         loop = new EventLoop();
         CommandScheduler.getInstance().getDefaultButtonLoop().bind(loop::poll);
 
-        button1  = button(1);
-        button2  = button(2);
-        button3  = button(3);
-        button4  = button(4);
-        button5  = button(5);
-        button6  = button(6);
-        button7  = button(7);
-        button8  = button(8);
-        button9  = button(9);
+        button1 = button(1);
+        button2 = button(2);
+        button3 = button(3);
+        button4 = button(4);
+        button5 = button(5);
+        button6 = button(6);
+        button7 = button(7);
+        button8 = button(8);
+        button9 = button(9);
         button10 = button(10);
         button11 = button(11);
         button12 = button(12);

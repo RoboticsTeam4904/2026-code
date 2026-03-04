@@ -32,9 +32,9 @@ public class DefaultOperator extends Operator {
         var joystick = RobotMap.HumanInput.Operator.joystick;
 
         /// INTAKE
-        // joystick.button5.onTrue(Component.intake.c_retract());
+        joystick.button5.onTrue(Component.intake.c_retract());
 
-        // joystick.button3.onTrue(Component.intake.c_extend());
+        joystick.button3.onTrue(Component.intake.c_extend());
         joystick.button3.whileTrue(Component.intake.c_intake());
 
         joystick.button4.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_forward(true));

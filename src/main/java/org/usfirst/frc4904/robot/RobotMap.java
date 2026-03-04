@@ -14,6 +14,7 @@ import org.usfirst.frc4904.robot.swerve.SwerveModule;
 import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.robot.vision.VisionSubsystem;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick;
+import org.usfirst.frc4904.standard.custom.controllers.CustomCommandPS4;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandXbox;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
@@ -28,10 +29,9 @@ public final class RobotMap {
 
         public static class HumanInput {
 
-            public static final int xyJoystickPort = 0;
-            public static final int zJoystickPort = 1;
+            public static final int ps4Port = 0;
 
-            public static final int joystick = 2;
+            public static final int joystick = 1;
 
         }
 
@@ -94,9 +94,12 @@ public final class RobotMap {
 
         public static class Driver {
 
-            public static CustomCommandXbox xbox;
+            public static CustomCommandPS4 ps4;
+
+            // NOT INITIALIZED
             public static CustomCommandJoystick xyJoystick;
             public static CustomCommandJoystick turnJoystick;
+            public static CustomCommandXbox xbox;
 
         }
 
@@ -202,15 +205,7 @@ public final class RobotMap {
             3
         );
 
-
-        HumanInput.Driver.xyJoystick = new CustomCommandJoystick(
-            Port.HumanInput.xyJoystickPort,
-            0.0
-        );
-        HumanInput.Driver.turnJoystick = new CustomCommandJoystick(
-            Port.HumanInput.zJoystickPort,
-            0.0
-        );
+        HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4Port, 0.01);
         HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);
     }
 
