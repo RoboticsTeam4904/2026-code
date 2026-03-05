@@ -1,6 +1,5 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -70,16 +69,13 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     /// IMPL
     
-    private final Map<CustomTalonFX, Pair<PIDController, Boolean>> pid = new HashMap<>();
+    private final Map<CustomTalonFX, PIDController> pid = new HashMap<>();
 
     public ShooterSubsystem(CustomTalonFX... motors) {
-        super(
-            motors,
-            7.5
-        );
+        super(motors, 7.5);
 
         for (var motor : motors) {
-            pid.put(motor, new Pair<>(new PIDController(kP, kI, kD), motor == motors[1]));
+            pid.put(motor, new PIDController(kP, kI, kD));
         }
     }
 
@@ -96,10 +92,9 @@ public class ShooterSubsystem extends MotorSubsystem {
 
             for (var entry : pid.entrySet()) {
                 CustomTalonFX motor = entry.getKey();
-                PIDController pid = entry.getValue().getFirst();
-                boolean invert = entry.getValue().getSecond();
+                PIDController pid = entry.getValue();
 
-                double currentVel = motor.getVelocity().getValueAsDouble() * (invert ? -1 : 1);
+                double currentVel = motor.getVelocity().getValueAsDouble() * (motor.getInverted() ? -1 : 1);
                 motor.setVoltage(pid.calculate(currentVel, vel) + ff);
             }
         }, this::stop);
