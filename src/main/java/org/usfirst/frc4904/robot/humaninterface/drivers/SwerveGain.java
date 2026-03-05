@@ -76,7 +76,7 @@ public class SwerveGain extends Driver {
         ps4.L1().onTrue(Component.intake.c_retract());
         // intake extend and run
         ps4.L2().onTrue(Component.intake.c_extend());
-        ps4.L2().whileTrue(Component.intake.c_intake());
+        // ps4.L2().whileTrue(Component.intake.c_intake());
 
         // align
         ps4.R1().whileTrue(

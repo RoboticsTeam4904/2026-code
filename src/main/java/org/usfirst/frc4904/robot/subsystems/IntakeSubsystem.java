@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class IntakeSubsystem extends MotorSubsystem {
 
     // TODO change all these
-    public static final double kP = 10;
+    public static final double kP = 2;
     public static final double kI = 0;
     public static final double kD = 0;
 
@@ -24,8 +24,8 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double kA = 0;
     public static final double kG = 0;
 
-    public static final double retractAngle = 0.4;
-    public static final double extendAngle = 0.7;
+    public static final double retractAngle = 0.94;
+    public static final double extendAngle = 0.18;
     //TODO: find real angles
 
     public static final double MAX_VEL = 8;
@@ -44,7 +44,7 @@ public class IntakeSubsystem extends MotorSubsystem {
 
         this.verticalMotor = verticalMotor;
         this.encoder = encoder;
-        this.feedforward = new ArmFeedforward(kS, kG, kV, kA);
+        this.feedforward = new ArmFeedforward(kS, kG, kV, kA);        
     }
 
     public double getAngle() {
@@ -59,8 +59,10 @@ public class IntakeSubsystem extends MotorSubsystem {
     private final Subsystem verticalMotorRequirement = new SubsystemBase("intake vertical motor") {};
 
     public Command c_gotoAngle(double angle) {
+        var pid = new PIDController(kP, kI, kD);
+        pid.enableContinuousInput(0, 1);
         ezControl controller = new ezControl(
-            kP, kI, kD,
+            pid,
             (position, velocity) -> feedforward.calculate(getAngle(), velocity)
         );
         var constraints = new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL);

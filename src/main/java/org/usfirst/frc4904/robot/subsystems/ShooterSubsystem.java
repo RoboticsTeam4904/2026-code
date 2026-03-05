@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.SwitchingIfElseCommand;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
+import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,8 +86,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     public Command c_controlVelocity(DoubleSupplier getVelocity) {
         return runEnd(() -> {
-            // double vel = Util.clamp(getVelocity.getAsDouble(), -MAX_VEL, MAX_VEL);
-            double vel = 0.5;
+            double vel = Util.clamp(getVelocity.getAsDouble(), -MAX_VEL, MAX_VEL);
 
             double ff = kS * Math.signum(vel) + kV * vel;
 
