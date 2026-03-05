@@ -1,6 +1,5 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -86,8 +85,6 @@ public class ShooterSubsystem extends MotorSubsystem {
     public Command c_basicShoot() {
         return c_forward(true);
     }
-
-    private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
     public Command c_controlVelocity(DoubleSupplier getVelocity) {
         return runEnd(() -> {
