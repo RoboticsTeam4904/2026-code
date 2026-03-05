@@ -1,7 +1,7 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.SwitchingIfElseCommand;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
-import org.usfirst.frc4904.standard.util.Util;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
 
@@ -66,33 +66,21 @@ public class ShooterSubsystem extends MotorSubsystem {
     // TODO tune
     private static final double MAX_VEL = 8;
 
-    private static final Slot0Configs pidfConfig = new Slot0Configs();
-    static {
-        // TODO tune
-        pidfConfig.kP = 0.75;
-        pidfConfig.kI = 0;
-        pidfConfig.kD = 0;
-        pidfConfig.kS = 0;
-        pidfConfig.kV = 0;
-        pidfConfig.kA = 0;
-        pidfConfig.kG = 0;
-    }
+    private static final double kP = 0, kI = 0, kD = 0, kS = 0, kV = 0;
 
     /// IMPL
     
-    private final CustomTalonFX motor1, motor2;
+    private final Map<CustomTalonFX, PIDController> pid = new HashMap<>();
 
-    public ShooterSubsystem(CustomTalonFX motor1, CustomTalonFX motor2) {
+    public ShooterSubsystem(CustomTalonFX... motors) {
         super(
-            new SmartMotorController[] { motor1, motor2 },
+            motors,
             7.5
         );
 
-        motor1.getConfigurator().apply(pidfConfig);
-        motor2.getConfigurator().apply(pidfConfig);
-
-        this.motor1 = motor1;
-        this.motor2 = motor2;
+        for (var motor : motors) {
+            pid.put(motor, new PIDController(kP, kI, kD));
+        }
     }
 
     public Command c_basicShoot() {
@@ -105,9 +93,16 @@ public class ShooterSubsystem extends MotorSubsystem {
         return runEnd(() -> {
             // double vel = Util.clamp(getVelocity.getAsDouble(), -MAX_VEL, MAX_VEL);
             double vel = 0.5;
-            // TODO bad
-            motor1.setControl(velocityRequest.withVelocity(vel));
-            // motor2.setControl(velocityRequest.withVelocity(-vel));
+
+            double ff = kS * Math.signum(vel) + kV * vel;
+
+            for (var entry : pid.entrySet()) {
+                CustomTalonFX motor = entry.getKey();
+                PIDController pid = entry.getValue();
+
+                double currentVel = motor.getVelocity().getValueAsDouble();
+                motor.setVoltage(pid.calculate(currentVel, vel) + ff);
+            }
         }, this::stop);
     }
 
