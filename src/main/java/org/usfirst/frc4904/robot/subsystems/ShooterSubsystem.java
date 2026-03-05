@@ -65,7 +65,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     // TODO tune
     private static final double MAX_VEL = 8;
 
-    private static final double kP = 0, kI = 0, kD = 0, kS = 0, kV = 0;
+    private static final double kP = 1, kI = 0, kD = 0, kS = 0, kV = 0;
 
     /// IMPL
     
