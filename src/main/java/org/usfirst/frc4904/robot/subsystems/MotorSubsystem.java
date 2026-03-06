@@ -1,8 +1,12 @@
 package org.usfirst.frc4904.robot.subsystems;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.util.Logging;
+
+import java.util.function.DoubleSupplier;
 
 public class MotorSubsystem extends SubsystemBase {
 
@@ -83,11 +87,15 @@ public class MotorSubsystem extends SubsystemBase {
         for (var motor : motors) motor.setMotorBrake(brake);
     }
 
-    public Command c_holdVoltage(double voltage, boolean stopOnEnd) {
+    public Command c_controlVoltage(DoubleSupplier getVoltage, boolean stopOnEnd) {
         return runEnd(
-            () -> setVoltage(voltage),
+            () -> setVoltage(getVoltage.getAsDouble()),
             stopOnEnd ? this::stop : () -> {}
         );
+    }
+
+    public Command c_holdVoltage(double voltage, boolean stopOnEnd) {
+        return c_controlVoltage(() -> voltage, stopOnEnd);
     }
 
     public Command c_forward(boolean stopOnEnd) {
@@ -100,6 +108,28 @@ public class MotorSubsystem extends SubsystemBase {
 
     public Command c_stop() {
         return runOnce(this::stop);
+    }
+
+    /**
+     * Temporary command for tuning {@code kG} PID constant. For example:
+     * <pre>{@code
+     * joystick.button7.whileTrue(
+     *     Component.arm.c_DEBUG_tunePIDkG(() -> joystick.getAxis(Axis.SLIDER))
+     * );
+     * }</pre>
+     * Run this command and move the slider until the mechanism is receiving
+     * just enough voltage to counter gravity but not enough to move upwards.
+     * For {@link ArmFeedforward}, the arm should be at the horizontal angle
+     * (if not, {@code kG} should be set to {@code FINAL_VOLTAGE / Math.cos(radiansFromHorizontal)}).
+     */
+    public Command c_DEBUG_tunePIDkG(DoubleSupplier getVoltage) {
+        return c_controlVoltage(() -> {
+            double voltage = getVoltage.getAsDouble();
+            Logging.logWithDelay("debug kG tuning - voltage", 0.1, voltage);
+            return voltage;
+        }, true).finallyDo(
+            () -> System.out.println("FINAL VOLTAGE: " + getVoltage.getAsDouble())
+        );
     }
 
 }

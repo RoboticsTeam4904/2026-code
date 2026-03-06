@@ -31,14 +31,19 @@ public class DefaultOperator extends Operator {
     public void bindCommands() {
         var joystick = RobotMap.HumanInput.Operator.joystick;
 
+        /// TEMPORARY INTAKE SHENANIGANS
+        joystick.button4.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_forward(true));
+        joystick.button6.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_backward(true));
+
+        joystick.button10.whileTrue(
+            Component.TEMPORARY_INTAKE_SHENANIGANS.c_DEBUG_tunePIDkG(() -> -joystick.getAxis(Axis.SLIDER))
+        );
+
         /// INTAKE
         joystick.button5.onTrue(Component.intake.c_retract());
 
         joystick.button3.onTrue(Component.intake.c_extend());
         joystick.button3.whileTrue(Component.intake.c_intake());
-
-        joystick.button4.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_forward(true));
-        joystick.button6.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_backward(true));
 
         /// SHOOTER
         joystick.button1.whileTrue(Component.shooter.c_smartShoot());
