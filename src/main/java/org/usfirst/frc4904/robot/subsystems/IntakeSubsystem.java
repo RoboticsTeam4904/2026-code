@@ -1,34 +1,40 @@
 package org.usfirst.frc4904.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.util.Logging;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 public class IntakeSubsystem extends MotorSubsystem {
 
     // TODO change all these
-    public static final double kP = 2;
-    public static final double kI = 0;
+    public static final double kP = 4;
+    public static final double kI = 4;
     public static final double kD = 0;
 
     public static final double kS = 0;
-    public static final double kV = 0;
+    public static final double kV = 4;
     public static final double kA = 0;
-    public static final double kG = 0;
+    public static final double kG = -0.5; // negative b/c positive voltage is down
 
     public static final double retractAngle = 0.94;
     public static final double extendAngle = 0.18;
+    public static final double HORIZONTAL = 0.18;
     //TODO: find real angles
 
-    public static final double MAX_VEL = 8;
+    public static final double MAX_VEL = 1;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
 
     private final SmartMotorController verticalMotor;
@@ -48,33 +54,50 @@ public class IntakeSubsystem extends MotorSubsystem {
     }
 
     public double getAngle() {
-        // TODO maybe not negative
-        return 1 - encoder.get();
+        return encoder.get();
     }
     
     public Command c_intake() {
         return c_forward(true);
     }
 
-    private final Subsystem verticalMotorRequirement = new SubsystemBase("intake vertical motor") {};
+    // private final Subsystem verticalMotorRequirement = new SubsystemBase("intake vertical motor") {};
+    private final Subsystem verticalMotorRequirement = Component.TEMPORARY_INTAKE_SHENANIGANS;
 
     public Command c_gotoAngle(double angle) {
         var pid = new PIDController(kP, kI, kD);
         pid.enableContinuousInput(0, 1);
         ezControl controller = new ezControl(
             pid,
-            (position, velocity) -> feedforward.calculate(getAngle(), velocity)
+            (position, velocity) -> feedforward.calculate(
+                Units.rotationsToRadians(getAngle() - HORIZONTAL),
+                velocity
+            )
         );
         var constraints = new TrapezoidProfile.Constraints(MAX_VEL, MAX_ACCEL);
 
         return new ezMotion(
             controller,
             this::getAngle,
-            verticalMotor::setVoltage,
-            angle,
-            constraints,
+            // verticalMotor::setVoltage,
+            v -> {
+                Logging.log("volt age", v);
+                verticalMotor.setVoltage(v);
+            },
+            () -> {
+                double current = getAngle();
+                double goal = MathUtil.inputModulus(angle, current - 0.5, current + 0.5);
+
+                var profile = new TrapezoidProfile(constraints);
+                var startState = new TrapezoidProfile.State(current, 0);
+                var goalState = new TrapezoidProfile.State(goal, 0);
+
+                return (elapsed) -> profile.calculate(elapsed, startState, goalState);
+            },
             verticalMotorRequirement
-        ).finallyDo(this::stop);
+        ).finallyDo(this::stop).alongWith(new RunCommand(() -> {
+            Logging.log("tax", "current: " + getAngle() + ", goal: " + angle);
+        }));
     }
 
     public Command c_extend() {

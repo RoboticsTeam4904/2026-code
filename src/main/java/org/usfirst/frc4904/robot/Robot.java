@@ -92,6 +92,8 @@ public class Robot extends CommandRobotBase {
 
         Component.chassis.stop();
 
+        CommandScheduler.getInstance().cancelAll();
+
         // Component.lights.flashColor(LightSubsystem.Color.DISABLED);
     }
 

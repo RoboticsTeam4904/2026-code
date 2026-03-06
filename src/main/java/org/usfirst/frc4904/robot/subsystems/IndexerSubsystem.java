@@ -41,6 +41,7 @@ public class IndexerSubsystem extends MotorSubsystem {
                 // https://www.desmos.com/calculator/cujlhpi476
 
                 double t = Timer.getFPGATimestamp() - startTime;
+                t %= DIP_DURATION + DIP_GAP;
                 if (t >= DIP_DURATION) return 1;
 
                 double cos = Math.cos(2 * Math.PI * t / DIP_DURATION);

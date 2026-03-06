@@ -237,6 +237,8 @@ public class SwerveSubsystem extends SubsystemBase {
             lastTagUpdateTime = GoogleTagManager.getLastTime();
 
             for (var tag : tags) {
+                if (tag.id() != 10) continue;
+
                 // all field-relative
                 Pose2d pose = ComputerVisionUtil.objectToRobotPose(
                     tag.fieldPos(),
@@ -244,7 +246,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     Transform3d.kZero // TODO VISION camera offset
                 ).toPose2d();
 
-                Logging.log("WE HAVE A POS", pose);
+                Logging.log("WE HAVE A POS", tag.pos());
 
                 addVisionPoseEstimate(
                     new Pose2d(pose.getTranslation(), getRotation()),
