@@ -6,7 +6,7 @@ import org.usfirst.frc4904.robot.subsystems.IO.ArmState.OutputState;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class ArmRealIO implements ArmIO{
-
+    
     Spark spark = new Spark(1);
     //Encoder encoder
 
@@ -17,7 +17,7 @@ public class ArmRealIO implements ArmIO{
     }
 
     @Override
-    public void setState(OutputState output) {
+    public void setArmState(OutputState output) {
         //spark.setVolatge(output.voltage());
     }
 

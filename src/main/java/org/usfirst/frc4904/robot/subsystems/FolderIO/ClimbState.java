@@ -4,8 +4,8 @@ import java.util.Optional;
 
 public class ClimbState {
     public record InputState(        
-        double currentAngleDegrees,
-        double currentVelocityDegreesPerSecond
+        double positionMeters, 
+        double velocityMetersPerSecond
         ){}
     
    public record OutputState(

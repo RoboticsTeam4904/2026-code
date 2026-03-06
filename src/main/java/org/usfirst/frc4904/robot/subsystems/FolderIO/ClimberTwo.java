@@ -1,19 +1,39 @@
 package org.usfirst.frc4904.robot.subsystems.FolderIO;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+
+import java.util.Optional;
 
 import org.usfirst.frc4904.robot.subsystems.MotorSubsystem;
+import org.usfirst.frc4904.robot.subsystems.IO.ArmIO;
+import org.usfirst.frc4904.robot.subsystems.IO.ArmState;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
 import org.usfirst.frc4904.standard.custom.sensors.LinearDutyCycleEncoder;
 
 public class ClimberTwo extends MotorSubsystem {
 
-    // TODO change all these
+        private final ClimbIO io;
+
+    private final ProfiledPIDController controller;
+    private final ElevatorFeedforward ff;
+
+    private ClimbState.InputState currentState;
+
+    private ClimbState.GoalState goal = new ClimbState.GoalState(90);
+
+        // TODO change all these
     public static final double kS = 1;
     public static final double kV = 2;
     public static final double kA = 0.4;
@@ -30,25 +50,32 @@ public class ClimberTwo extends MotorSubsystem {
     private static final double MIN_HEIGHT = 0;
 
     private final ElevatorFeedforward feedforward;
-    private final LinearDutyCycleEncoder encoder;
-
-    public ClimberTwo(SmartMotorController motor, LinearDutyCycleEncoder encoder) {
-        super(motor, 4);
-
-        this.encoder = encoder;
-        this.feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
-    }
-
-    public Command c_up() {
-        return c_forward(true);
-    }
-
-    public Command c_down() {
-        return c_backward(true);
-    }
-
-    public double getHeight() {
-        return encoder.get();
+    private final LinearDutyCycleEncoder climberencoder;
+        
+            
+        
+        
+            public ClimberTwo(SmartMotorController climberTwomotor, LinearDutyCycleEncoder climberTwoencoder, ClimbIO climbIO) {
+                super(climberTwomotor, 4);
+        
+                this.io= climbIO;
+                this.climberencoder = climberTwoencoder;
+                this.feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
+        
+                this.controller = new ProfiledPIDController(0.001, 0, 0, new Constraints(100, 100));
+                this.ff = new ElevatorFeedforward(0, 2.6057, 0);
+            }
+        
+            public Command c_up() {
+                return c_forward(true);
+            }
+        
+            public Command c_down() {
+                return c_backward(true);
+            }
+        
+            public static double getHeight() {
+                return climberencoder.get();
     }
 
     public Command c_gotoHeight(double height) {
@@ -84,4 +111,33 @@ public class ClimberTwo extends MotorSubsystem {
         }
         super.setVoltage(voltage);
     }
+
+    
+    @Override
+    public void periodic() {
+        if(DriverStation.isEnabled()) {
+            currentState = this.io.getInstance();
+
+            double effort = this.controller.calculate(currentState.positionMeters(), goal.position());
+            double feedforward = this.ff.calculate(
+                Units.degreesToRadians(currentState.positionMeters()),
+                Units.degreesToRadians(currentState.velocityMetersPerSecond())
+            );
+
+            effort += feedforward;
+
+            this.io.setClimbState(
+                new ClimbState.OutputState(Optional.of(effort))
+            );
+        }
+    }
+
+    public ClimbState.InputState getState() {
+        return this.currentState;
+    }
+
+    public Command setArmPosition(double degrees) {
+        return new InstantCommand(() -> this.goal = new ClimbState.GoalState(degrees));
+    }
+
 }

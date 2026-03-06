@@ -42,7 +42,7 @@ public class ArmSubsystem extends SubsystemBase{
 
             effort += feedforward;
 
-            this.io.setState(
+            this.io.setArmState(
                 new ArmState.OutputState(Optional.of(effort))
             );
         }

@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
         }
     
         @Override
-        public void setState(ClimbState.OutputState output) {
+        public void setClimbState(ClimbState.OutputState output) {
             //spark.setVolatge(output.voltage());
         }
     }

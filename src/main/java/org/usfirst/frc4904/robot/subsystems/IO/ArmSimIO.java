@@ -29,7 +29,7 @@ public class ArmSimIO implements ArmIO{
     }
 
     @Override
-    public void setState(OutputState output) {
+    public void setArmState(OutputState output) {
         output.voltage().ifPresent((Volts) -> {
             sim.setInputVoltage(Volts);
         });
