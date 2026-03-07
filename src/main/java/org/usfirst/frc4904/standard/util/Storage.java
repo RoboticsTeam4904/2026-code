@@ -102,6 +102,11 @@ public final class Storage {
         map.put(key, new Item(type, val, type + stringified));
     }
 
+    public static void remove(String key) {
+        modified = true;
+        map.remove(key);
+    }
+
     public static byte getByte(String key, byte backup) {
         Item val = map.get(key);
         return val != null && val.type == BYTE ? (byte) val.value : backup;
