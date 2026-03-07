@@ -24,7 +24,7 @@ public final class Storage {
 
     private Storage() {}
 
-    private static final Path PATH = Paths.get("storage.txt"); // TODO change path?
+    private static final Path PATH = Paths.get("/home/lvuser/storage.txt");
 
     private static final char BYTE = 'b', SHORT = 's', INT = 'i', LONG = 'l', FLOAT = 'f', DOUBLE = 'd', BOOLEAN = 'B', STRING = 'S';
 
@@ -94,6 +94,10 @@ public final class Storage {
     }
 
     private static void set(String key, char type, Object val, String stringified) {
+        if (key.indexOf('\n') != -1) {
+            throw new IllegalArgumentException("Storage keys cannot contain newline characters (bad key: '" + key + "')");
+        }
+
         modified = true;
         map.put(key, new Item(type, val, type + stringified));
     }
