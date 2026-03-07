@@ -86,6 +86,8 @@ public abstract class CommandRobotBase extends TimedRobot {
     /** Use {@link #initialize()} for year-specific code. */
     @Override
     public final void robotInit() {
+        Storage.init();
+
         RobotMap.initialize();
 
         autonChooser = new CommandSendableChooser();
