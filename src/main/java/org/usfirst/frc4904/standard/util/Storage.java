@@ -157,9 +157,11 @@ public final class Storage {
     }
 
     private static String escape(String str) {
-        return str.replaceAll("\\\\", "\\\\\\\\").replaceAll("\n", "\\\\n"); // genuinely what
+        // backslashes are escaped as \s instead of \\
+        // so that \\n doesn't get converted \\n -> \n -> <newline> or \\n -> \<newline>
+        return str.replaceAll("\\\\", "\\\\s").replaceAll("\n", "\\\\n");
     }
     private static String unescape(String str) {
-        return str.replaceAll("\\\\\\\\", "\\\\").replaceAll("\\\\n", "\n"); // this is why we need regex literals
+        return str.replaceAll("\\\\s", "\\\\").replaceAll("\\\\n", "\n"); // this is why we need regex literals
     }
 }
