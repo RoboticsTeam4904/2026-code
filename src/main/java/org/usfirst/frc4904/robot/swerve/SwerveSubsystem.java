@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.standard.util.CmdUtil;
@@ -55,6 +56,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrivePoseEstimator estimator;
 
     private boolean estimatorEnabled = false;
+    private Pose2d lastPoseEstimate;
+    private Translation2d velocityEstimate;
 
     public SwerveSubsystem(SwerveModule... modules) {
         this.modules = modules;
@@ -89,6 +92,8 @@ public class SwerveSubsystem extends SubsystemBase {
     public void startPoseEstimator(Pose2d currentPose) {
         estimator.resetPose(currentPose);
         estimatorEnabled = true;
+        lastPoseEstimate = null;
+        velocityEstimate = Translation2d.kZero;
     }
 
     public void stopPoseEstimator() {
@@ -130,6 +135,14 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Translation2d getPositionEstimate() {
         return getPoseEstimate().getTranslation();
+    }
+
+    public Translation2d getVelocityEstimate() {
+        if (!estimatorEnabled) {
+            System.err.println("SwerveSubsystem.getPoseEstimate() called while pose estimator is disabled.");
+        }
+
+        return velocityEstimate;
     }
 
     /**
@@ -255,6 +268,12 @@ public class SwerveSubsystem extends SubsystemBase {
                     Timer.getFPGATimestamp() // TODO VISION use frame time (probably fixed now?)
                 );
             }
+
+            if (lastPoseEstimate != null) {
+                Translation2d dist = getPoseEstimate().getTranslation().minus(lastPoseEstimate.getTranslation());
+                velocityEstimate = dist.div(Robot.TIME_STEP);
+            }
+            lastPoseEstimate = getPoseEstimate();
         }
     }
 

@@ -63,13 +63,23 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     /// TUNING
 
+    private static final boolean ACCOUNT_FOR_ROBOT_VEL = true;
+
+    // approximate amount of seconds the fuel spends in the air
+    // used to account for robot velocity
+    private static final double AIRTIME_ESTIMATE = 1;
+
+    // multiplier to get from target fuel velocity to target flywheel velocity
+    // in theory, this would be ~2 to account for the rotation of the fuel as it leaves the shooter
+    private static final double VELOCITY_MULT = 2;
+
     // TODO tune
     private static final double MAX_VEL = 8;
 
     private static final double kP = 1, kI = 0, kD = 0, kS = 0, kV = 0;
 
     /// IMPL
-    
+
     private final Map<CustomTalonFX, PIDController> pid = new HashMap<>();
 
     public ShooterSubsystem(CustomTalonFX... motors) {
@@ -106,8 +116,9 @@ public class ShooterSubsystem extends MotorSubsystem {
         return new SwitchingIfElseCommand(
             c_controlVelocity(() -> calcShooterVelocity(getOwnHub().pos)),
             c_stop(), // TODO fun lights, elastic notif?, etc. on fail
-            () -> getOwnHub().isInRange(Component.chassis.getPositionEstimate()),
-            () -> hasSufficientDistance(getOwnHub().pos)
+            () -> getOwnHub().isInRange(Component.chassis.getPositionEstimate())
+            // TODO maybe add back min distance check (but it shouldn't stop the flywheel)
+            // () -> hasSufficientDistance(getOwnHub().pos)
         ).andThen(this::stop);
     }
 
@@ -122,12 +133,18 @@ public class ShooterSubsystem extends MotorSubsystem {
         double determinant = dist * tanA - dz;
         if (determinant <= 0) return MAX_VEL;
 
-        return dist * secA * Math.sqrt(GRAVITY / (2 * determinant));
+        double vel = dist * secA * Math.sqrt(GRAVITY / (2 * determinant));
+        return vel * VELOCITY_MULT;
     }
 
     public static double calcRobotAngle(Translation2d pos) {
         Translation2d robotPos = Component.chassis.getPositionEstimate();
         Translation2d dist = pos.minus(robotPos);
+
+        if (ACCOUNT_FOR_ROBOT_VEL) {
+            Translation2d robotVel = Component.chassis.getVelocityEstimate();
+            dist = dist.minus(robotVel.times(AIRTIME_ESTIMATE));
+        }
 
         double angle = Math.atan2(dist.getY(), dist.getX());
         // account for the fact that the shooter is not aligned with the center of the robot
@@ -138,9 +155,17 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     private static double calcShooterVelocity(Translation2d pos) {
         Translation2d robotPos = Component.chassis.getPositionEstimate();
+        Translation2d dist = pos.minus(robotPos);
 
-        double dist = pos.getDistance(robotPos) - SHOOTER_POS.getX();
-        return getShooterVelocityForDistance(dist);
+        double dx = dist.getNorm() - SHOOTER_POS.getX();
+
+        if (ACCOUNT_FOR_ROBOT_VEL) {
+            Translation2d robotVel = Component.chassis.getVelocityEstimate();
+            double vx = robotVel.dot(dist.div(dist.getNorm()));
+            dx -= vx * AIRTIME_ESTIMATE;
+        }
+
+        return getShooterVelocityForDistance(dx);
     }
 
     private static boolean hasSufficientDistance(Translation2d pos) {

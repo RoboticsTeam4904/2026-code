@@ -23,6 +23,12 @@ import java.util.Set;
  */
 public abstract class CommandRobotBase extends TimedRobot {
 
+    public static final double TIME_STEP = TimedRobot.kDefaultPeriod;
+
+    public CommandRobotBase() {
+        super(TIME_STEP);
+    }
+
     /// CHOOSERS
 
     private Command autonCommand;
