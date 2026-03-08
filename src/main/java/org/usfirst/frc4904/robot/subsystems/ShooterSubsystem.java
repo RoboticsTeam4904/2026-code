@@ -1,6 +1,7 @@
 package org.usfirst.frc4904.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -19,13 +20,35 @@ import java.util.function.Predicate;
 
 public class ShooterSubsystem extends MotorSubsystem {
 
+    /// TUNING
+
+    private static final boolean ACCOUNT_FOR_ROBOT_VEL = true;
+
+    // approximate amount of seconds the fuel spends in the air
+    // used to account for robot velocity
+    private static final double AIRTIME_ESTIMATE = 1;
+
+    // multiplier to get from target fuel velocity to target flywheel velocity
+    // in theory, this would be ~2 to account for the rotation of the fuel as it leaves the shooter
+    private static final double VELOCITY_MULT = 2;
+
+    // hardcoded offset between the robot angle and the exit angle of the fuel
+    // positive means that the fuel exits the robot to the left/counterclockwise of the expected angle
+    private static final double ANGLE_OFFSET = Units.degreesToRadians(0);
+
+    // TODO tune
+    private static final double MAX_VEL = 8;
+
+    private static final double kP = 1, kI = 0, kD = 0, kS = 0, kV = 0;
+
     /// MEASUREMENTS
 
     public static final double GRAVITY = 9.8;
 
     // TODO get measurements
-    public static final double SHOOTER_ANGLE = Units.degreesToRadians(0); // 0 = horizontal
-    public static final Translation3d SHOOTER_POS = new Translation3d(0.1, -0.2, 0.3); // forward, left, up
+    public static final double SHOOTER_ANGLE = Units.degreesToRadians(60); // 0 = horizontal
+    public static final Translation3d SHOOTER_POS = new Translation3d(0.1, -0.2, 0.3) // forward, left, up
+        .rotateBy(new Rotation3d(0, 0, -ANGLE_OFFSET));
 
     // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
     public static final double HUB_HEIGHT = 1.829;
@@ -60,27 +83,6 @@ public class ShooterSubsystem extends MotorSubsystem {
     public static Hub getOwnHub() {
         return RED_HUB.isOwn() ? RED_HUB : BLUE_HUB;
     }
-
-    /// TUNING
-
-    private static final boolean ACCOUNT_FOR_ROBOT_VEL = true;
-
-    // approximate amount of seconds the fuel spends in the air
-    // used to account for robot velocity
-    private static final double AIRTIME_ESTIMATE = 1;
-
-    // multiplier to get from target fuel velocity to target flywheel velocity
-    // in theory, this would be ~2 to account for the rotation of the fuel as it leaves the shooter
-    private static final double VELOCITY_MULT = 2;
-
-    // hardcoded offset between the robot angle and the exit angle of the fuel
-    // positive means that the fuel exits the robot to the left/counterclockwise of the expected angle
-    private static final double ANGLE_OFFSET = Units.degreesToRotations(0);
-
-    // TODO tune
-    private static final double MAX_VEL = 8;
-
-    private static final double kP = 1, kI = 0, kD = 0, kS = 0, kV = 0;
 
     /// IMPL
 
@@ -154,7 +156,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         // account for the fact that the shooter is not aligned with the center of the robot
         double offset = Math.asin(-SHOOTER_POS.getY() / dist.getNorm());
 
-        return Units.radiansToRotations(angle + offset) - ANGLE_OFFSET;
+        return Units.radiansToRotations(angle + offset - ANGLE_OFFSET);
     }
 
     private static double calcShooterVelocity(Translation2d pos) {
