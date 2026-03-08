@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.swerve;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -244,9 +245,13 @@ public class SwerveSubsystem extends SubsystemBase {
                 Translation2d robotToTagFR = robotToTagRR.rotateBy(getTrueRotation());
 
                 Translation2d tagFR = tag.fieldPos().getTranslation().toTranslation2d();
-                Translation2d robotFR = tagFR.minus(robotToTagFR);
+                Translation2d robotFR = tagFR.plus(robotToTagFR);
 
                 // Logging.log("WE HAVE A POS", tag.pos());
+
+                // estimator.setVisionMeasurementStdDevs(VecBuilder.fill(
+                //     2, 2, 1e100
+                // ));
 
                 estimator.addVisionMeasurement(
                     new Pose2d(robotFR, getTrueRotation()),
@@ -374,7 +379,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 lastGoal = goal;
             }
 
-            Logging.logWithDelay("current/goal", 0.1, current, goal);
+            Logging.log("current/goal", current, goal);
 
             rotPIDEffort = Util.clamp(
                 rotPID.calculate(current, goal),

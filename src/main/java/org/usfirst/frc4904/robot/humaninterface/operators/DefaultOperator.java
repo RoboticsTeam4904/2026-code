@@ -40,7 +40,7 @@ public class DefaultOperator extends Operator {
         joystick.button6.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_backward(true));
 
         joystick.button10.whileTrue(
-            Component.TEMPORARY_INTAKE_SHENANIGANS.c_DEBUG_tunePIDkG(() -> -joystick.getAxis(Axis.SLIDER))
+            Component.TEMPORARY_INTAKE_SHENANIGANS.c_DEBUG_tunePIDkG(() -> 1 - joystick.getAxis(Axis.SLIDER))
         );
 
         /// INTAKE

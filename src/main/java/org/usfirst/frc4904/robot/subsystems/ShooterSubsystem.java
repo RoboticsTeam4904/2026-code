@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.SwitchingIfElseCommand;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     /// TUNING
 
-    private static final boolean ACCOUNT_FOR_ROBOT_VEL = true;
+    private static final boolean ACCOUNT_FOR_ROBOT_VEL = false;
 
     // approximate amount of seconds the fuel spends in the air
     // used to account for robot velocity
