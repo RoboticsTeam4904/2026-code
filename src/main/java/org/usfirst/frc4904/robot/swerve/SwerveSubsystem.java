@@ -1,9 +1,10 @@
 package org.usfirst.frc4904.robot.swerve;
 
-import edu.wpi.first.math.ComputerVisionUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -11,7 +12,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -224,8 +224,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private double lastTagUpdateTime;
 
     // TODO VISION not very accurate
-    private static final Transform3d CAMERA_OFFSET =
-        new Transform3d(Units.inchesToMeters(-4), 0, 0, Rotation3d.kZero);
+    private static final Translation2d CAMERA_OFFSET = new Translation2d(Units.inchesToMeters(-4), 0);
 
     @Override
     public void periodic() {
@@ -240,19 +239,17 @@ public class SwerveSubsystem extends SubsystemBase {
             lastTagUpdateTime = GoogleTagManager.getLastTime();
 
             for (var tag : tags) {
-                // if (tag.id() != 10) continue;
+                Translation2d cameraToTagRR = tag.pos().getTranslation().toTranslation2d();
+                Translation2d robotToTagRR = cameraToTagRR.minus(CAMERA_OFFSET);
+                Translation2d robotToTagFR = robotToTagRR.rotateBy(getTrueRotation());
 
-                // all field-relative
-                Pose2d pose = ComputerVisionUtil.objectToRobotPose(
-                    tag.fieldPos(),
-                    tag.pos(),
-                    CAMERA_OFFSET
-                ).toPose2d();
+                Translation2d tagFR = tag.fieldPos().getTranslation().toTranslation2d();
+                Translation2d robotFR = tagFR.minus(robotToTagFR);
 
                 // Logging.log("WE HAVE A POS", tag.pos());
 
                 estimator.addVisionMeasurement(
-                    new Pose2d(pose.getTranslation(), getTrueRotation()),
+                    new Pose2d(robotFR, getTrueRotation()),
                     Timer.getFPGATimestamp() // TODO VISION use frame time (probably fixed now?)
                 );
             }
