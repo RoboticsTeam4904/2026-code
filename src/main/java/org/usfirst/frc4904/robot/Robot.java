@@ -79,7 +79,21 @@ public class Robot extends CommandRobotBase {
     public void teleopCleanup() {}
 
     @Override
-    public void autonomousInitialize() {}
+    public void autonomousInitialize() {
+        // if we are using absolute pathplanner positioning (see javadoc on constant),
+        // then we're probably starting in the right place, so let's zero the pose
+        // estimator assuming that we are. even if not, it's still probably a better
+        // estimate than (0, 0) and it'll hopefully get adjusted with vision data.
+        if (
+            Auton.ABSOLUTE_PATHPLANNER_POSITIONING
+            && autonChooser.getSelected() instanceof PathPlannerCommand pathCmd
+        ) {
+            Pose2d pose = pathCmd.traj.getInitialPose();
+
+            Component.imu.zeroYaw(pose.getRotation().getRotations());
+            Component.chassis.startPoseEstimator(pose);
+        }
+    }
 
     @Override
     public void autonomousExecute() {}

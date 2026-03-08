@@ -1,15 +1,11 @@
 package org.usfirst.frc4904.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -19,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.json.simple.parser.ParseException;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
-import org.usfirst.frc4904.robot.swerve.SwerveSubsystem;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Util;
 
@@ -27,6 +22,15 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 public final class Auton {
+
+    /**
+     * When {@code false}, PathPlanner paths will be moved so that the starting position
+     * of the path lines up with the robot position when the auton starts.
+     * <p>
+     * When {@code true}, paths will not be moved, and the robot will try to get to the
+     * absolute position of the path on the field.
+     */
+    public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = false;
 
     // apparently cannot be higher than 85 (????) - see javadoc for FieldObject2d.setPoses()
     private static final int PATHPLANNER_PREVIEW_STEPS = 50;
@@ -45,20 +49,18 @@ public final class Auton {
     //     return Component.chassis.getAutonomousCommand("straight", true, false);
     // }
 
-   // actually moves backwards - robot must be placed physically backwards on the field
     public static Command c_jankStraight() {
         return new SequentialCommandGroup(
             new WaitCommand(12),
-            Component.chassis.c_driveRobotRelative(-0.5, 0, 0).withTimeout(2),
+            Component.chassis.c_driveRobotRelative(0.5, 0, 0).withTimeout(2),
             Component.chassis.c_stop()
         );
     }
 
-    // actually moves forwards
     public static Command c_jankReverse() {
         return new SequentialCommandGroup(
             new WaitCommand(12),
-            Component.chassis.c_driveRobotRelative(0.5, 0, 0).withTimeout(2),
+            Component.chassis.c_driveRobotRelative(-0.5, 0, 0).withTimeout(2),
             Component.chassis.c_stop()
         );
     }
@@ -75,34 +77,10 @@ public final class Auton {
     }
 
     public static void initPathplanner(SendableChooser<? super Command> autonChooser, String... names) {
-        SwerveSubsystem swerve = Component.chassis;
-
         if (pathPlannerConfig == null) return;
-
-        AutoBuilder.configure(
-            swerve::getPoseEstimate,
-            swerve::startPoseEstimator,
-            swerve::getChassisSpeeds,
-            (speeds, feedforwards) -> swerve.driveRobotRelative(speeds),
-            new PPHolonomicDriveController(
-                new PIDConstants(5, 0, 0),
-                new PIDConstants(5, 0, 0)
-            ),
-            pathPlannerConfig,
-            () -> {
-                // Boolean supplier that controls when the path will be mirrored for the red alliance
-                // This will flip the path being followed to the red side of the field.
-                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-                var alliance = DriverStation.getAlliance();
-                return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-            },
-            swerve
-        );
 
         for (var name : names) {
             autonChooser.addOption(name, c_pathPlanner(name));
-            // autonChooser.addOption(name, new PathPlannerAuto(name));
         }
     }
 
@@ -162,11 +140,14 @@ public final class Auton {
 
         @Override
         public void initialize() {
+            atEnd = false;
             startTime = Timer.getFPGATimestamp();
             Pose2d current = Component.chassis.getPoseEstimate();
-            // orientation/rotation of path is always field relative
-            start = new Pose2d(current.getTranslation(), Rotation2d.kZero);
-            atEnd = false;
+
+            start = ABSOLUTE_PATHPLANNER_POSITIONING
+                ? traj.getInitialPose()
+                // orientation/rotation of path is always field relative
+                : new Pose2d(current.getTranslation(), Rotation2d.kZero);
 
             liveTraj.setPoses(makeTrajPreview(traj, start));
 
