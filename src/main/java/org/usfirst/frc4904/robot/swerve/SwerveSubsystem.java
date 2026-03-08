@@ -249,7 +249,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     CAMERA_OFFSET
                 ).toPose2d();
 
-                Logging.log("WE HAVE A POS", tag.pos());
+                // Logging.log("WE HAVE A POS", tag.pos());
 
                 estimator.addVisionMeasurement(
                     new Pose2d(pose.getTranslation(), getTrueRotation()),
@@ -277,9 +277,10 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     double getAbsoluteHeading() {
         double heading = getHeading();
-        return DriverStation.getAlliance().orElse(null) == Alliance.Red
-            ? (heading + 0.5) % 1
-            : heading;
+        // return DriverStation.getAlliance().orElse(null) == Alliance.Red
+            // ? (heading + 0.5) % 1
+            // : heading;
+        return heading;
     }
 
     Rotation2d getRotation() {
@@ -338,7 +339,7 @@ public class SwerveSubsystem extends SubsystemBase {
             this.getTheta = getTheta;
             this.useAbsoluteHeading = useAbsoluteHeading;
 
-            rotPID = new PIDController(40, 0, 0);
+            rotPID = new PIDController(60, 5, 0);
             rotPID.enableContinuousInput(0, 1);
             // don't require swerve subsystem so that it can run in parallel to other swerve commands
         }
@@ -375,6 +376,8 @@ public class SwerveSubsystem extends SubsystemBase {
             } else {
                 lastGoal = goal;
             }
+
+            Logging.logWithDelay("current/goal", 0.1, current, goal);
 
             rotPIDEffort = Util.clamp(
                 rotPID.calculate(current, goal),

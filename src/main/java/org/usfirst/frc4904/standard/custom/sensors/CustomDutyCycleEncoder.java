@@ -5,6 +5,14 @@ import org.usfirst.frc4904.standard.util.Storage;
 
 public class CustomDutyCycleEncoder extends DutyCycleEncoder {
 
+    // TODO worst thing since sliced bread
+    private static final double[] ZEROS = {
+        0.9352,
+        0.5175,
+        0.1961,
+        0.8063
+    };
+
     private final String key;
 
     private double resetOffset;
@@ -14,7 +22,8 @@ public class CustomDutyCycleEncoder extends DutyCycleEncoder {
 
         key = "zeros/" + channel;
 
-        resetOffset = Storage.getDouble(key, 0);
+        resetOffset = channel < ZEROS.length ? ZEROS[channel] : 0;
+        // resetOffset = Storage.getDouble(key, 0);
     }
 
     public void reset() {

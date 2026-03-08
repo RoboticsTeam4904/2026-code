@@ -67,11 +67,9 @@ public final class GoogleTagManager {
                     continue;
                 }
                 
-                Logging.log("tag rot", el.path("rot").asDouble());
-
                 tags.add(new Tag(
                     id,
-                    Util.transform3d(pos[2], -pos[0], pos[1], el.path("rot").asDouble()),
+                    Util.transform3d(-pos[2], pos[0], pos[1], el.path("rot").asDouble()),
                     tagPose.get(),
                     time,
                     0
