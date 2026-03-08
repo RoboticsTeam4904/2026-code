@@ -150,12 +150,12 @@ public abstract class CommandRobotBase extends TimedRobot {
     /** Use {@link #autonomousInitialize()} for year-specific code. */
     @Override
     public final void autonomousInit() {
+        autonomousInitialize();
+
         autonCommand = autonChooser.getSelected();
         if (autonCommand != null) {
             CmdUtil.schedule(autonCommand);
         }
-
-        autonomousInitialize();
     }
 
     /** Use {@link #autonomousExecute()} for year-specific code. */

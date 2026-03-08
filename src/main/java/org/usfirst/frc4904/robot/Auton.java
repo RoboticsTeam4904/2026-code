@@ -76,19 +76,26 @@ public final class Auton {
         }
     }
 
-    public static void initPathplanner(SendableChooser<? super Command> autonChooser, String... names) {
+    // can be called multiple times with different values of 'flip' and paths will be overridden
+    // if names are different, old paths will not be removed
+    public static void initPathplanner(
+        SendableChooser<? super Command> autonChooser,
+        boolean flip,
+        String... names
+    ) {
         if (pathPlannerConfig == null) return;
 
         for (var name : names) {
-            autonChooser.addOption(name, c_pathPlanner(name));
+            autonChooser.addOption(name, c_pathPlanner(name, flip));
         }
     }
 
-    public static Command c_pathPlanner(String file) {
+    public static Command c_pathPlanner(String file, boolean flip) {
         try {
             PathPlannerPath path = PathPlannerPath.fromPathFile(file);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
-            return new PathPlannerCommand(traj);
+
+            return new PathPlannerCommand(flip ? traj.flip() : traj);
         } catch (IOException | ParseException e) {
             System.err.println("Failed to load PathPlanner path '" + file + "':\n" + e.getMessage());
         } catch (NoSuchElementException e) {

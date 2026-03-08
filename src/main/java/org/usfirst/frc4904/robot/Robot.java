@@ -9,9 +9,11 @@ package org.usfirst.frc4904.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.usfirst.frc4904.robot.Auton.PathPlannerCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
@@ -25,10 +27,28 @@ import org.usfirst.frc4904.standard.util.Util;
 
 public class Robot extends CommandRobotBase {
 
+    private static final String[] AUTON_NAMES = {
+        "STRET", "4", "7", "romtater", "aaahhh", "4904"
+    };
+
     private static final FieldObject2d
         autonPreview = Dashboard.previewField.getObject("auton_preview"),
         autonStart = Dashboard.previewField.getRobotObject(),
         autonEnd = Dashboard.previewField.getObject("auton_end");
+
+    private Boolean lastAutonFlip;
+    // alliance is not guaranteed to be set on startup
+    // so we need to check it multiple times and flip the paths if necessary.
+    // the chooser will remain selecting the auton with the same name even if the value is replaced.
+    private void updateAuton() {
+        boolean flipAuton = DriverStation.getAlliance().orElse(null) == Alliance.Red;
+
+        // always true first time since lastAutonFlip is null
+        if (flipAuton != lastAutonFlip) {
+            lastAutonFlip = flipAuton;
+            Auton.initPathplanner(autonChooser, flipAuton, AUTON_NAMES);
+        }
+    }
 
     @Override
     public void initialize() {
@@ -39,14 +59,19 @@ public class Robot extends CommandRobotBase {
         autonChooser.setDefaultOption("none", new NoOp());
         autonChooser.addOption("straight", Auton.c_jankStraight());
         autonChooser.addOption("reverse", Auton.c_jankReverse());
-        Auton.initPathplanner(autonChooser, "STRET", "4", "7", "romtater", "aaahhh", "4904");
+        updateAuton();
 
         driverChooser.setDefaultOption("swerve", new SwerveGain());
 
         operatorChooser.setDefaultOption("default", new DefaultOperator());
 
         // show selected auton path in elastic dashboard
-        autonChooser.onChange(cmd -> {
+        autonChooser.onChange(_cmd -> {
+            updateAuton();
+
+            // updateAuton() could've flipped the selected command
+            Command cmd = autonChooser.getSelected();
+
             if (cmd instanceof PathPlannerCommand pathCmd) {
                 autonPreview.setPoses(pathCmd.getTrajPreview());
                 autonStart.setPose(pathCmd.traj.getInitialPose());
@@ -80,6 +105,8 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void autonomousInitialize() {
+        updateAuton();
+
         // if we are using absolute pathplanner positioning (see javadoc on constant),
         // then we're probably starting in the right place, so let's zero the pose
         // estimator assuming that we are. even if not, it's still probably a better
