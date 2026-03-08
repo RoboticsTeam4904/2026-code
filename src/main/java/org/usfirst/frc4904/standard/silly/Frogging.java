@@ -2,11 +2,10 @@ package org.usfirst.frc4904.standard.silly;
 import org.usfirst.frc4904.standard.util.Logging;
 
 public final class Frogging {
-    public static void frog(String key, Object... values) {
-        Logging.log(key, values);
+    public static <T> T frog(String key, T value, Object... others) {
+        return Logging.log(key, value, others);
     }
-    public static void frogWithDelay(String key, double delaySeconds, Object... values) {
-        Logging.log(key, delaySeconds, values);
+    public static <T> T frogWithDelay(String key, double delaySeconds, T value, Object... others) {
+        return Logging.logWithDelay(key, delaySeconds, value, others);
     }
 }
-

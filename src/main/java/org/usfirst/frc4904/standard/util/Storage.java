@@ -18,10 +18,9 @@ import java.util.Map;
  * ...
  * }</pre>
  * where keyN is the key passed to getX()/setX(), T is a char representing
- * the type of the value, and val1 is the stringified value.
+ * the type of the value, and valN is the stringified value.
  */
 public final class Storage {
-
     private Storage() {}
 
     private static final Path PATH = Paths.get("/home/lvuser/storage.txt");

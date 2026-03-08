@@ -34,11 +34,12 @@ public final class Logging {
      * Log values with a cooldown to not flood the RioLog™. Formatted as 'key: value' or 'key: [val1, val2, ...]'
      *
      * @param key    Key that is used to determine the cooldown since the last message with the same key was sent
-     * @param values Value(s) to log
-     * @return Whether the value was logged or skipped on cooldown
+     * @param value  Value to log
+     * @param others Additional values to log
+     * @return The first value (for chaining)
      */
-    public static boolean log(String key, Object... values) {
-        return logWithDelay(key, 0.5, values);
+    public static <T> T log(String key, T value, Object... others) {
+        return logWithDelay(key, 0.5, value, others);
     }
 
     /**
@@ -46,14 +47,24 @@ public final class Logging {
      *
      * @param key          Key that is used to determine the cooldown since the last message with the same key was sent
      * @param delaySeconds Minimum cooldown between logs
-     * @param values       Value(s) to log
-     * @return Whether the value was logged or skipped on cooldown
+     * @param value        Value to log
+     * @param others       Additional values to log
+     * @return The first value (for chaining)
      */
-    public static boolean logWithDelay(String key, double delaySeconds, Object... values) {
-        if (!cooldown(key, delaySeconds)) return false;
+    public static <T> T logWithDelay(String key, double delaySeconds, T value, Object... others) {
+        if (cooldown(key, delaySeconds)) {
+            if (others.length == 0) {
+                System.out.println(key + ": " + formatValue(value, true));
+            } else {
+                Object[] values = new Object[others.length + 1];
+                values[0] = value;
+                System.arraycopy(others, 0, values, 1, others.length);
 
-        System.out.println(key + ": " + formatValue(values, false));
-        return true;
+                System.out.println(key + ": " + formatValue(values, false));
+            }
+        }
+
+        return value;
     }
 
     private static String formatValue(Object value, boolean arrayBrackets) {
