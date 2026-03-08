@@ -3,6 +3,7 @@ package org.usfirst.frc4904.robot.humaninterface.drivers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
@@ -74,17 +75,24 @@ public class SwerveGain extends Driver {
 
         // intake retract
         ps4.L1().onTrue(Component.intake.c_retract());
-        // intake extend and run
+        // intake extend
         ps4.L2().onTrue(Component.intake.c_extend());
-        ps4.L2().whileTrue(Component.intake.c_intake());
+        // run intake while either extend or retract is held
+        ps4.L1().or(ps4.L2()).whileTrue(Component.intake.c_intake());
 
         // align
         ps4.R1().whileTrue(
             Component.chassis.c_rotateTo(() -> calcRobotAngle(ShooterSubsystem.getOwnHub().pos), true)
         );
 
-        // (index and) shooter
-        ps4.R2().whileTrue(Component.shooter.c_smartShoot());
+        // index and shooter
+        ps4.R2().whileTrue(
+            new ParallelCommandGroup(
+                Component.shooter.c_smartShoot()
+                // TODO enable indexer and maybe change delay
+                // new WaitCommand(DefaultOperator.SHOOT_INDEXER_DELAY).andThen(Component.indexer.c_forward(true))
+            )
+        );
     }
 
     @Override

@@ -1,5 +1,7 @@
 package org.usfirst.frc4904.robot.humaninterface.operators;
 
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
@@ -8,6 +10,8 @@ import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.Util;
 
 public class DefaultOperator extends Operator {
+
+    public static final double SHOOT_INDEXER_DELAY = 0.25;
 
     public DefaultOperator() {
         super("DefaultOperator");
@@ -40,14 +44,24 @@ public class DefaultOperator extends Operator {
         );
 
         /// INTAKE
+        joystick.button3.onTrue(Component.intake.c_extend());
         joystick.button5.onTrue(Component.intake.c_retract());
 
-        joystick.button3.onTrue(Component.intake.c_extend());
-        joystick.button3.whileTrue(Component.intake.c_intake());
+        joystick.button3.or(joystick.button5).whileTrue(Component.intake.c_intake());
 
         /// SHOOTER
-        joystick.button1.whileTrue(Component.shooter.c_smartShoot());
-        joystick.button2.whileTrue(Component.shooter.c_controlVelocity(this::getVelocity));
+        joystick.button1.whileTrue(
+            new ParallelCommandGroup(
+                Component.shooter.c_smartShoot(),
+                new WaitCommand(SHOOT_INDEXER_DELAY).andThen(Component.indexer.c_forward(true))
+            )
+        );
+        joystick.button2.whileTrue(
+            new ParallelCommandGroup(
+                Component.shooter.c_controlVelocity(this::getVelocity),
+                new WaitCommand(SHOOT_INDEXER_DELAY).andThen(Component.indexer.c_forward(true))
+            )
+        );
 
         joystick.button11.whileTrue(Component.shooter.c_forward(true));
 
@@ -56,7 +70,7 @@ public class DefaultOperator extends Operator {
         joystick.button8.whileTrue(Component.climber.c_up());
 
         /// INDEXER
-        joystick.button9.whileTrue(Component.indexer.c_pulse());
+        joystick.button9.whileTrue(Component.indexer.c_forward(true));
 
         /// NOTIFS TEST
         // joystick.button10.onTrue(Notifications.c_testNotif());
