@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
@@ -11,10 +12,11 @@ import org.usfirst.frc4904.standard.commands.AlwaysRunnableInstantCommand;
 import org.usfirst.frc4904.standard.commands.RunUnless;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandPS4;
 import org.usfirst.frc4904.standard.humaninput.Driver;
-import org.usfirst.frc4904.standard.util.logging.Cheese;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
+import static org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator.SHOOT_INDEXER_DELAY;
 import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.calcRobotAngle;
+import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.getShooterVelocityForDistance;
 
 public class SwerveGain extends Driver {
 
@@ -68,7 +70,7 @@ public class SwerveGain extends Driver {
 
         // testing shooter
         ps4.square().whileTrue(
-            Component.shooter.c_controlVelocity(() -> ShooterSubsystem.getShooterVelocityForDistance(2.63))
+            Component.shooter.c_controlVelocity(() -> getShooterVelocityForDistance(2.63))
         );
 
         // indexer
@@ -83,19 +85,14 @@ public class SwerveGain extends Driver {
 
         // align
         ps4.R1().whileTrue(
-            // TODO fix formatting
-            Component.chassis.c_rotateTo(() -> {
-                var hub = ShooterSubsystem.getOwnHub();
-                return calcRobotAngle(hub.pos);
-            }, true)
+            Component.chassis.c_rotateTo(() -> calcRobotAngle(ShooterSubsystem.getOwnHub().pos), true)
         );
 
         // index and shooter
         ps4.R2().whileTrue(
             new ParallelCommandGroup(
-                Component.shooter.c_smartShoot()
-                // TODO enable indexer and maybe change delay
-                // new WaitCommand(DefaultOperator.SHOOT_INDEXER_DELAY).andThen(Component.indexer.c_forward(true))
+                Component.shooter.c_smartShoot(),
+                new WaitCommand(SHOOT_INDEXER_DELAY).andThen(Component.indexer.c_forward(true))
             )
         );
     }

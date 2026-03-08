@@ -1,14 +1,14 @@
 package org.usfirst.frc4904.robot.humaninterface.operators;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.RobotMap.Component;
-import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick.Axis;
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.Util;
+
+import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.getShooterVelocityForDistance;
 
 public class DefaultOperator extends Operator {
 
@@ -27,7 +27,7 @@ public class DefaultOperator extends Operator {
 
         double value = joystick.getAxis(Axis.SLIDER);
         double distance = Util.transformRange(value, 1, -1, 2, 5);
-        double velocity = ShooterSubsystem.getShooterVelocityForDistance(distance);
+        double velocity = getShooterVelocityForDistance(distance);
 
         return velocity;
     }

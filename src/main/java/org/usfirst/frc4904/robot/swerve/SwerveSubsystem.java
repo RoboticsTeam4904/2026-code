@@ -1,6 +1,5 @@
 package org.usfirst.frc4904.robot.swerve;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,7 +21,6 @@ import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.GoogleTagManager;
 import org.usfirst.frc4904.standard.util.CmdUtil;
-import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.Arrays;
@@ -247,8 +245,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 Translation2d tagFR = tag.fieldPos().getTranslation().toTranslation2d();
                 Translation2d robotFR = tagFR.plus(robotToTagFR);
 
-                // Logging.log("WE HAVE A POS", tag.pos());
-
+                // TODO VISION std devs
                 // estimator.setVisionMeasurementStdDevs(VecBuilder.fill(
                 //     2, 2, 1e100
                 // ));
@@ -384,8 +381,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 -SwerveConstants.ROT_SPEED,
                 SwerveConstants.ROT_SPEED
             );
-
-            Logging.log("rot", rotPIDEffort);
         }
 
         @Override
