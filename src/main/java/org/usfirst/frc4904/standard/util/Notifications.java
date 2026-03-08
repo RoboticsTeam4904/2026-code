@@ -37,7 +37,8 @@ public final class Notifications {
         "Robot has been possessed by 5940",
         "Wow, such a big strong",
         "WARNING: robor is cooked",
-        "Ben, the steaks are high 🥩"
+        "Ben, the steaks are high 🥩",
+        "Robot abmormal. Unable to to operate"
     };
 
     public static Command c_sendRandom() {
