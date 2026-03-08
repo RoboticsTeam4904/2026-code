@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.humaninterface.operators;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap;
@@ -39,15 +40,17 @@ public class DefaultOperator extends Operator {
         joystick.button4.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_forward(true));
         joystick.button6.whileTrue(Component.TEMPORARY_INTAKE_SHENANIGANS.c_backward(true));
 
-        joystick.button10.whileTrue(
-            Component.TEMPORARY_INTAKE_SHENANIGANS.c_DEBUG_tunePIDkG(() -> 1 - joystick.getAxis(Axis.SLIDER))
-        );
+        // joystick.button10.whileTrue(
+        //     Component.TEMPORARY_INTAKE_SHENANIGANS.c_DEBUG_tunePIDkG(() -> 1 - joystick.getAxis(Axis.SLIDER))
+        // );
 
         /// INTAKE
         joystick.button3.onTrue(Component.intake.c_extend());
         joystick.button5.onTrue(Component.intake.c_retract());
 
         joystick.button3.or(joystick.button5).whileTrue(Component.intake.c_intake());
+        // joystick.button3.whileTrue(Component.intake.c_intake());
+
 
         /// SHOOTER
         joystick.button1.whileTrue(
@@ -71,6 +74,8 @@ public class DefaultOperator extends Operator {
 
         /// INDEXER
         joystick.button9.whileTrue(Component.indexer.c_forward(true));
+        joystick.button10.whileTrue(Component.indexer.c_backward(true));
+
 
         /// NOTIFS TEST
         // joystick.button10.onTrue(Notifications.c_testNotif());

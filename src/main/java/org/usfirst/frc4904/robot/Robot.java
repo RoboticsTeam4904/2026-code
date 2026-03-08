@@ -20,6 +20,7 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveGain;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
+import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.Silly;
 import org.usfirst.frc4904.standard.commands.NoOp;
@@ -168,6 +169,7 @@ public class Robot extends CommandRobotBase {
 
         SmartDashboard.putNumber("climber encoder", Component.climberEncoder.get());
         SmartDashboard.putNumber("intake encoder", Component.intakeEncoder.get());
+        SmartDashboard.putNumber("ideal vel", ShooterSubsystem.getShooterVelocityForDistance(2.63));
     }
 
     @Override

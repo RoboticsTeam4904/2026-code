@@ -341,7 +341,7 @@ public class SwerveSubsystem extends SubsystemBase {
             this.getTheta = getTheta;
             this.useAbsoluteHeading = useAbsoluteHeading;
 
-            rotPID = new PIDController(60, 5, 0);
+            rotPID = new PIDController(100, 10, 0);
             rotPID.enableContinuousInput(0, 1);
             // don't require swerve subsystem so that it can run in parallel to other swerve commands
         }
@@ -379,13 +379,13 @@ public class SwerveSubsystem extends SubsystemBase {
                 lastGoal = goal;
             }
 
-            Logging.log("current/goal", current, goal);
-
             rotPIDEffort = Util.clamp(
                 rotPID.calculate(current, goal),
                 -SwerveConstants.ROT_SPEED,
                 SwerveConstants.ROT_SPEED
             );
+
+            Logging.log("rot", rotPIDEffort);
         }
 
         @Override

@@ -7,12 +7,15 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.SwitchingIfElseCommand;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
+import org.usfirst.frc4904.standard.util.logging.Frogging;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +34,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     // multiplier to get from target fuel velocity to target flywheel velocity
     // in theory, this would be ~2 to account for the rotation of the fuel as it leaves the shooter
-    private static final double VELOCITY_MULT = 2;
+    private static final double VELOCITY_MULT = 6;
 
     // hardcoded offset between the robot angle and the exit angle of the fuel
     // positive means that the fuel exits the robot to the left/counterclockwise of the expected angle
@@ -40,13 +43,15 @@ public class ShooterSubsystem extends MotorSubsystem {
     // TODO tune
     private static final double MAX_VEL = 8;
 
-    private static final double kP = 1, kI = 0, kD = 0, kS = 0, kV = 0;
+    private static final double kP=0 , kI = 0, kD = 0, kS = 0, kV = 0.7
+    ;
 
     /// MEASUREMENTS
 
     public static final double GRAVITY = 9.8;
 
     // TODO get measurements
+    public static final double FLYWHEEL_CIRC = Units.inchesToMeters(4 * Math.PI);
     public static final double SHOOTER_ANGLE = Units.degreesToRadians(60); // 0 = horizontal
     public static final Translation3d SHOOTER_POS = new Translation3d(0, -0.22, 0.51) // forward, left, up
         .rotateBy(new Rotation3d(0, 0, -ANGLE_OFFSET));
@@ -55,8 +60,8 @@ public class ShooterSubsystem extends MotorSubsystem {
     public static final double HUB_HEIGHT = 1.829;
 
     public static final Hub
-        RED_HUB  = new Hub(new Translation2d( 4.626, 4.035), Alliance.Red,  pos -> pos.getX() < 4.626),
-        BLUE_HUB = new Hub(new Translation2d(11.915, 4.035), Alliance.Blue, pos -> pos.getX() > 11.915);
+        BLUE_HUB = new Hub(new Translation2d( 4.626, 4.035), Alliance.Blue, pos -> pos.getX() < 4.626),
+        RED_HUB  = new Hub(new Translation2d(11.915, 4.035), Alliance.Red,  pos -> pos.getX() > 11.915);
 
     public static class Hub {
 
@@ -90,7 +95,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     private final Map<CustomTalonFX, PIDController> pid = new HashMap<>();
 
     public ShooterSubsystem(CustomTalonFX... motors) {
-        super(motors, 7.5);
+        super(motors, 7);
 
         for (var motor : motors) {
             pid.put(motor, new PIDController(kP, kI, kD));
@@ -141,7 +146,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         if (determinant <= 0) return MAX_VEL;
 
         double vel = dist * secA * Math.sqrt(GRAVITY / (2 * determinant));
-        return vel * VELOCITY_MULT;
+        return vel * VELOCITY_MULT / FLYWHEEL_CIRC;
     }
 
     public static double calcRobotAngle(Translation2d pos) {
@@ -172,6 +177,7 @@ public class ShooterSubsystem extends MotorSubsystem {
             dx -= vx * AIRTIME_ESTIMATE;
         }
 
+        SmartDashboard.putNumber("cheese distance", dx);
         return getShooterVelocityForDistance(dx);
     }
 

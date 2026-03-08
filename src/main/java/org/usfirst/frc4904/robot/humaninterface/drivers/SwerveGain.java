@@ -11,7 +11,7 @@ import org.usfirst.frc4904.standard.commands.AlwaysRunnableInstantCommand;
 import org.usfirst.frc4904.standard.commands.RunUnless;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandPS4;
 import org.usfirst.frc4904.standard.humaninput.Driver;
-import org.usfirst.frc4904.standard.util.Logging;
+import org.usfirst.frc4904.standard.util.logging.Cheese;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
 import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.calcRobotAngle;
@@ -68,7 +68,7 @@ public class SwerveGain extends Driver {
 
         // testing shooter
         ps4.square().whileTrue(
-            Component.shooter.c_controlVelocity(() -> ShooterSubsystem.getShooterVelocityForDistance(2))
+            Component.shooter.c_controlVelocity(() -> ShooterSubsystem.getShooterVelocityForDistance(2.63))
         );
 
         // indexer
@@ -83,9 +83,9 @@ public class SwerveGain extends Driver {
 
         // align
         ps4.R1().whileTrue(
+            // TODO fix formatting
             Component.chassis.c_rotateTo(() -> {
                 var hub = ShooterSubsystem.getOwnHub();
-                Logging.log("hub", hub.alliance);
                 return calcRobotAngle(hub.pos);
             }, true)
         );

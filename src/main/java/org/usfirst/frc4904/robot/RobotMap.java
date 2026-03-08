@@ -193,7 +193,7 @@ public final class RobotMap {
 
         Component.TEMPORARY_INTAKE_SHENANIGANS = new MotorSubsystem(
             Component.intakeVerticalMotor,
-            2
+            4
         );
 
         Component.intake = new IntakeSubsystem(Component.intakeVerticalMotor, Component.intakeRollerMotor, Component.intakeEncoder);
