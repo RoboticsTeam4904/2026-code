@@ -251,13 +251,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
                 Logging.log("WE HAVE A POS", tag.pos());
 
-<<<<<<< Updated upstream
                 estimator.addVisionMeasurement(
                     new Pose2d(pose.getTranslation(), getTrueRotation()),
-=======
-                addVisionPoseEstimate(
-                    new Pose2d(pose.getTranslation(), pose.getRotation()),
->>>>>>> Stashed changes
                     Timer.getFPGATimestamp() // TODO VISION use frame time (probably fixed now?)
                 );
             }
