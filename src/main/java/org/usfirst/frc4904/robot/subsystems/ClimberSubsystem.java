@@ -68,7 +68,7 @@ public class ClimberSubsystem extends MotorSubsystem {
 
     @Override
     public void setVoltage(double voltage) {
-        setVoltage(voltage, false);
+        setVoltage(voltage, true);
     }
 
     public void setVoltage(double voltage, boolean bypassSoftwareStop) {

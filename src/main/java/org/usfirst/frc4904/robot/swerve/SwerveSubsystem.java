@@ -240,7 +240,7 @@ public class SwerveSubsystem extends SubsystemBase {
             lastTagUpdateTime = GoogleTagManager.getLastTime();
 
             for (var tag : tags) {
-                if (tag.id() != 10) continue;
+                // if (tag.id() != 10) continue;
 
                 // all field-relative
                 Pose2d pose = ComputerVisionUtil.objectToRobotPose(
@@ -251,8 +251,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
                 Logging.log("WE HAVE A POS", tag.pos());
 
+<<<<<<< Updated upstream
                 estimator.addVisionMeasurement(
                     new Pose2d(pose.getTranslation(), getTrueRotation()),
+=======
+                addVisionPoseEstimate(
+                    new Pose2d(pose.getTranslation(), pose.getRotation()),
+>>>>>>> Stashed changes
                     Timer.getFPGATimestamp() // TODO VISION use frame time (probably fixed now?)
                 );
             }

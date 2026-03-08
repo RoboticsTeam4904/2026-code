@@ -225,8 +225,8 @@ public final class Util {
     /**
      * Utility for creating Transform3D instances
      */
-    public static Transform3d transform3d(double x, double y, double z, double rotations) {
-        return new Transform3d(x, y, z, new Rotation3d(0, 0, Units.rotationsToRadians(rotations)));
+    public static Transform3d transform3d(double x, double y, double z, double radians) {
+        return new Transform3d(x, y, z, new Rotation3d(0, 0, radians));
     }
 
     /**
