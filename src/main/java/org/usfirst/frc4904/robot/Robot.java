@@ -22,8 +22,8 @@ import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.CommandRobotBase;
-import org.usfirst.frc4904.standard.silly.Silly;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.silly.Silly;
 import org.usfirst.frc4904.standard.util.Util;
 
 public class Robot extends CommandRobotBase {
@@ -37,7 +37,7 @@ public class Robot extends CommandRobotBase {
         autonStart = Dashboard.previewField.getRobotObject(),
         autonEnd = Dashboard.previewField.getObject("auton_end");
 
-    private Boolean lastAutonFlip; // FIX THIS CANNOT BE RIGHT
+    private Boolean lastAutonFlip;
     // alliance is not guaranteed to be set on startup
     // so we need to check it multiple times and flip the paths if necessary.
     // the chooser will remain selecting the auton with the same name even if the value is replaced.
@@ -45,7 +45,7 @@ public class Robot extends CommandRobotBase {
         boolean flipAuton = DriverStation.getAlliance().orElse(null) == Alliance.Red;
 
         // always true first time since lastAutonFlip is null
-        if (lastAutonFlip != null && flipAuton != lastAutonFlip) {
+        if (lastAutonFlip == null || flipAuton != lastAutonFlip) {
             lastAutonFlip = flipAuton;
             Auton.initPathplanner(autonChooser, flipAuton, AUTON_NAMES);
         }
