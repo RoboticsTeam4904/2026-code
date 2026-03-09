@@ -6,10 +6,12 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import org.json.simple.parser.ParseException;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
@@ -17,11 +19,13 @@ import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 public final class PathManager {
+    private PathManager() {}
 
     /**
      * When {@code false}, PathPlanner paths will be moved so that the starting position
@@ -32,6 +36,10 @@ public final class PathManager {
      */
     public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = false;
 
+    public static boolean shouldFlip() {
+        return DriverStation.getAlliance().orElse(null) == Alliance.Red;
+    }
+
     // apparently cannot be higher than 85 (????) - see javadoc for FieldObject2d.setPoses()
     private static final int PATHPLANNER_PREVIEW_STEPS = 50;
 
@@ -40,7 +48,7 @@ public final class PathManager {
     private static final FieldObject2d liveTraj = Dashboard.liveField.getObject("auton_traj");
     private static final FieldObject2d liveTarget = Dashboard.liveField.getObject("auton_next");
 
-    private static final Map<String, PathPlannerCommand> paths = new HashMap<>();
+    private static final Map<String, Command> pathCache = new HashMap<>();
 
     static RobotConfig pathPlannerConfig;
     static {
@@ -51,38 +59,16 @@ public final class PathManager {
         }
     }
 
-    private PathManager() {}
-
-    // can be called multiple times with different values of 'flip' and paths will be overridden
-    public static void init(SendableChooser<PathPlannerCommand> chooser, boolean flip, String... names) {
-        if (pathPlannerConfig == null) return;
-
-        paths.clear();
-        for (var name : names) {
-            Command cmd = c_pathPlanner(name, flip);
-
-            if (cmd instanceof PathPlannerCommand pathCmd) {
-                paths.put(name, pathCmd);
-                chooser.addOption(name, pathCmd);
-            }
-        }
-    }
-
     public static Command c_path(String name) {
-        if (!paths.containsKey(name)) {
-            System.err.println("No loaded PathPlanner path '" + name + "'");
-            return new NoOp();
-        }
-
-        return paths.get(name);
+        return pathCache.computeIfAbsent(name, PathManager::loadPathCommand);
     }
 
-    public static Command c_pathPlanner(String file, boolean flip) {
+    private static Command loadPathCommand(String file) {
         try {
             PathPlannerPath path = PathPlannerPath.fromPathFile(file);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
 
-            return new PathPlannerCommand(flip ? traj.flip() : traj);
+            return new PathPlannerCommand(traj);
         } catch (IOException | ParseException e) {
             System.err.println("Failed to load PathPlanner path '" + file + "':\n" + e.getMessage());
         } catch (NoSuchElementException e) {
@@ -92,17 +78,52 @@ public final class PathManager {
         return new NoOp();
     }
 
-    public static class PathPlannerCommand extends Command {
+    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj, int steps) {
+        return makeTrajPreview(traj, traj.getInitialPose(), steps);
+    }
 
-        public final PathPlannerTrajectory traj;
-        public final double duration;
+    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj, Pose2d start, int steps) {
+        double dur = traj.getTotalTimeSeconds();
+        double timePerStep = dur / steps;
 
-        private Pose2d[] trajPreview; // cache
-        public Pose2d[] getTrajPreview() {
-            if (trajPreview != null) return trajPreview;
-            return trajPreview = makeTrajPreview(traj);
+        Pose2d[] poses = new Pose2d[steps];
+        for (int step = 0; step < steps; step++) {
+            poses[step] = sampleTraj(traj, start, step * timePerStep);
+        }
+        return poses;
+    }
+
+    private static Pose2d sampleTraj(PathPlannerTrajectory traj, Pose2d start, double time) {
+        Pose2d pose = traj.sample(time).pose, initial = traj.getInitialPose();
+        if (start == initial) return pose; // should be exactly equal if getInitialPose() was used
+        return start.plus(new Transform2d(initial, pose));
+    }
+
+    public static class PathPlannerCommand extends Command implements TrajectoryCommand {
+
+        public PathPlannerTrajectory traj;
+        private final double duration;
+
+        @Override
+        public double getDuration() {
+            return duration;
         }
 
+        @Override
+        public Pose2d[] getTrajPreview(int steps) {
+            updateFlip();
+            return makeTrajPreview(traj, steps);
+        }
+
+        @Override
+        public Pose2d getInitialPose() {
+            return traj.getInitialPose();
+        }
+
+        @Override
+        public Pose2d getEndPose() {
+            return traj.getEndState().pose;
+        }
 
         private double startTime;
         private Pose2d start;
@@ -112,6 +133,8 @@ public final class PathManager {
 
         private PathPlannerCommand(PathPlannerTrajectory traj) {
             this.traj = traj;
+            updateFlip();
+
             duration = traj.getTotalTimeSeconds();
 
             addRequirements(Component.chassis);
@@ -132,8 +155,18 @@ public final class PathManager {
             }, true);
         }
 
+        private boolean lastFlip;
+        private void updateFlip() {
+            if (lastFlip != shouldFlip()) {
+                lastFlip = !lastFlip;
+                traj = traj.flip();
+            }
+        }
+
         @Override
         public void initialize() {
+            updateFlip();
+
             atEnd = false;
             startTime = Timer.getFPGATimestamp();
             Pose2d current = Component.chassis.getPoseEstimate();
@@ -143,7 +176,8 @@ public final class PathManager {
                 // orientation/rotation of path is always field relative
                 : new Pose2d(current.getTranslation(), Rotation2d.kZero);
 
-            liveTraj.setPoses(makeTrajPreview(traj, start));
+            int steps = Math.min(PATHPLANNER_PREVIEW_STEPS, (int) Math.round(duration * 10));
+            liveTraj.setPoses(makeTrajPreview(traj, start, steps));
 
             gotoPoseCommand.initialize();
         }
@@ -166,26 +200,75 @@ public final class PathManager {
         }
     }
 
-    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj) {
-        return makeTrajPreview(traj, traj.getInitialPose());
-    }
+    /**
+     * Note: Using {@link SequentialCommandGroup#addCommands(Command...) addCommands()} will not
+     * add trajectories to the preview.
+     */
+    public static class SequentialPathPlannerGroup extends SequentialCommandGroup implements TrajectoryCommand {
 
-    private static Pose2d[] makeTrajPreview(PathPlannerTrajectory traj, Pose2d start) {
-        double dur = traj.getTotalTimeSeconds();
-        int steps = Math.min(PATHPLANNER_PREVIEW_STEPS, (int) Math.round(dur * 10));
-        double timePerStep = dur / steps;
+        private final double duration;
+        private final TrajectoryCommand[] trajCommands;
 
-        Pose2d[] poses = new Pose2d[steps];
-        for (int step = 0; step < steps; step++) {
-            poses[step] = sampleTraj(traj, start, step * timePerStep);
+        public SequentialPathPlannerGroup(Command... commands) {
+            super(commands);
+
+            trajCommands = Arrays.stream(commands)
+                                 .filter(cmd -> cmd instanceof TrajectoryCommand)
+                                 .toArray(TrajectoryCommand[]::new);
+
+            if (trajCommands.length == 0) {
+                throw new IllegalArgumentException("Cannot construct a SequentialPathPlannerGroup without any TrajectoryCommands");
+            }
+
+            double dur = 0;
+            for (var cmd : trajCommands) {
+                dur += cmd.getDuration();
+            }
+            duration = dur;
         }
-        return poses;
+
+        @Override
+        public double getDuration() {
+            return duration;
+        }
+
+        @Override
+        public Pose2d[] getTrajPreview(int totalSteps) {
+            return Arrays.stream(trajCommands)
+                         .flatMap(cmd -> {
+                             int steps = (int) Math.round(cmd.getDuration() / duration * totalSteps);
+                             return Arrays.stream(cmd.getTrajPreview(steps));
+                         })
+                         .toArray(Pose2d[]::new);
+        }
+
+        @Override
+        public Pose2d getInitialPose() {
+            return trajCommands[0].getInitialPose();
+        }
+
+        @Override
+        public Pose2d getEndPose() {
+            return trajCommands[trajCommands.length - 1].getEndPose();
+        }
+
     }
 
-    private static Pose2d sampleTraj(PathPlannerTrajectory traj, Pose2d start, double time) {
-        Pose2d pose = traj.sample(time).pose, initial = traj.getInitialPose();
-        if (start == initial) return pose; // should be exactly equal if getInitialPose() was used
-        return start.plus(new Transform2d(initial, pose));
+    public interface TrajectoryCommand {
+
+        double getDuration();
+
+        // length of returned array may be slightly off due to rounding errors
+        Pose2d[] getTrajPreview(int steps);
+
+        default Pose2d[] getTrajPreview() {
+            return getTrajPreview(PATHPLANNER_PREVIEW_STEPS);
+        }
+
+        Pose2d getInitialPose();
+
+        Pose2d getEndPose();
+
     }
 
 }

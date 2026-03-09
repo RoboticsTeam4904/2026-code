@@ -9,25 +9,16 @@ package org.usfirst.frc4904.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
-
+import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.auton.Auton;
 import org.usfirst.frc4904.robot.auton.PathManager;
 import org.usfirst.frc4904.robot.auton.PathManager.PathPlannerCommand;
-
-import java.util.Set;
-import java.util.function.Consumer;
-
-import org.usfirst.frc4904.robot.RobotMap.Component;
-import org.usfirst.frc4904.robot.RobotMap.Dashboard;
+import org.usfirst.frc4904.robot.auton.PathManager.TrajectoryCommand;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
@@ -38,29 +29,10 @@ import org.usfirst.frc4904.standard.util.Util;
 
 public class Robot extends CommandRobotBase {
 
-    private static final String[] AUTON_NAMES = {
-        "STRET", "4", "7", "romtater", "aaahhh", "4904", "climb"
-    };
-
     private static final FieldObject2d
         autonPreview = Dashboard.previewField.getObject("auton_preview"),
         autonStart = Dashboard.previewField.getRobotObject(),
         autonEnd = Dashboard.previewField.getObject("auton_end");
-
-    private Boolean lastAutonFlip;
-    // alliance is not guaranteed to be set on startup
-    // so we need to check it multiple times and flip the paths if necessary.
-    // the chooser will remain selecting the auton with the same name even if the value is replaced.
-    private void updateAuton() {
-        boolean flipAuton = DriverStation.getAlliance().orElse(null) == Alliance.Red;
-
-        // always true first time since lastAutonFlip is null
-        if (lastAutonFlip == null || flipAuton != lastAutonFlip) {
-            lastAutonFlip = flipAuton;
-
-            PathManager.init(pathChooser, flipAuton, AUTON_NAMES);
-        }
-    }
 
     @Override
     public void initialize() {
@@ -69,40 +41,36 @@ public class Robot extends CommandRobotBase {
         SmartDashboard.putData("scheduler", CommandScheduler.getInstance());
         SmartDashboard.putString("Elastic Working", "YES.");
 
+        // basic autons
         autonChooser.setDefaultOption("none", new NoOp());
         autonChooser.addOption("straight", Auton.c_jankStraight());
         autonChooser.addOption("reverse", Auton.c_jankReverse());
+
+        // pathplanner paths
+        String[] names = { "STRET", "romtater", "aaahhh" };
+        for (var name : names) {
+            autonChooser.addOption(name, PathManager.c_path(name));
+        }
+
+        // pathplanner sequences
         autonChooser.addOption("climb", Auton.c_climb());
 
-        Command plannerCmd = new DeferredCommand(() -> pathChooser.getSelected(), Set.of(Component.chassis));
-        plannerCmd.setName("pathplanner");
-        autonChooser.addOption("path", plannerCmd);
-
-        updateAuton();
-
+        // drivers
         driverChooser.setDefaultOption("swerve", new SwerveDriver());
 
+        // operators
         operatorChooser.setDefaultOption("default", new DefaultOperator());
 
         // show selected auton path in elastic dashboard
-        Runnable onChange = () -> {
-            updateAuton();
-
-            // updateAuton() could've flipped the selected command
-            Command cmd = autonChooser.getSelected();
-
-            if (cmd.getName().equals("pathplanner")) {
-                PathPlannerCommand pathCmd = pathChooser.getSelected();
+        autonChooser.onChange(cmd -> {
+            if (cmd instanceof TrajectoryCommand pathCmd) {
                 autonPreview.setPoses(pathCmd.getTrajPreview());
-                autonStart.setPose(pathCmd.traj.getInitialPose());
-                autonEnd.setPose(pathCmd.traj.getEndState().pose);
+                autonStart.setPose(pathCmd.getInitialPose());
+                autonEnd.setPose(pathCmd.getEndPose());
             } else {
                 Util.clearPose(autonPreview, autonStart, autonEnd);
             }
-        };
-
-        autonChooser.onChange(_cmd -> onChange.run());
-        pathChooser.onChange(_cmd -> onChange.run());
+        });
 
         Component.chassis.startPoseEstimator(Translation2d.kZero);
 
@@ -128,8 +96,6 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void autonomousInitialize() {
-        updateAuton();
-
         // if we are using absolute pathplanner positioning (see javadoc on constant),
         // then we're probably starting in the right place, so let's zero the pose
         // estimator assuming that we are. even if not, it's still probably a better

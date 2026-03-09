@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.robot.auton.PathManager.SequentialPathPlannerGroup;
 
 public final class Auton {
 
@@ -33,7 +34,7 @@ public final class Auton {
     }
 
     public static Command c_climb() {
-        return new SequentialCommandGroup(
+        return new SequentialPathPlannerGroup(
             Component.climber.c_gotoUp(),
             PathManager.c_path("climb"),
             Component.climber.c_gotoDown()
