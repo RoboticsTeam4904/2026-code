@@ -6,13 +6,12 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import org.json.simple.parser.ParseException;
+import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.standard.commands.NoOp;
@@ -37,7 +36,7 @@ public final class PathManager {
     public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = false;
 
     public static boolean shouldFlip() {
-        return DriverStation.getAlliance().orElse(null) == Alliance.Red;
+        return Robot.isRedAlliance();
     }
 
     // apparently cannot be higher than 85 (????) - see javadoc for FieldObject2d.setPoses()

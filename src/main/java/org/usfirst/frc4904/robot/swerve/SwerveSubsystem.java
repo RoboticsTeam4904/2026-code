@@ -276,10 +276,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     double getAbsoluteHeading() {
         double heading = getHeading();
-        // return DriverStation.getAlliance().orElse(null) == Alliance.Red
-            // ? (heading + 0.5) % 1
-            // : heading;
-        return heading;
+        return Robot.isRedAlliance() ? (heading + 0.5) % 1 : heading;
     }
 
     Rotation2d getRotation() {

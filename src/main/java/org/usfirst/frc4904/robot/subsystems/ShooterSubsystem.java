@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
 import org.usfirst.frc4904.standard.util.Util;
@@ -52,6 +53,9 @@ public class ShooterSubsystem extends MotorSubsystem {
         .rotateBy(new Rotation3d(0, 0, -ANGLE_OFFSET));
 
     // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
+    public static final double BLUE_LONG_SHOOT_X = 2.54;
+    public static final double RED_LONG_SHOOT_X = 14;
+
     public static final double HUB_HEIGHT = 1.829;
 
     public static final Hub
@@ -122,7 +126,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         }, this::stop);
     }
 
-    /// SHOOTER MATH
+    /// COMMANDS
 
     public boolean canShoot() {
         return getOwnHub().isInRange(Component.chassis.getPositionEstimate());
@@ -132,19 +136,63 @@ public class ShooterSubsystem extends MotorSubsystem {
         return c_controlVelocity(() -> calcShooterVelocity(getOwnHub().pos)).andThen(this::stop);
     }
 
+    public static Command c_smartShootAlign() {
+        return Component.chassis.c_rotateTo(() -> calcRobotAngle(ShooterSubsystem.getOwnHub().pos), true);
+    }
+
+    public Command c_longShoot() {
+        return c_controlVelocity(ShooterSubsystem::calcLongShootVelocity).andThen(this::stop);
+    }
+
+    public Command c_longShootAlign() {
+        return Component.chassis.c_rotateTo(ShooterSubsystem::calcLongShootAngle, true);
+    }
+
+    /// DISTANCE MATH
+
     private static final double tanA = Math.tan(SHOOTER_ANGLE), secA = 1 / Math.cos(SHOOTER_ANGLE);
 
     public static double getShooterVelocityForDistance(double dist) {
+        SmartDashboard.putNumber("target shooter dist", dist);
+
         double dz = HUB_HEIGHT - SHOOTER_POS.getZ();
 
         double det = dist * tanA - dz;
         if (det <= 0) return MAX_VEL;
 
-        double vel = dist * secA * Math.sqrt(GRAVITY / (2 * det));
-        return vel * VELOCITY_MULT / FLYWHEEL_CIRC;
+        double ballVel = dist * secA * Math.sqrt(GRAVITY / (2 * det));
+        double shooterVel = ballVel / FLYWHEEL_CIRC * VELOCITY_MULT;
+
+        SmartDashboard.putNumber("target shooter vel", shooterVel);
+        return shooterVel;
     }
 
-    public static double calcRobotAngle(Translation2d pos) {
+    private static double calcShooterVelocity(Translation2d pos) {
+        Translation2d robotPos = Component.chassis.getPositionEstimate();
+        Translation2d dist = pos.minus(robotPos);
+
+        double dx = dist.getNorm() - SHOOTER_POS.getX();
+
+        if (ACCOUNT_FOR_ROBOT_VEL) {
+            Translation2d robotVel = Component.chassis.getVelocityEstimate();
+            double vx = robotVel.dot(dist.div(dist.getNorm()));
+            dx -= vx * AIRTIME_ESTIMATE;
+        }
+
+        return getShooterVelocityForDistance(dx);
+    }
+
+    private static double calcLongShootVelocity() {
+        Translation2d robotPos = Component.chassis.getPositionEstimate();
+        double target = Robot.isRedAlliance() ? RED_LONG_SHOOT_X : BLUE_LONG_SHOOT_X;
+        double dx = Math.abs(robotPos.getX() - target);
+
+        return getShooterVelocityForDistance(dx);
+    }
+
+    /// ALIGNMENT MATH
+
+    private static double calcRobotAngle(Translation2d pos) {
         Translation2d robotPos = Component.chassis.getPositionEstimate();
         Translation2d dist = pos.minus(robotPos);
 
@@ -160,20 +208,8 @@ public class ShooterSubsystem extends MotorSubsystem {
         return Units.radiansToRotations(angle + offset - ANGLE_OFFSET);
     }
 
-    private static double calcShooterVelocity(Translation2d pos) {
-        Translation2d robotPos = Component.chassis.getPositionEstimate();
-        Translation2d dist = pos.minus(robotPos);
-
-        double dx = dist.getNorm() - SHOOTER_POS.getX();
-
-        if (ACCOUNT_FOR_ROBOT_VEL) {
-            Translation2d robotVel = Component.chassis.getVelocityEstimate();
-            double vx = robotVel.dot(dist.div(dist.getNorm()));
-            dx -= vx * AIRTIME_ESTIMATE;
-        }
-
-        SmartDashboard.putNumber("cheese distance", dx);
-        return getShooterVelocityForDistance(dx);
+    private static double calcLongShootAngle() {
+        return Robot.isRedAlliance() ? 0 : 0.5;
     }
 
 }

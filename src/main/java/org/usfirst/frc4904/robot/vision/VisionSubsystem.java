@@ -6,11 +6,11 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.TagManager.Tag;
 import org.usfirst.frc4904.standard.commands.WaitWhileCommand;
@@ -47,7 +47,8 @@ public class VisionSubsystem extends SubsystemBase {
         tagIds.put(TagGroup.REEF_OUTER_DIAGONAL, new int[] { 6, 8 });
 
         // move april tags to other side of board if on the blue alliance
-        if (DriverStation.getAlliance().orElse(null) == DriverStation.Alliance.Blue) {
+        // TODO might not work since alliance might not be loaded by now
+        if (Robot.isBlueAlliance()) {
             for (var ids : tagIds.values()) {
                 if (ids[0] == -1) continue; // skip ANY
 

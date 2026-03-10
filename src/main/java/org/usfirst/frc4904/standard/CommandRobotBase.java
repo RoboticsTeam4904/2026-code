@@ -1,5 +1,7 @@
 package org.usfirst.frc4904.standard;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,6 +26,13 @@ import java.util.Set;
 public abstract class CommandRobotBase extends TimedRobot {
 
     public static final double TIME_STEP = TimedRobot.kDefaultPeriod;
+
+    public static boolean isRedAlliance() {
+        return DriverStation.getAlliance().orElse(null) == Alliance.Red;
+    }
+    public static boolean isBlueAlliance() {
+        return DriverStation.getAlliance().orElse(null) == Alliance.Blue;
+    }
 
     public CommandRobotBase() {
         super(TIME_STEP);

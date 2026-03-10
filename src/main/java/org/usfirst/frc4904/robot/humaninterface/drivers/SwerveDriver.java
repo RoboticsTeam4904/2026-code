@@ -12,7 +12,6 @@ import org.usfirst.frc4904.standard.custom.controllers.CustomCommandPS4;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
-import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.calcRobotAngle;
 import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.getShooterVelocityForDistance;
 import static org.usfirst.frc4904.standard.humaninput.Operator.c_smartShootAndIndex;
 
@@ -78,9 +77,7 @@ public class SwerveDriver extends Driver {
         ps4.L1().or(ps4.L2()).whileTrue(Component.intake.c_intake());
 
         // align
-        ps4.R1().whileTrue(
-            Component.chassis.c_rotateTo(() -> calcRobotAngle(ShooterSubsystem.getOwnHub().pos), true)
-        );
+        ps4.R1().whileTrue(ShooterSubsystem.c_smartShootAlign());
 
         // index and shooter
         ps4.R2().whileTrue(c_smartShootAndIndex());

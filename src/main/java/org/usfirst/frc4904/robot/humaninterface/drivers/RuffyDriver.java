@@ -11,7 +11,6 @@ import org.usfirst.frc4904.standard.commands.RunUnless;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
-import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.calcRobotAngle;
 
 public class RuffyDriver extends Driver {
 
@@ -31,9 +30,7 @@ public class RuffyDriver extends Driver {
                 .withName("Driver - swerve drive")
         );
 
-        turnJoystick.button1.whileTrue(
-            Component.chassis.c_rotateTo(() -> calcRobotAngle(ShooterSubsystem.getOwnHub().pos), true)
-        );
+        turnJoystick.button1.whileTrue(ShooterSubsystem.c_smartShootAlign());
 
         /// ODOMETRY RESETTING
         xyJoystick.button1.onTrue(
