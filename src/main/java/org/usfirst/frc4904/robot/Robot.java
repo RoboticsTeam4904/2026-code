@@ -52,7 +52,7 @@ public class Robot extends CommandRobotBase {
         autonChooser.addOption("climb", Auton.c_climb());
 
         // pathplanner paths
-        String[] names = { "STRET", "romtater", "aaahhh", "go" };
+        String[] names = { "STRET", "romtater", "aaahhh", "go", "climbnew" };
         for (var name : names) {
             autonChooser.addOption(name + " (path)", PathManager.c_path(name));
         }
@@ -81,6 +81,8 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void teleopInitialize() {
+        Component.chassis.stop();
+        
         // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
     }
 
@@ -98,11 +100,12 @@ public class Robot extends CommandRobotBase {
         // estimate than (0, 0) and it'll hopefully get adjusted with vision data.
         if (
             PathManager.ABSOLUTE_PATHPLANNER_POSITIONING
-            && autonChooser.getSelected() instanceof PathPlannerCommand pathCmd
+            && autonChooser.getSelected() instanceof TrajectoryCommand pathCmd
         ) {
-            Pose2d pose = pathCmd.traj.getInitialPose();
+            Pose2d pose = pathCmd.getInitialPose();
 
-            Component.imu.zeroYaw(pose.getRotation().getRotations());
+            double offset = Robot.isRedAlliance() ? 0.5 : 0;
+            Component.imu.zeroYaw(pose.getRotation().getRotations() + offset);
             Component.chassis.startPoseEstimator(pose);
         }
     }

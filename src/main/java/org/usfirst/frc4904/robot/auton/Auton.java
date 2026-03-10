@@ -20,7 +20,7 @@ public final class Auton {
     public static Command c_jankStraight() {
         return new SequentialCommandGroup(
             new WaitCommand(12),
-            Component.chassis.c_driveRobotRelative(0.5, 0, 0).withTimeout(2),
+            Component.chassis.c_driveRobotRelative(3, 0, 0).withTimeout(2),
             Component.chassis.c_stop()
         );
     }
@@ -28,7 +28,7 @@ public final class Auton {
     public static Command c_jankReverse() {
         return new SequentialCommandGroup(
             new WaitCommand(12),
-            Component.chassis.c_driveRobotRelative(-0.5, 0, 0).withTimeout(2),
+            Component.chassis.c_driveRobotRelative(-3, 0, 0).withTimeout(2),
             Component.chassis.c_stop()
         );
     }

@@ -81,8 +81,8 @@ public final class Logging {
             return sb.toString();
         } else if (value instanceof Pose2d pose) {
             return String.format("Pose2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", pose.getX(), pose.getY(), pose.getRotation().getDegrees());
-        } else if (value instanceof Translation2d trns) {
-            return String.format("Translation2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", trns.getX(), trns.getY(), trns.getAngle().getDegrees());
+        } else if (value instanceof Transform2d trns) {
+            return String.format("Translation2d(X: %.2f, Y: %.2f, Rot: %.1fdeg)", trns.getX(), trns.getY(), trns.getRotation().getDegrees());
         } else if (value instanceof Rotation3d rot) {
             return String.format("Rotation3d(%s)", rot3dToString(rot));
         } else if (value instanceof Pose3d pose) {

@@ -15,6 +15,8 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.silly.Frogging;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 public class IntakeSubsystem extends MotorSubsystem {
@@ -35,8 +37,8 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double MAX_VEL = 0.7;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
 
-    public static final double WOBBLE_SPEED = 1; // Hz
-    public static final double WOBBLE_DISTANCE = Units.degreesToRotations(15);
+    public static final double WOBBLE_SPEED = 1.5; // Hz
+    public static final double WOBBLE_DISTANCE = Units.degreesToRotations(45);
 
     private final SmartMotorController angleMotor;
     private final DutyCycleEncoder encoder;
@@ -107,8 +109,8 @@ public class IntakeSubsystem extends MotorSubsystem {
                     State setpoint = profile.calculate(elapsed, startState, goalState);
                     if (!wobble) return setpoint;
 
-                    // when we are within ~15deg of target angle, start wobbling
-                    double wobbleMag = Util.transformRange(Math.abs(setpoint.position - angle), 0, 0.04, 1, 0);
+                    // when we are close to target angle, start wobbling
+                    double wobbleMag = Util.transformRange(Math.abs(setpoint.position - angle), 0, 0.1, 1, 0);
                     if (wobbleMag <= 0) return setpoint;
 
                     double t = Timer.getFPGATimestamp();

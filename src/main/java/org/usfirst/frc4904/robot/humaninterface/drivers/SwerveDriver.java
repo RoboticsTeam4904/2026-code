@@ -3,6 +3,8 @@ package org.usfirst.frc4904.robot.humaninterface.drivers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
@@ -62,9 +64,9 @@ public class SwerveDriver extends Driver {
         ps4.cross().onTrue(Component.climber.c_gotoDown());
 
         // testing shooter
-        ps4.square().whileTrue(
-            Component.shooter.c_controlVelocity(() -> getShooterVelocityForDistance(2.63))
-        );
+        // ps4.square().whileTrue(
+        //     Component.shooter.c_controlVelocity(() -> getShooterVelocityForDistance(2.63))
+        // );
 
         // indexer
         ps4.circle().whileTrue(Component.indexer.c_forward(true));
@@ -73,6 +75,11 @@ public class SwerveDriver extends Driver {
         ps4.L1().onTrue(Component.intake.c_retract());
         // intake extend
         ps4.L2().onTrue(Component.intake.c_extend());
+        // intake wobble
+        ps4.square().whileTrue(new ParallelCommandGroup(
+            Component.intake.c_wobble(),
+            Component.intake.c_intake()
+        ));
         // run intake while either extend or retract is held
         ps4.L1().or(ps4.L2()).whileTrue(Component.intake.c_intake());
 

@@ -461,7 +461,7 @@ public class SwerveSubsystem extends SubsystemBase {
             );
 
             //                  pid              convert to robot relative
-            posPIDEffort = diff.times(pidEffort).rotateBy(getRotation().unaryMinus());
+            posPIDEffort = diff.times(pidEffort).rotateBy(Rotation2d.fromRotations(-getAbsoluteHeading()));
         }
 
         @Override
