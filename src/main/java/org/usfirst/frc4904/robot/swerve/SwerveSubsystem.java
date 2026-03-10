@@ -12,7 +12,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.TagManager;
-import org.usfirst.frc4904.standard.silly.Frogging;
 import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Util;
 
@@ -189,9 +187,6 @@ public class SwerveSubsystem extends SubsystemBase {
         if (posCommand != null) translation = posPIDEffort;
         if (rotCommand != null) theta = rotPIDEffort;
 
-        Frogging.frog("trans", translation);
-        Frogging.frog("theta", theta);
-
         Translation2d[] translations = new Translation2d[modules.length];
         double maxMag = SwerveConstants.LIN_SPEED;
 
@@ -281,13 +276,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     double getAbsoluteHeading() {
         double heading = getHeading();
-<<<<<<< HEAD
         return Robot.isRedAlliance() ? (heading + 0.5) % 1 : heading;
-=======
-        return DriverStation.getAlliance().orElse(null) == Alliance.Red
-            ? (heading + 0.5) % 1
-            : heading;
->>>>>>> 01e52a5 (misc)
     }
 
     Rotation2d getRotation() {

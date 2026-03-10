@@ -34,7 +34,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     private static final double VELOCITY_MULT = 2.35;
 
     // hardcoded offset between the robot angle and the exit angle of the fuel
-    // positive means that the fuelp exits the robot to the left/counterclockwise of the expected angle
+    // positive means that the fuel exits the robot to the left/counterclockwise of the expected angle
     private static final double ANGLE_OFFSET = Units.degreesToRadians(0);
 
     // TODO tune
@@ -206,28 +206,8 @@ public class ShooterSubsystem extends MotorSubsystem {
         return Units.radiansToRotations(angle + offset - ANGLE_OFFSET);
     }
 
-<<<<<<< HEAD
     private static double calcLongShootAngle() {
         return Robot.isRedAlliance() ? 0 : 0.5;
-=======
-    private static double calcShooterVelocity(Translation2d pos) {
-        Translation2d robotPos = Component.chassis.getPositionEstimate();
-        Translation2d dist = pos.minus(robotPos);
-
-        double dx = dist.getNorm() - SHOOTER_POS.getX();
-
-        if (ACCOUNT_FOR_ROBOT_VEL) {
-            Translation2d robotVel = Component.chassis.getVelocityEstimate();
-            double vx = robotVel.dot(dist.div(dist.getNorm()));
-            dx -= vx * AIRTIME_ESTIMATE;
-        }
-
-        SmartDashboard.putNumber("cheese distance", dx);
-        double vel = getShooterVelocityForDistance(dx);
-        SmartDashboard.putNumber("ideal vel", vel);
-        return vel;
-
->>>>>>> 01e52a5 (misc)
     }
 
 }

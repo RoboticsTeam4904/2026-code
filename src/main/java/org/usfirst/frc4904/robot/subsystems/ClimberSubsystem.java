@@ -1,26 +1,12 @@
 package org.usfirst.frc4904.robot.subsystems;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-
-import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
-import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
-import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
-
 import edu.wpi.first.wpilibj2.command.Command;
+import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 import org.usfirst.frc4904.standard.custom.sensors.LinearDutyCycleEncoder;
-import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 public class ClimberSubsystem extends MotorSubsystem {
-
-    // TODO change all these
-    // public static final double kS = 0;
-    // public static final double kV = 30;
-    // public static final double kA = 0;
-    // public static final double kG = 0;
 
     public static final double kP = 30;
     public static final double kI = 0;
@@ -28,12 +14,9 @@ public class ClimberSubsystem extends MotorSubsystem {
 
     public static final double MAX_VOLTAGE = 6;
 
-    // public static final double MAX_VEL = 0.3;
-    // public static final double MAX_ACCEL = 10;
-
-    private static final double MAX_HEIGHT = 2.352;
     private static final double MIN_HEIGHT = 0.623;
-    
+    private static final double MAX_HEIGHT = 2.352;
+
     private final LinearDutyCycleEncoder encoder;
 
     public ClimberSubsystem(SmartMotorController motor, LinearDutyCycleEncoder encoder) {

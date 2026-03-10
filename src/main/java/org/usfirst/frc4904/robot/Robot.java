@@ -22,11 +22,12 @@ import org.usfirst.frc4904.robot.auton.PathManager.TrajectoryCommand;
 import org.usfirst.frc4904.robot.humaninterface.drivers.RuffyDriver;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
-import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.silly.Silly;
 import org.usfirst.frc4904.standard.util.Util;
+
+import static org.usfirst.frc4904.robot.RobotMap.RUFFY;
 
 public class Robot extends CommandRobotBase {
 
@@ -57,7 +58,7 @@ public class Robot extends CommandRobotBase {
         }
 
         // drivers
-        driverChooser.setDefaultOption("swerve", new RuffyDriver());
+        driverChooser.setDefaultOption("swerve", RUFFY ? new RuffyDriver() : new SwerveDriver());
 
         // operators
         operatorChooser.setDefaultOption("default", new DefaultOperator());
