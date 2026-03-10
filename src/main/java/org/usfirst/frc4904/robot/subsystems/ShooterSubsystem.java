@@ -72,10 +72,9 @@ public class ShooterSubsystem extends MotorSubsystem {
         private Hub(Translation2d pos, Alliance alliance) {
             this.pos = pos;
             this.alliance = alliance;
-            this.inRange =
-                p -> alliance == Alliance.Red
-                    ? p.getX() > pos.getX()
-                    : p.getX() < pos.getX();
+            this.inRange = alliance == Alliance.Red
+                ? p -> p.getX() > pos.getX()
+                : p -> p.getX() < pos.getX();
         }
 
         public boolean isOwn() {
