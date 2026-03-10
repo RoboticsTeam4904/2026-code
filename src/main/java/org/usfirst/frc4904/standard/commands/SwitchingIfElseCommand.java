@@ -41,6 +41,7 @@ public class SwitchingIfElseCommand extends Command {
     @Override
     public void initialize() {
         current = getCurrent();
+        current.initialize();
     }
 
     @Override
