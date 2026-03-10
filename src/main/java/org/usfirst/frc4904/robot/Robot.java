@@ -46,14 +46,14 @@ public class Robot extends CommandRobotBase {
         autonChooser.addOption("straight", Auton.c_jankStraight());
         autonChooser.addOption("reverse", Auton.c_jankReverse());
 
+        // pathplanner sequences
+        autonChooser.addOption("climb", Auton.c_climb());
+
         // pathplanner paths
         String[] names = { "STRET", "romtater", "aaahhh" };
         for (var name : names) {
-            autonChooser.addOption(name, PathManager.c_path(name));
+            autonChooser.addOption(name + " (path)", PathManager.c_path(name));
         }
-
-        // pathplanner sequences
-        autonChooser.addOption("climb", Auton.c_climb());
 
         // drivers
         driverChooser.setDefaultOption("swerve", new SwerveDriver());
