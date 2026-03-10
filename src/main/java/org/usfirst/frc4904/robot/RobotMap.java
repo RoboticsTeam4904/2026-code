@@ -31,6 +31,8 @@ public final class RobotMap {
             public static final int ps4Port = 0;
 
             public static final int joystick = 1;
+            public static final int xyJoystick = 2;
+            public static final int turnJoystick = 3;
 
         }
 
@@ -178,7 +180,7 @@ public final class RobotMap {
         Component.climbMotor = new CustomTalonFX(1, true);
         Component.climberEncoder = new LinearDutyCycleEncoder(8);
 
-        Component.intakeAngleMotor = new CustomTalonFX(22);
+        Component.intakeAngleMotor = new CustomTalonFX(22, true);
         Component.intakeRollerMotor = new CustomTalonFX(21, true);
         Component.intakeEncoder = new DutyCycleEncoder(9);
 
@@ -198,7 +200,10 @@ public final class RobotMap {
         Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorLeft);
         Component.indexer = new IndexerSubsystem(Component.indexerMotorTop, Component.indexerMotorBottom);
 
-        HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4Port, 0.01);
+        // HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4Port, 0.01);
+        HumanInput.Driver.xyJoystick=new CustomCommandJoystick(Port.HumanInput.xyJoystick, 0.01);
+        HumanInput.Driver.turnJoystick=new CustomCommandJoystick(Port.HumanInput.turnJoystick, 0.01);
+
         HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);
     }
 

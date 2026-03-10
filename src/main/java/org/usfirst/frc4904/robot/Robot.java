@@ -19,6 +19,7 @@ import org.usfirst.frc4904.robot.auton.Auton;
 import org.usfirst.frc4904.robot.auton.PathManager;
 import org.usfirst.frc4904.robot.auton.PathManager.PathPlannerCommand;
 import org.usfirst.frc4904.robot.auton.PathManager.TrajectoryCommand;
+import org.usfirst.frc4904.robot.humaninterface.drivers.RuffyDriver;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
@@ -50,13 +51,13 @@ public class Robot extends CommandRobotBase {
         autonChooser.addOption("climb", Auton.c_climb());
 
         // pathplanner paths
-        String[] names = { "STRET", "romtater", "aaahhh" };
+        String[] names = { "STRET", "romtater", "aaahhh", "go" };
         for (var name : names) {
             autonChooser.addOption(name + " (path)", PathManager.c_path(name));
         }
 
         // drivers
-        driverChooser.setDefaultOption("swerve", new SwerveDriver());
+        driverChooser.setDefaultOption("swerve", new RuffyDriver());
 
         // operators
         operatorChooser.setDefaultOption("default", new DefaultOperator());
@@ -83,13 +84,7 @@ public class Robot extends CommandRobotBase {
     }
 
     @Override
-    public void teleopExecute() {
-        if (Component.chassis.poseEstimatorEnabled()) {
-            Dashboard.liveField.setRobotPose(Component.chassis.getPoseEstimate());
-        } else {
-            Util.clearPose(Dashboard.liveField.getRobotObject());
-        }
-    }
+    public void teleopExecute() {}
 
     @Override
     public void teleopCleanup() {}
@@ -149,6 +144,12 @@ public class Robot extends CommandRobotBase {
     public void alwaysExecute() {
         Silly.periodic();
 
+        if (Component.chassis.poseEstimatorEnabled()) {
+            Dashboard.liveField.setRobotPose(Component.chassis.getPoseEstimate());
+        } else {
+            Util.clearPose(Dashboard.liveField.getRobotObject());
+        }
+
         SmartDashboard.putNumber("velocidad", Component.shooterMotorLeft.getVelocity().getValueAsDouble());
 
         SmartDashboard.putNumber("imu temp", Component.imu.getTemperature());
@@ -157,7 +158,6 @@ public class Robot extends CommandRobotBase {
 
         SmartDashboard.putNumber("climber encoder", Component.climberEncoder.get());
         SmartDashboard.putNumber("intake encoder", Component.intakeEncoder.get());
-        SmartDashboard.putNumber("ideal vel", ShooterSubsystem.getShooterVelocityForDistance(2.63));
     }
 
     @Override

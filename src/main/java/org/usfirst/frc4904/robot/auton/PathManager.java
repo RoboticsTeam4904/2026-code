@@ -15,6 +15,7 @@ import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.standard.commands.NoOp;
+import org.usfirst.frc4904.standard.silly.Frogging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ public final class PathManager {
      * When {@code true}, paths will not be moved, and the robot will try to get to the
      * absolute position of the path on the field.
      */
-    public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = false;
+    public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = true;
 
     public static boolean shouldFlip() {
         return Robot.isRedAlliance();
@@ -135,8 +136,6 @@ public final class PathManager {
             updateFlip();
 
             duration = traj.getTotalTimeSeconds();
-
-            addRequirements(Component.chassis);
 
             // effectively a WrapperCommand of this c_gotoPose() command
             // ...BUT WrapperCommand requires that the command is provided in the super() call,

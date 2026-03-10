@@ -20,7 +20,7 @@ import org.usfirst.frc4904.standard.util.Util;
 public class IntakeSubsystem extends MotorSubsystem {
 
     public static final double kP = 4;
-    public static final double kI = 4; // dubious
+    public static final double kI = 1; // dubious
     public static final double kD = 0;
 
     public static final double kS = 0;

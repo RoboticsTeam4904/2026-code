@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.HashMap;
@@ -30,16 +31,16 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     // multiplier to get from target fuel velocity to target flywheel velocity
     // in theory, this would be ~2 to account for the rotation of the fuel as it leaves the shooter
-    private static final double VELOCITY_MULT = 6;
+    private static final double VELOCITY_MULT = 2.35;
 
     // hardcoded offset between the robot angle and the exit angle of the fuel
-    // positive means that the fuel exits the robot to the left/counterclockwise of the expected angle
+    // positive means that the fuelp exits the robot to the left/counterclockwise of the expected angle
     private static final double ANGLE_OFFSET = Units.degreesToRadians(0);
 
     // TODO tune
-    private static final double MAX_VEL = 8;
+    private static final double MAX_VEL = 8e9;
 
-    private static final double kP = 0, kI = 0, kD = 0, kS = 0, kV = 0.7;
+    private static final double kP = 0, kI = 0, kD = 0, kS = 0, kV = 0.1;
 
     /// MEASUREMENTS
 
@@ -47,7 +48,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     // TODO get measurements
     public static final double FLYWHEEL_CIRC = Units.inchesToMeters(4 * Math.PI);
-    public static final double SHOOTER_ANGLE = Units.degreesToRadians(60); // 0 = horizontal
+    public static final double SHOOTER_ANGLE = Units.degreesToRadians(50); // 0 = horizontal
     public static final Translation3d SHOOTER_POS = new Translation3d(0, -0.22, 0.51) // forward, left, up
         .rotateBy(new Rotation3d(0, 0, -ANGLE_OFFSET));
 
@@ -124,7 +125,9 @@ public class ShooterSubsystem extends MotorSubsystem {
     /// COMMANDS
 
     public boolean canShoot() {
-        return getOwnHub().isInRange(Component.chassis.getPositionEstimate());
+        return Logging.log(
+            "can shoot", getOwnHub().isInRange(Component.chassis.getPositionEstimate())
+        );
     }
 
     public Command c_smartShoot() {
@@ -203,8 +206,28 @@ public class ShooterSubsystem extends MotorSubsystem {
         return Units.radiansToRotations(angle + offset - ANGLE_OFFSET);
     }
 
+<<<<<<< HEAD
     private static double calcLongShootAngle() {
         return Robot.isRedAlliance() ? 0 : 0.5;
+=======
+    private static double calcShooterVelocity(Translation2d pos) {
+        Translation2d robotPos = Component.chassis.getPositionEstimate();
+        Translation2d dist = pos.minus(robotPos);
+
+        double dx = dist.getNorm() - SHOOTER_POS.getX();
+
+        if (ACCOUNT_FOR_ROBOT_VEL) {
+            Translation2d robotVel = Component.chassis.getVelocityEstimate();
+            double vx = robotVel.dot(dist.div(dist.getNorm()));
+            dx -= vx * AIRTIME_ESTIMATE;
+        }
+
+        SmartDashboard.putNumber("cheese distance", dx);
+        double vel = getShooterVelocityForDistance(dx);
+        SmartDashboard.putNumber("ideal vel", vel);
+        return vel;
+
+>>>>>>> 01e52a5 (misc)
     }
 
 }

@@ -38,28 +38,28 @@ public class SwerveDriver extends Driver {
         );
 
         // flip zeroes
-        ps4.povLeft().onTrue(
-            new RunUnless(
-                new AlwaysRunnableInstantCommand(() -> Component.chassis.flipZero()),
-                DriverStation::isTeleopEnabled
-            )
-        );
+        // ps4.povLeft().onTrue(
+        //     new RunUnless(
+        //         new AlwaysRunnableInstantCommand(() -> Component.chassis.flipZero()),
+        //         DriverStation::isTeleopEnabled
+        //     )
+        // );
 
         // explode operator joystick (shooter testing)
         ps4.povRight().whileTrue(Component.shooter.c_forward(true));
 
         // swerve reset
-        ps4.povDown().onTrue(
-            new RunUnless(
-                new AlwaysRunnableInstantCommand(() -> Component.chassis.zero()),
-                DriverStation::isTeleopEnabled
-            )
-        );
+        // ps4.povDown().onTrue(
+        //     new RunUnless(
+        //         new AlwaysRunnableInstantCommand(() -> Component.chassis.zero()),
+        //         DriverStation::isTeleopEnabled
+        //     )
+        // );
 
         // climber up
-        ps4.triangle().whileTrue(Component.climber.c_up());
+        ps4.triangle().onTrue(Component.climber.c_gotoUp());
         // climber down
-        ps4.cross().whileTrue(Component.climber.c_down());
+        ps4.cross().onTrue(Component.climber.c_gotoDown());
 
         // testing shooter
         ps4.square().whileTrue(
