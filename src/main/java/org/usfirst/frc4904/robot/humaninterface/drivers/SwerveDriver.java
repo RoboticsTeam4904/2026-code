@@ -68,15 +68,22 @@ public class SwerveDriver extends Driver {
         //     Component.shooter.c_controlVelocity(() -> getShooterVelocityForDistance(2.63))
         // );
 
+        ps4.circle().whileTrue(
+            new ParallelCommandGroup(
+                Component.shooter.c_longShoot(),
+                Component.indexer.c_forward(true)
+            )
+        );
+
         // indexer
-        ps4.circle().whileTrue(Component.indexer.c_forward(true));
+        ps4.square().whileTrue(Component.indexer.c_forward(true));
 
         // intake retract
         ps4.L1().onTrue(Component.intake.c_retract());
         // intake extend
         ps4.L2().onTrue(Component.intake.c_extend());
         // intake wobble
-        ps4.square().whileTrue(new ParallelCommandGroup(
+        ps4.povDown().whileTrue(new ParallelCommandGroup(
             Component.intake.c_wobble(),
             Component.intake.c_intake()
         ));

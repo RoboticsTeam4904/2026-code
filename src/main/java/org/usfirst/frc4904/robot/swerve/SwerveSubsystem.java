@@ -1,5 +1,6 @@
 package org.usfirst.frc4904.robot.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -225,7 +226,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private double lastTagUpdateTime;
 
     // TODO VISION not very accurate
-    private static final Translation2d CAMERA_OFFSET = new Translation2d(Units.inchesToMeters(-4), 0);
+    private static final Translation2d CAMERA_OFFSET = new Translation2d(0.3, 0);
 
     @Override
     public void periodic() {
@@ -236,10 +237,8 @@ public class SwerveSubsystem extends SubsystemBase {
         if (estimatorEnabled) {
             estimator.update(getAbsoluteRotation(), getModulePositions());
 
-            long t = System.currentTimeMillis();
             var tags = TagManager.getTagsSince(lastTagUpdateTime);
             lastTagUpdateTime = TagManager.getLastTime();
-            Logging.log("get tags", "get tags: " + (System.currentTimeMillis() - t));
 
             for (var tag : tags) {
                 Translation2d cameraToTagRR = tag.pos().getTranslation().toTranslation2d();
@@ -369,13 +368,16 @@ public class SwerveSubsystem extends SubsystemBase {
                 } else {
                     goal = lastGoal;
 
-                    if (Math.abs(current - goal) <= ROT_DIST_THRESHOLD) {
+                    double diff = MathUtil.inputModulus(Math.abs(current - goal), -0.5, 0.5);
+                    if (diff <= ROT_DIST_THRESHOLD) {
                         done = true;
                     }
                 }
             } else {
                 lastGoal = goal;
             }
+
+            Logging.log("rot diff", current - goal);
 
             rotPIDEffort = Util.clamp(
                 rotPID.calculate(current, goal),
@@ -391,6 +393,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public boolean isFinished() {
+            Logging.log("is rot done????", done);
             return done;
         }
     }
@@ -411,7 +414,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private class PositionCommand extends Command {
 
-        private static final double DISTANCE_THRESHOLD = 0.02; // 2 cm
+        private static final double DISTANCE_THRESHOLD = 0.1;
 
         private final PIDController posPID;
         private final Supplier<Translation2d> getPos;
@@ -419,7 +422,7 @@ public class SwerveSubsystem extends SubsystemBase {
         PositionCommand(Supplier<Translation2d> getPos) {
             this.getPos = getPos;
 
-            posPID = new PIDController(20, 0, 0);
+            posPID = new PIDController(100, 15, 0);
             // don't require swerve subsystem so that it can run in parallel to other swerve commands
         }
 
@@ -474,6 +477,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public boolean isFinished() {
+            Logging.log("am i (pos) done?", done);
             return done;
         }
     }

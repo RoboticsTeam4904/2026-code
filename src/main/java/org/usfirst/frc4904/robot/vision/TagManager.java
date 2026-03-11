@@ -30,7 +30,7 @@ public final class TagManager {
     static {
         long t = System.currentTimeMillis();
         field = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
-        Logging.log("field init", "field init: " + (System.currentTimeMillis() - t));
+        Logging.log("field init", System.currentTimeMillis() - t);
     }
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -40,7 +40,7 @@ public final class TagManager {
         var table = NetworkTableInstance.getDefault();
         tagsEntry = table.getEntry("/dauntless/tags");
         timeEntry = table.getEntry("/dauntless/time");
-        Logging.log("nt init", "nt init: " + (System.currentTimeMillis() - t));
+        Logging.log("nt init", System.currentTimeMillis() - t);
     }
 
     private static double lastTime;
@@ -69,9 +69,7 @@ public final class TagManager {
 
                 double[] pos = mapper.treeToValue(el.path("pos"), double[].class);
 
-                long t = System.currentTimeMillis();
                 Optional<Pose3d> tagPose = field.getTagPose(id);
-                Logging.log("get tag pose", "get tag pose: " + (System.currentTimeMillis() - t));
                 if (tagPose.isEmpty()) {
                     System.err.println("Tag id " + id + " does not exist on field layout");
                     continue;
