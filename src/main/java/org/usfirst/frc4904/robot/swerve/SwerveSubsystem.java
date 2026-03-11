@@ -21,6 +21,7 @@ import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.TagManager;
 import org.usfirst.frc4904.standard.util.CmdUtil;
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.Arrays;
@@ -234,8 +235,10 @@ public class SwerveSubsystem extends SubsystemBase {
         if (estimatorEnabled) {
             estimator.update(getTrueRotation(), getModulePositions());
 
+            long t = System.currentTimeMillis();
             var tags = TagManager.getTagsSince(lastTagUpdateTime);
             lastTagUpdateTime = TagManager.getLastTime();
+            Logging.log("get tags", "get tags: " + (System.currentTimeMillis() - t));
 
             for (var tag : tags) {
                 Translation2d cameraToTagRR = tag.pos().getTranslation().toTranslation2d();

@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.ArrayList;
@@ -24,14 +25,22 @@ public final class TagManager {
 
     public record Tag(int id, Transform3d pos, Pose3d fieldPos, double time, int camera) {}
 
-    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+    private static final AprilTagFieldLayout field;
+
+    static {
+        long t = System.currentTimeMillis();
+        field = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+        Logging.log("field init", "field init: " + (System.currentTimeMillis() - t));
+    }
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final NetworkTableEntry tagsEntry, timeEntry;
     static {
+        long t = System.currentTimeMillis();
         var table = NetworkTableInstance.getDefault();
         tagsEntry = table.getEntry("/dauntless/tags");
         timeEntry = table.getEntry("/dauntless/time");
+        Logging.log("nt init", "nt init: " + (System.currentTimeMillis() - t));
     }
 
     private static double lastTime;
@@ -60,7 +69,9 @@ public final class TagManager {
 
                 double[] pos = mapper.treeToValue(el.path("pos"), double[].class);
 
+                long t = System.currentTimeMillis();
                 Optional<Pose3d> tagPose = field.getTagPose(id);
+                Logging.log("get tag pose", "get tag pose: " + (System.currentTimeMillis() - t));
                 if (tagPose.isEmpty()) {
                     System.err.println("Tag id " + id + " does not exist on field layout");
                     continue;

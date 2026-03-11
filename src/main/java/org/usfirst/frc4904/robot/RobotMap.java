@@ -1,9 +1,6 @@
 package org.usfirst.frc4904.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -167,9 +164,9 @@ public final class RobotMap {
             )
         );
 
-        Component.vision = new VisionSubsystem(
-            new Transform2d(Units.inchesToMeters(8), Units.inchesToMeters(0), Rotation2d.kZero)
-        );
+        // Component.vision = new VisionSubsystem(
+        //     new Transform2d(Units.inchesToMeters(8), Units.inchesToMeters(0), Rotation2d.kZero)
+        // );
 
         // Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);
         // Component.lights = new LightSubsystem(

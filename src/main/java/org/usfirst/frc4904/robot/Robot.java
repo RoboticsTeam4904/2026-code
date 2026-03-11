@@ -123,8 +123,6 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void disabledInitialize() {
-        Component.vision.stopPositioning("Robot disabled", false);
-
         Component.chassis.stop();
 
         CommandScheduler.getInstance().cancelAll();
