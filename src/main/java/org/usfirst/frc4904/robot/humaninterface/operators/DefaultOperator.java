@@ -7,6 +7,7 @@ import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick.Axi
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Util;
+import org.usfirst.frc4904.standard.util.Notifications;
 
 import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.getShooterVelocityForDistance;
 
@@ -35,8 +36,8 @@ public class DefaultOperator extends Operator {
         var joystick = RobotMap.HumanInput.Operator.joystick;
 
         /// TEMPORARY INTAKE SHENANIGANS
-        joystick.button4.whileTrue(Component.INTAKE_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.c_forward(true));
-        joystick.button6.whileTrue(Component.INTAKE_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.c_backward(true));
+        // joystick.button4.whileTrue(Component.INTAKE_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.c_forward(true));
+        // joystick.button6.whileTrue(Component.INTAKE_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.c_backward(true));
 
         // joystick.button10.whileTrue(
         //     Component.TEMPORARY_INTAKE_SHENANIGANS.c_DEBUG_tunePIDkG(() -> 1 - joystick.getAxis(Axis.SLIDER))
@@ -48,11 +49,16 @@ public class DefaultOperator extends Operator {
 
         joystick.button3.or(joystick.button5).whileTrue(Component.intake.c_intake());
 
+        /// INDEXER
+        joystick.button4.whileTrue(Component.indexer.c_forward(true));
+        joystick.button6.whileTrue(Component.indexer.c_forward(true));
+
         joystick.button12.whileTrue(Component.intake.c_wobble());
 
         /// SHOOTER
         joystick.button1.whileTrue(c_smartShootAndIndex());
-        joystick.button2.whileTrue(
+        joystick.button2.whileTrue(Component.shooter.c_longShoot());
+        joystick.button11.whileTrue(
             new ParallelCommandGroup(
                 Component.shooter.c_controlVelocity(this::getVelocity),
                 CmdUtil.delayed(SHOOT_INDEXER_DELAY, Component.indexer.c_forward(true))
@@ -70,9 +76,8 @@ public class DefaultOperator extends Operator {
         joystick.button10.whileTrue(Component.indexer.c_backward(true));
 
 
-        /// NOTIFS TEST
-        // joystick.button10.onTrue(Notifications.c_testNotif());
-        // joystick.button11.onTrue(Notifications.c_sendRandom());
+        /// NOTIFS 
+        joystick.button7.onTrue(Notifications.c_sendRandom());
 
         /// ORCHESTRA
         // CustomTalonFX[] motors = {
