@@ -15,6 +15,7 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.silly.console;
 import org.usfirst.frc4904.standard.util.Util;
 
 public class IntakeSubsystem extends MotorSubsystem {
@@ -106,10 +107,12 @@ public class IntakeSubsystem extends MotorSubsystem {
 
                 return (elapsed) -> {
                     State setpoint = profile.calculate(elapsed, startState, goalState);
+                    console.log("wobble", wobble);
                     if (!wobble) return setpoint;
 
                     // increase wobbling the closer we are to the target angle
                     double wobbleMag = Util.transformRange(Math.abs(setpoint.position - angle), 0, 0.2, 1, 0);
+                    console.log("wobbleMag", wobbleMag);
                     if (wobbleMag <= 0) return setpoint;
 
                     double t = Timer.getFPGATimestamp();
@@ -118,6 +121,8 @@ public class IntakeSubsystem extends MotorSubsystem {
 
                     double wobblePos = (Math.sin(t * speed) + 1) / 2;
                     double wobbleVel = speed * Math.cos(t * speed) / 2; // calculus reference
+
+                    console.log("pos, vel, scale", wobblePos, wobbleVel, wobbleScale);
 
                     return new State(
                         setpoint.position + wobblePos * wobbleScale,
