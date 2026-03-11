@@ -1,10 +1,7 @@
 package org.usfirst.frc4904.standard.util;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.WrapperCommand;
 import org.usfirst.frc4904.standard.commands.NoOp;
 
 import java.util.Collections;
@@ -68,6 +65,18 @@ public final class CmdUtil {
      */
     public static Command nonNull(Command cmd) {
         return cmd == null ? new NoOp() : cmd;
+    }
+
+    /**
+     * Makes commands finish instantly (but keep running) by scheduling
+     * them instead of running them directly.
+     */
+    public static Command asInstant(Command... commands) {
+        return new InstantCommand(() -> schedule(commands));
+    }
+
+    public static Command delayed(double delaySeconds, Command command) {
+        return new WaitCommand(delaySeconds).andThen(command);
     }
 
     /**

@@ -17,7 +17,6 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.auton.Auton;
 import org.usfirst.frc4904.robot.auton.PathManager;
-import org.usfirst.frc4904.robot.auton.PathManager.PathPlannerCommand;
 import org.usfirst.frc4904.robot.auton.PathManager.TrajectoryCommand;
 import org.usfirst.frc4904.robot.humaninterface.drivers.RuffyDriver;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
@@ -49,7 +48,13 @@ public class Robot extends CommandRobotBase {
         autonChooser.addOption("reverse", Auton.c_jankReverse());
 
         // pathplanner sequences
-        autonChooser.addOption("climb", Auton.c_climb());
+        autonChooser.addOption("shoot left", Auton.c_shootLeft());
+        autonChooser.addOption("shoot center left", Auton.c_shootCenterLeft());
+        autonChooser.addOption("shoot right", Auton.c_shootRight());
+        autonChooser.addOption("shoot center right", Auton.c_shootCenterRight());
+        autonChooser.addOption("shoot+climb left", Auton.c_shootAndClimbLeft());
+        autonChooser.addOption("shoot+climb center left", Auton.c_shootAndClimbCenterLeft());
+        autonChooser.addOption("direct climb left", Auton.c_climbCenterLeft());
 
         // pathplanner paths
         String[] names = { "STRET", "romtater", "aaahhh", "go", "climbnew" };
@@ -82,7 +87,7 @@ public class Robot extends CommandRobotBase {
     @Override
     public void teleopInitialize() {
         Component.chassis.stop();
-        
+
         // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
     }
 
