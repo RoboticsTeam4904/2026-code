@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.TagManager;
+import org.usfirst.frc4904.standard.silly.console;
 import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Util;
@@ -67,7 +68,7 @@ public class SwerveSubsystem extends SubsystemBase {
         );
         estimator = new SwerveDrivePoseEstimator(
             kinematics,
-            getTrueRotation(),
+            getAbsoluteRotation(),
             getModulePositions(),
             Pose2d.kZero // unused
         );
@@ -88,7 +89,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void startPoseEstimator(Translation2d currentPos) {
-        startPoseEstimator(new Pose2d(currentPos, getTrueRotation()));
+        startPoseEstimator(new Pose2d(currentPos, getAbsoluteRotation()));
     }
 
     public void startPoseEstimator(Pose2d currentPose) {
@@ -233,7 +234,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         if (estimatorEnabled) {
-            estimator.update(getTrueRotation(), getModulePositions());
+            estimator.update(getAbsoluteRotation(), getModulePositions());
 
             long t = System.currentTimeMillis();
             var tags = TagManager.getTagsSince(lastTagUpdateTime);
@@ -243,7 +244,7 @@ public class SwerveSubsystem extends SubsystemBase {
             for (var tag : tags) {
                 Translation2d cameraToTagRR = tag.pos().getTranslation().toTranslation2d();
                 Translation2d robotToTagRR = cameraToTagRR.minus(CAMERA_OFFSET);
-                Translation2d robotToTagFR = robotToTagRR.rotateBy(getTrueRotation());
+                Translation2d robotToTagFR = robotToTagRR.rotateBy(getAbsoluteRotation());
 
                 Translation2d tagFR = tag.fieldPos().getTranslation().toTranslation2d();
                 Translation2d robotFR = tagFR.plus(robotToTagFR);
@@ -254,7 +255,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 // ));
 
                 estimator.addVisionMeasurement(
-                    new Pose2d(robotFR, getTrueRotation()),
+                    new Pose2d(robotFR, getAbsoluteRotation()),
                     Timer.getFPGATimestamp() // TODO VISION use frame time (probably fixed now?)
                 );
             }
@@ -286,7 +287,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return Component.imu.getRotation2d();
     }
 
-    Rotation2d getTrueRotation() {
+    Rotation2d getAbsoluteRotation() {
         return Rotation2d.fromRotations(getAbsoluteHeading());
     }
 
@@ -457,6 +458,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
             Translation2d diff = goal.minus(current);
 
+            console.log("position diff", diff.getNorm(), diff);
+
             double pidEffort = Util.clamp(
                 posPID.calculate(0, diff.getNorm()),
                 -SwerveConstants.LIN_SPEED,
@@ -464,7 +467,7 @@ public class SwerveSubsystem extends SubsystemBase {
             );
 
             //                  pid              convert to robot relative
-            posPIDEffort = diff.times(pidEffort).rotateBy(Rotation2d.fromRotations(-getAbsoluteHeading()));
+            posPIDEffort = diff.times(pidEffort).rotateBy(getAbsoluteRotation().unaryMinus());
         }
 
         @Override
@@ -550,7 +553,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void resetOdometry() {
         Component.imu.zeroYaw();
-        estimator.resetRotation(getTrueRotation());
+        estimator.resetRotation(getAbsoluteRotation());
     }
 
     /**
