@@ -21,13 +21,13 @@ import org.usfirst.frc4904.standard.custom.sensors.LinearDutyCycleEncoder;
 
 public final class RobotMap {
 
-    public static final boolean RUFFY = false;
+    public static final boolean USE_RUFFY_DRIVER = false;
 
     public static class Port {
 
         public static class HumanInput {
 
-            public static final int ps4Port = 0;
+            public static final int ps4 = 0;
 
             public static final int joystick = 1;
             public static final int xyJoystick = 2;
@@ -199,11 +199,11 @@ public final class RobotMap {
         Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorLeft);
         Component.indexer = new IndexerSubsystem(Component.indexerMotorTop, Component.indexerMotorBottom);
 
-        if (RUFFY) {
+        if (USE_RUFFY_DRIVER) {
             HumanInput.Driver.xyJoystick = new CustomCommandJoystick(Port.HumanInput.xyJoystick, 0.01);
             HumanInput.Driver.turnJoystick = new CustomCommandJoystick(Port.HumanInput.turnJoystick, 0.01);
         } else {
-            HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4Port, 0.01);
+            HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4, 0.01);
         }
 
         HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);

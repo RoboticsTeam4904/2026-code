@@ -26,7 +26,7 @@ import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.silly.Silly;
 import org.usfirst.frc4904.standard.util.Util;
 
-import static org.usfirst.frc4904.robot.RobotMap.RUFFY;
+import static org.usfirst.frc4904.robot.RobotMap.USE_RUFFY_DRIVER;
 
 public class Robot extends CommandRobotBase {
 
@@ -54,16 +54,16 @@ public class Robot extends CommandRobotBase {
         autonChooser.addOption("shoot center right", Auton.c_shootCenterRight());
         autonChooser.addOption("shoot+climb left", Auton.c_shootAndClimbLeft());
         autonChooser.addOption("shoot+climb center left", Auton.c_shootAndClimbCenterLeft());
-        autonChooser.addOption("direct climb left", Auton.c_climbCenterLeft());
+        autonChooser.addOption("direct climb center left", Auton.c_climbCenterLeft());
 
         // pathplanner paths
         String[] names = { "STRET", "romtater", "aaahhh", "go", "climbnew" };
         for (var name : names) {
-            autonChooser.addOption(name + " (path)", PathManager.c_path(name));
+            autonChooser.addOption("(path) " + name, PathManager.c_path(name));
         }
 
         // drivers
-        driverChooser.setDefaultOption("swerve", RUFFY ? new RuffyDriver() : new SwerveDriver());
+        driverChooser.setDefaultOption("swerve", USE_RUFFY_DRIVER ? new RuffyDriver() : new SwerveDriver());
 
         // operators
         operatorChooser.setDefaultOption("default", new DefaultOperator());
