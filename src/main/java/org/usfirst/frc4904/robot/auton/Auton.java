@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.auton.PathManager.SequentialPathPlannerGroup;
+import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.util.CmdUtil;
 
 public final class Auton {
@@ -37,6 +38,7 @@ public final class Auton {
             PathManager.c_path("shoot " + type),
             new ParallelCommandGroup(
                 Component.shooter.c_smartShoot(),
+                ShooterSubsystem.c_smartShootAlign(),
                 Component.indexer.c_forward(true),
                 Component.intake.c_intake(),
                 Component.intake.c_wobble(),
