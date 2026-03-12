@@ -17,11 +17,14 @@ public abstract class Operator extends HumanInput {
 
     public static final double SHOOT_INDEXER_DELAY = 0.5;
 
-    public static Command c_smartShootAndIndex() {
+    public static Command wrapShootCommand(Command command) {
         return new SwitchingIfElseCommand(
             new ParallelCommandGroup(
-                Component.shooter.c_smartShoot(),
-                CmdUtil.delayed(SHOOT_INDEXER_DELAY, Component.indexer.c_forward(true))
+                command,
+                CmdUtil.delayed(SHOOT_INDEXER_DELAY, new ParallelCommandGroup(
+                    Component.indexer.c_forward(true),
+                    Component.intake.c_wobble()
+                ))
             ),
             null,
             Component.shooter::canShoot

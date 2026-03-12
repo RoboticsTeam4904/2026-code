@@ -138,7 +138,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     }
 
     public Command c_longShootAlign() {
-        return Component.chassis.c_rotateTo(ShooterSubsystem::calcLongShootAngle, true);
+        return Component.chassis.c_rotateTo(() -> Robot.isRedAlliance() ? 0 : 0.5, true);
     }
 
     /// DISTANCE MATH
@@ -199,10 +199,6 @@ public class ShooterSubsystem extends MotorSubsystem {
         double offset = Math.asin(-SHOOTER_POS.getY() / dist.getNorm());
 
         return Units.radiansToRotations(angle + offset - ANGLE_OFFSET);
-    }
-
-    private static double calcLongShootAngle() {
-        return Robot.isRedAlliance() ? 0 : 0.5;
     }
 
 }

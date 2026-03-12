@@ -7,7 +7,6 @@ import org.usfirst.frc4904.standard.custom.controllers.CustomCommandJoystick.Axi
 import org.usfirst.frc4904.standard.humaninput.Operator;
 import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Util;
-import org.usfirst.frc4904.standard.util.Notifications;
 
 import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.getShooterVelocityForDistance;
 
@@ -46,38 +45,31 @@ public class DefaultOperator extends Operator {
         /// INTAKE
         joystick.button3.onTrue(Component.intake.c_extend());
         joystick.button5.onTrue(Component.intake.c_retract());
+        joystick.button11.whileTrue(Component.intake.c_wobble());
 
-        joystick.button3.or(joystick.button5).whileTrue(Component.intake.c_intake());
+        joystick.button3.or(joystick.button5).or(joystick.button11)
+            .whileTrue(Component.intake.c_intake());
 
         /// INDEXER
-        joystick.button4.whileTrue(Component.indexer.c_forward(true));
+        joystick.button4.whileTrue(Component.indexer.c_backward(true));
         joystick.button6.whileTrue(Component.indexer.c_forward(true));
 
-        joystick.button12.whileTrue(Component.intake.c_wobble());
-
         /// SHOOTER
-        joystick.button1.whileTrue(c_smartShootAndIndex());
-        joystick.button2.whileTrue(Component.shooter.c_longShoot());
-        joystick.button11.whileTrue(
+        joystick.button1.whileTrue(wrapShootCommand(Component.shooter.c_smartShoot()));
+        joystick.button2.whileTrue(wrapShootCommand(Component.shooter.c_longShoot()));
+        joystick.button12.whileTrue(
             new ParallelCommandGroup(
                 Component.shooter.c_controlVelocity(this::getVelocity),
                 CmdUtil.delayed(SHOOT_INDEXER_DELAY, Component.indexer.c_forward(true))
             )
         );
 
-        joystick.button11.whileTrue(Component.shooter.c_forward(true));
-
         /// CLIMBER
-        joystick.button7.whileTrue(Component.climber.c_down());
-        joystick.button8.whileTrue(Component.climber.c_up());
-
-        /// INDEXER
-        joystick.button9.whileTrue(Component.indexer.c_forward(true));
-        joystick.button10.whileTrue(Component.indexer.c_backward(true));
-
+        joystick.button9.whileTrue(Component.climber.c_down());
+        joystick.button10.whileTrue(Component.climber.c_up());
 
         /// NOTIFS 
-        joystick.button7.onTrue(Notifications.c_sendRandom());
+        // joystick.button7.onTrue(Notifications.c_sendRandom());
 
         /// ORCHESTRA
         // CustomTalonFX[] motors = {
@@ -106,6 +98,5 @@ public class DefaultOperator extends Operator {
         // ));
 
         // joystick.button12.onTrue(new InstantCommand(OrchestraSubsystem::stopAll));
-
     }
 }

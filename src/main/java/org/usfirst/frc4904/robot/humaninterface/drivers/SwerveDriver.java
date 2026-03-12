@@ -2,20 +2,16 @@ package org.usfirst.frc4904.robot.humaninterface.drivers;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
 import org.usfirst.frc4904.standard.commands.AlwaysRunnableInstantCommand;
-import org.usfirst.frc4904.standard.commands.RunUnless;
+import org.usfirst.frc4904.standard.commands.RunIf;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandPS4;
 import org.usfirst.frc4904.standard.humaninput.Driver;
+import org.usfirst.frc4904.standard.humaninput.Operator;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
-import static org.usfirst.frc4904.robot.subsystems.ShooterSubsystem.getShooterVelocityForDistance;
-import static org.usfirst.frc4904.standard.humaninput.Operator.c_smartShootAndIndex;
 
 public class SwerveDriver extends Driver {
 
@@ -47,9 +43,6 @@ public class SwerveDriver extends Driver {
         //     )
         // );
 
-        // explode operator joystick (shooter testing)
-        ps4.povRight().whileTrue(Component.shooter.c_forward(true));
-
         // swerve reset
         // ps4.povDown().onTrue(
         //     new RunUnless(
@@ -63,17 +56,8 @@ public class SwerveDriver extends Driver {
         // climber down
         ps4.cross().onTrue(Component.climber.c_gotoDown());
 
-        // testing shooter
-        // ps4.square().whileTrue(
-        //     Component.shooter.c_controlVelocity(() -> getShooterVelocityForDistance(2.63))
-        // );
-
-        ps4.circle().whileTrue(
-            new ParallelCommandGroup(
-                Component.shooter.c_longShoot(),
-                Component.indexer.c_forward(true)
-            )
-        );
+        // long shoot
+        ps4.circle().whileTrue(Operator.wrapShootCommand(Component.shooter.c_longShoot()));
 
         // indexer
         ps4.square().whileTrue(Component.indexer.c_forward(true));
@@ -83,18 +67,21 @@ public class SwerveDriver extends Driver {
         // intake extend
         ps4.L2().onTrue(Component.intake.c_extend());
         // intake wobble
-        ps4.povDown().whileTrue(new ParallelCommandGroup(
-            Component.intake.c_wobble(),
-            Component.intake.c_intake()
-        ));
-        // run intake while either extend or retract is held
-        ps4.L1().or(ps4.L2()).whileTrue(Component.intake.c_intake());
+        ps4.povDown().whileTrue(Component.intake.c_wobble());
+        // run intake while any of the above are held
+        ps4.L1().or(ps4.L2()).or(ps4.povDown()).whileTrue(Component.intake.c_intake());
 
         // align
         ps4.R1().whileTrue(ShooterSubsystem.c_smartShootAlign());
 
         // index and shooter
-        ps4.R2().whileTrue(c_smartShootAndIndex());
+        ps4.R2().whileTrue(Operator.wrapShootCommand(Component.shooter.c_smartShoot()));
+        ps4.R2().whileFalse(
+            new RunIf(
+                Component.shooter.c_smartShoot().withTimeout(0.7),
+                Component.shooter::canShoot
+            )
+        );
     }
 
     @Override
