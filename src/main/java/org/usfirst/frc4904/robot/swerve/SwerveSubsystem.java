@@ -54,8 +54,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrivePoseEstimator estimator;
 
     private boolean estimatorEnabled = false;
-    private Pose2d lastPoseEstimate;
-    private Translation2d velocityEstimate;
 
     public SwerveSubsystem(SwerveModule... modules) {
         this.modules = modules;
@@ -94,8 +92,6 @@ public class SwerveSubsystem extends SubsystemBase {
     public void startPoseEstimator(Pose2d currentPose) {
         estimator.resetPose(currentPose);
         estimatorEnabled = true;
-        lastPoseEstimate = null;
-        velocityEstimate = Translation2d.kZero;
     }
 
     public void stopPoseEstimator() {
@@ -125,19 +121,20 @@ public class SwerveSubsystem extends SubsystemBase {
         return getPoseEstimate().getTranslation();
     }
 
-    public Translation2d getVelocityEstimate() {
-        if (!estimatorEnabled) {
-            System.err.println("SwerveSubsystem.getPoseEstimate() called while pose estimator is disabled.");
-        }
-
-        return velocityEstimate;
-    }
-
     /**
      * @return current robot-relative {@link ChassisSpeeds} (velocity and direction) according to encoders
      */
     public ChassisSpeeds getChassisSpeeds() {
+        // TODO suboptimal that we are potentially recomputing this multiple times per loop
         return kinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    /**
+     * @return current robot-relative velocity according to encoders
+     */
+    public Translation2d getVelocity() {
+        ChassisSpeeds speed = getChassisSpeeds();
+        return new Translation2d(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
     }
 
     /**
@@ -257,11 +254,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 );
             }
 
-            if (lastPoseEstimate != null) {
-                Translation2d dist = getPoseEstimate().getTranslation().minus(lastPoseEstimate.getTranslation());
-                velocityEstimate = dist.div(Robot.TIME_STEP);
-            }
-            lastPoseEstimate = getPoseEstimate();
         }
     }
 

@@ -167,7 +167,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         double dx = dist.getNorm() - SHOOTER_POS.getX();
 
         if (ACCOUNT_FOR_ROBOT_VEL) {
-            Translation2d robotVel = Component.chassis.getVelocityEstimate();
+            Translation2d robotVel = Component.chassis.getVelocity();
             double vx = robotVel.dot(dist.div(dist.getNorm()));
             dx -= vx * AIRTIME_ESTIMATE;
         }
@@ -190,7 +190,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         Translation2d dist = pos.minus(robotPos);
 
         if (ACCOUNT_FOR_ROBOT_VEL) {
-            Translation2d robotVel = Component.chassis.getVelocityEstimate();
+            Translation2d robotVel = Component.chassis.getVelocity();
             dist = dist.minus(robotVel.times(AIRTIME_ESTIMATE));
         }
 
