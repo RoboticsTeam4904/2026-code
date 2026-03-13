@@ -20,7 +20,11 @@ public abstract class Operator extends HumanInput {
     public static Command wrapShootCommand(Command command) {
         return new SwitchingIfElseCommand(
             new ParallelCommandGroup(
+<<<<<<< HEAD
                 command,
+=======
+                Component.shooter.c_smartShoot(),
+>>>>>>> a761ec9 (misc changes comp)
                 CmdUtil.delayed(SHOOT_INDEXER_DELAY, new ParallelCommandGroup(
                     Component.indexer.c_forward(true),
                     Component.intake.c_wobble()

@@ -358,7 +358,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 } else {
                     goal = lastGoal;
 
-                    double diff = MathUtil.inputModulus(Math.abs(current - goal), -0.5, 0.5);
+                    double diff = Math.abs(MathUtil.inputModulus(current - goal, -0.5, 0.5));
                     if (diff <= ROT_DIST_THRESHOLD) {
                         done = true;
                     }

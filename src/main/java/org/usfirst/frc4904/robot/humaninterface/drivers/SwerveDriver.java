@@ -81,6 +81,7 @@ public class SwerveDriver extends Driver {
         ps4.R1().whileTrue(ShooterSubsystem.c_smartShootAlign());
 
         // index and shooter
+<<<<<<< HEAD
         ps4.R2().whileTrue(Operator.wrapShootCommand(Component.shooter.c_smartShoot()));
         ps4.R2().whileFalse(
             new RunIf(
@@ -88,6 +89,10 @@ public class SwerveDriver extends Driver {
                 Component.shooter::canShoot
             )
         );
+=======
+        ps4.R2().whileTrue(c_smartShootAndIndex());
+        ps4.R2().onFalse(Component.shooter.c_smartShoot().withTimeout(1));
+>>>>>>> a761ec9 (misc changes comp)
     }
 
     @Override

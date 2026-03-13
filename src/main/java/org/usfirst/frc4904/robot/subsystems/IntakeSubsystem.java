@@ -20,16 +20,16 @@ import org.usfirst.frc4904.standard.util.Util;
 public class IntakeSubsystem extends MotorSubsystem {
 
     public static final double kP = 4;
-    public static final double kI = 1;
+    public static final double kI = 1.3;
     public static final double kD = 0;
 
     public static final double kS = 0;
     public static final double kV = 4;
     public static final double kA = 0;
-    public static final double kG = -0.5; // negative b/c positive voltage is down
+    public static final double kG = -0.3; // negative b/c positive voltage is down
 
     public static final double RETRACT_ANGLE = 0.94;
-    public static final double EXTEND_ANGLE = 0.185;
+    public static final double EXTEND_ANGLE = 0.18;
     public static final double HORIZONTAL = 0.175;
 
     public static final double MAX_VEL = 0.7;
@@ -109,7 +109,14 @@ public class IntakeSubsystem extends MotorSubsystem {
                     if (!wobble) return setpoint;
 
                     // increase wobbling the closer we are to the target angle
+<<<<<<< HEAD
                     double wobbleMag = Util.transformRange(Math.abs(setpoint.position - angle), 0, 0.2, 1, 0);
+=======
+                    double dist = Math.abs(MathUtil.inputModulus(setpoint.position - angle, -0.5, 0.5));
+                    double wobbleMag = Util.transformRange(dist, 0, 0.2, 1, 0);
+                    console.log("dist", setpoint.position - angle, setpoint.position, angle);
+                    console.log("wobbleMag", wobbleMag);
+>>>>>>> a761ec9 (misc changes comp)
                     if (wobbleMag <= 0) return setpoint;
 
                     double t = Timer.getFPGATimestamp();
