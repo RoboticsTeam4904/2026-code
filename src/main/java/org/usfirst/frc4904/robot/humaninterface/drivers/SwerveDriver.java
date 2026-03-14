@@ -104,17 +104,27 @@ public class SwerveDriver extends Driver {
 
     @Override
     public Translation2d getTranslation() {
-        Translation2d translation = new Translation2d(getRawForward(), getRawLeft());
-        double mag = translation.getNorm();
-        if (mag == 0) return translation;
+        try {
+            Translation2d translation = new Translation2d(getRawForward(), getRawLeft());
+            double mag = translation.getNorm();
+            if (mag == 0) return translation;
 
-        double len = scaleGain(MathUtil.applyDeadband(mag, JOYSTICK_DEADZONE), SPEED_EXP);
-        return translation.times(len / mag); // unit translation * len
+            double len = scaleGain(MathUtil.applyDeadband(mag, JOYSTICK_DEADZONE), SPEED_EXP);
+            return translation.times(len / mag); // unit translation * len
+        } catch (Exception e) {
+            System.err.println("womp womp");
+            return Translation2d.kZero;
+        }
     }
 
     @Override
     public double getTurnSpeed() {
-        double turnSpeed = -HumanInput.Driver.ps4.getRightX();
-        return scaleGain(turnSpeed, TURN_EXP);
+        try {
+            double turnSpeed = -HumanInput.Driver.ps4.getRightX();
+            return scaleGain(turnSpeed, TURN_EXP);
+        } catch (Exception e) {
+            System.err.println("womp womp");
+            return 0;
+        }
     }
 }
