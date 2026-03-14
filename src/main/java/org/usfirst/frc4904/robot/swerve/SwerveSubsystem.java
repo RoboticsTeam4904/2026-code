@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.TagManager;
+import org.usfirst.frc4904.standard.silly.console;
 import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Util;
 
@@ -182,6 +183,11 @@ public class SwerveSubsystem extends SubsystemBase {
      *              Will be overridden if a {@link #c_rotateTo(double, boolean) c_rotateTo()} command is active
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
+        console.log(
+            "AUTON HALP - SwerveSubsystem.driveRobotRelative()",
+            translation, theta, posCommand != null, rotCommand != null
+        );
+
         if (posCommand != null) translation = posPIDEffort;
         if (rotCommand != null) theta = rotPIDEffort;
 
@@ -225,6 +231,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        console.log("AUTON HALP - SwerveSubsystem.periodic()");
+
         if (DriverStation.isEnabled()) {
             for (var module : modules) module.periodic();
         }
@@ -418,6 +426,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
+            console.log("AUTON HALP - PositionCommand.initialize()");
+
             // manually cancel any other active position command
             if (posCommand != null) posCommand.cancel();
             posCommand = this;
@@ -428,6 +438,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public void execute() {
+            console.log("AUTON HALP - PositionCommand.execute()");
+
             Translation2d current = getPositionEstimate();
             Translation2d goal = getPos.get();
 
@@ -457,6 +469,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         @Override
         public void end(boolean interrupted) {
+            console.log("AUTON HALP - PositionCommand.end()", interrupted);
+
             posCommand = null;
         }
 

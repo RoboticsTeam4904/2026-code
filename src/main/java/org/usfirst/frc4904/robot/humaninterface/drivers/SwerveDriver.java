@@ -11,6 +11,7 @@ import org.usfirst.frc4904.standard.commands.RunIf;
 import org.usfirst.frc4904.standard.custom.controllers.CustomCommandPS4;
 import org.usfirst.frc4904.standard.humaninput.Driver;
 import org.usfirst.frc4904.standard.humaninput.Operator;
+import org.usfirst.frc4904.standard.silly.console;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
 
@@ -24,6 +25,8 @@ public class SwerveDriver extends Driver {
 
     @Override
     public void bindCommands() {
+        console.log("AUTON HALP - SwerveDriver.bindCommands()");
+
         CustomCommandPS4 ps4 = HumanInput.Driver.ps4;
 
         Component.chassis.setDefaultCommand(
@@ -104,6 +107,8 @@ public class SwerveDriver extends Driver {
 
     @Override
     public Translation2d getTranslation() {
+        console.log("AUTON HALP - SwerveDriver.getTranslation()");
+
         try {
             Translation2d translation = new Translation2d(getRawForward(), getRawLeft());
             double mag = translation.getNorm();
@@ -112,6 +117,8 @@ public class SwerveDriver extends Driver {
             double len = scaleGain(MathUtil.applyDeadband(mag, JOYSTICK_DEADZONE), SPEED_EXP);
             return translation.times(len / mag); // unit translation * len
         } catch (Exception e) {
+            console.log("AUTON HALP - FAILED TO GET SWERVE TRANSLATION", e);
+
             System.err.println("womp womp");
             return Translation2d.kZero;
         }
