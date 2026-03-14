@@ -18,18 +18,18 @@ public abstract class Operator extends HumanInput {
     public static final double SHOOT_INDEXER_DELAY = 0.5;
 
     public static Command wrapShootCommand(Command command) {
+        return new ParallelCommandGroup(
+            command,
+            CmdUtil.delayed(SHOOT_INDEXER_DELAY, new ParallelCommandGroup(
+                Component.indexer.c_forward(true),
+                Component.intake.c_wobble()
+            )).asProxy()
+        );
+    }
+
+    public static Command c_smartShoot() {
         return new SwitchingIfElseCommand(
-            new ParallelCommandGroup(
-<<<<<<< HEAD
-                command,
-=======
-                Component.shooter.c_smartShoot(),
->>>>>>> a761ec9 (misc changes comp)
-                CmdUtil.delayed(SHOOT_INDEXER_DELAY, new ParallelCommandGroup(
-                    Component.indexer.c_forward(true),
-                    Component.intake.c_wobble()
-                ))
-            ),
+            wrapShootCommand(Component.shooter.c_smartShoot()),
             null,
             Component.shooter::canShoot
         );
