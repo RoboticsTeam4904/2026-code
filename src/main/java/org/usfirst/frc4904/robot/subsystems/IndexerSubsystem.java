@@ -3,12 +3,20 @@ package org.usfirst.frc4904.robot.subsystems;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import org.usfirst.frc4904.robot.Constants;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
 
 public class IndexerSubsystem extends MotorSubsystem {
 
     public IndexerSubsystem(SmartMotorController top, SmartMotorController bottom) {
-        super(new SmartMotorController[] { top, bottom }, 5);
+        super(
+            new SmartMotorController[] {
+                top.withSpeedMultiplier(Constants.Indexer.topMult()),
+                bottom.withSpeedMultiplier(Constants.Indexer.bottomMult())
+            },
+            Constants.Indexer.bothVolts()
+        );
     }
 
     private static final double
@@ -17,6 +25,13 @@ public class IndexerSubsystem extends MotorSubsystem {
         SMOOTHNESS = 1, // smoothness of the dip, in (0, 1] - 0 = square, 1 = sine
                         // as this value gets lower, the dip gets smaller than the declared duration above
         DIP_PERCENT = 0.5; // percentage decrease in voltage, in [0, 1]
+
+    @Override
+    public void periodic() {
+        motors[0] = motors[0].withSpeedMultiplier(Constants.Indexer.topMult());
+        motors[1] = motors[1].withSpeedMultiplier(Constants.Indexer.bottomMult());
+        forwardVoltage = backwardVoltage = Constants.Indexer.bothVolts();
+    }
 
     public Command c_pulse() {
         return new Command() {

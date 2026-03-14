@@ -12,8 +12,8 @@ public class MotorSubsystem extends SubsystemBase {
 
     public final SmartMotorController[] motors;
 
-    public final double forwardVoltage;
-    public final double backwardVoltage;
+    public double forwardVoltage;
+    public double backwardVoltage;
 
     /**
      * Control multiple motors with one subsystem. This constructor only controls one motor.

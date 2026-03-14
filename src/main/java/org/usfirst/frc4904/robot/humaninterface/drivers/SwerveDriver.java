@@ -40,9 +40,9 @@ public class SwerveDriver extends Driver {
         );
 
         // TODO REMOVE - TEMPORARY TESTING SHENANIGANS
-        ps4.povLeft().onTrue(new InstantCommand(
-            () -> ShooterSubsystem.ACCOUNT_FOR_ROBOT_VEL = !ShooterSubsystem.ACCOUNT_FOR_ROBOT_VEL
-        ));
+        // ps4.povLeft().onTrue(new InstantCommand(
+        //     () -> ShooterSubsystem.ACCOUNT_FOR_ROBOT_VEL = !ShooterSubsystem.ACCOUNT_FOR_ROBOT_VEL
+        // ));
 
         // flip zeroes
         // ps4.povLeft().onTrue(

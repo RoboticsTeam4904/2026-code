@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+
+import org.usfirst.frc4904.robot.Constants;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
@@ -47,11 +49,16 @@ public class IntakeSubsystem extends MotorSubsystem {
         SmartMotorController rollerMotor,
         DutyCycleEncoder encoder
     ) {
-        super(rollerMotor, 6);
+        super(rollerMotor, Constants.Intake.rollerVolts());
 
         this.angleMotor = angleMotor;
         this.encoder = encoder;
         this.feedforward = new ArmFeedforward(kS, kG, kV, kA);
+    }
+
+    @Override
+    public void periodic() {
+        forwardVoltage = backwardVoltage = Constants.Intake.rollerVolts();
     }
 
     public double getAngle() {

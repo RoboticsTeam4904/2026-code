@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import org.usfirst.frc4904.robot.Constants;
 import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.CustomTalonFX;
@@ -22,15 +24,9 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     /// TUNING
 
-    public static boolean ACCOUNT_FOR_ROBOT_VEL = true; // TODO make private final
-
     // approximate amount of seconds the fuel spends in the air
     // used to account for robot velocity
     private static final double AIRTIME_ESTIMATE = 1;
-
-    // multiplier to get from target fuel velocity to target flywheel velocity
-    // in theory, this would be ~2 to account for the rotation of the fuel as it leaves the shooter
-    private static final double VELOCITY_MULT = 2.35;
 
     // hardcoded offset between the robot angle and the exit angle of the fuel
     // positive means that the fuel exits the robot to the left/counterclockwise of the expected angle
@@ -154,7 +150,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         if (det <= 0) return 100; // will eventually be clamped to MAX_VOLTAGE
 
         double ballVel = dist * secA * Math.sqrt(GRAVITY / (2 * det));
-        double shooterVel = ballVel / FLYWHEEL_CIRC * VELOCITY_MULT;
+        double shooterVel = ballVel / FLYWHEEL_CIRC * Constants.Shooter.velocityMult();
 
         SmartDashboard.putNumber("target shooter vel", shooterVel);
         return shooterVel;
@@ -166,7 +162,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
         double dx = dist.getNorm() - SHOOTER_POS.getX();
 
-        if (ACCOUNT_FOR_ROBOT_VEL) {
+        if (Constants.Shooter.accountForRobotVel()) {
             Translation2d robotVel = Component.chassis.getVelocity();
             double vx = robotVel.dot(dist.div(dist.getNorm()));
             dx -= vx * AIRTIME_ESTIMATE;
@@ -189,7 +185,7 @@ public class ShooterSubsystem extends MotorSubsystem {
         Translation2d robotPos = Component.chassis.getPositionEstimate();
         Translation2d dist = pos.minus(robotPos);
 
-        if (ACCOUNT_FOR_ROBOT_VEL) {
+        if (Constants.Shooter.accountForRobotVel()) {
             Translation2d robotVel = Component.chassis.getVelocity();
             dist = dist.minus(robotVel.times(AIRTIME_ESTIMATE));
         }
