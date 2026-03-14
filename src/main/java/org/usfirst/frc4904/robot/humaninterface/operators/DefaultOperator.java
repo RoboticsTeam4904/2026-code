@@ -60,8 +60,10 @@ public class DefaultOperator extends Operator {
         );
 
         /// CLIMBER
-        joystick.button9.whileTrue(Component.climber.c_down());
-        joystick.button10.whileTrue(Component.climber.c_up());
+        joystick.button7.whileTrue(Component.climber.c_down());
+        joystick.button8.whileTrue(Component.climber.c_up());
+        joystick.button9.onTrue(Component.climber.c_gotoDown());
+        joystick.button10.onTrue(Component.climber.c_gotoUp());
 
         /// NOTIFS
         // joystick.button7.onTrue(Notifications.c_sendRandom());
