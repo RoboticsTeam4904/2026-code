@@ -1,16 +1,18 @@
 package org.usfirst.frc4904.standard.custom.sensors;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+
+import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Storage;
 
 public class CustomDutyCycleEncoder extends DutyCycleEncoder {
 
     // TODO worst thing since sliced bread
     private static final double[] ZEROS = {
-        0.9352,
-        0.5175,
-        0.1961,
-        0.8063
+        0.9352, // fl
+        0.5175, // fr
+        0.1961, // bl
+        0.1161  // br
     };
 
     private final String key;

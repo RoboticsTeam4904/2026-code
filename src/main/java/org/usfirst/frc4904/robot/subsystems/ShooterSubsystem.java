@@ -30,7 +30,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     // multiplier to get from target fuel velocity to target flywheel velocity
     // in theory, this would be ~2 to account for the rotation of the fuel as it leaves the shooter
-    public static double VELOCITY_MULT = 2.36;
+    public static double VELOCITY_MULT = 2.6;
 
     // hardcoded offset between the robot angle and the exit angle of the fuel
     // positive means that the fuel exits the robot to the left/counterclockwise of the expected angle
@@ -45,7 +45,7 @@ public class ShooterSubsystem extends MotorSubsystem {
     public static final double GRAVITY = 9.8;
 
     public static final double FLYWHEEL_CIRC = Units.inchesToMeters(4 * Math.PI);
-    public static final double SHOOTER_ANGLE = Units.degreesToRadians(50); // 0 = horizontal
+    public static final double SHOOTER_ANGLE = Units.degreesToRadians(60); // 0 = horizontal
     public static final Translation3d SHOOTER_POS = new Translation3d(0, -0.24, 0.51) // forward, left, up
         .rotateBy(new Rotation3d(0, 0, -ANGLE_OFFSET));
 

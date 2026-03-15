@@ -8,7 +8,7 @@ import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController
 public class IndexerSubsystem extends MotorSubsystem {
 
     public IndexerSubsystem(SmartMotorController top, SmartMotorController bottom) {
-        super(new SmartMotorController[] { top, bottom }, 6);
+        super(new SmartMotorController[] { top.withSpeedMultiplier(2), bottom }, 6);
     }
 
     private static final double

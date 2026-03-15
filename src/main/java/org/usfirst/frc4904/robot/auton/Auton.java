@@ -36,14 +36,14 @@ public final class Auton {
 
     private static Command c_shoot(String type, boolean extraTime) {
         return new SequentialPathPlannerGroup(
-            // CmdUtil.asInstant(Component.intake.c_extend()),
+            CmdUtil.asInstant(Component.intake.c_retract()),
             PathManager.c_path("shoot " + type),
             Component.shooter.c_smartShoot().withTimeout(Operator.SHOOT_INDEXER_DELAY),
             new ParallelCommandGroup(
                 Component.shooter.c_smartShoot(),
                 ShooterSubsystem.c_smartShootAlign(),
                 Component.indexer.c_forward(true),
-                Component.intake.c_intake(),
+                Component.intake.c_intake().asProxy(),
                 Component.intake.c_wobble()
                 // after some time, put the intake up
                 // CmdUtil.delayed(extraTime ? 6 : 4, CmdUtil.asInstant(Component.intake.c_retract()))
