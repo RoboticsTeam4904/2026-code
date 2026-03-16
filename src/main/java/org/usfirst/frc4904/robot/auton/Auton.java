@@ -47,7 +47,7 @@ public final class Auton {
                 Component.intake.c_wobble()
                 // after some time, put the intake up
                 // CmdUtil.delayed(extraTime ? 6 : 4, CmdUtil.asInstant(Component.intake.c_retract()))
-            ).withTimeout(extraTime ? 15 : 8)
+            ).withTimeout(extraTime ? 15 : 6)
         );
     }
 
@@ -56,6 +56,18 @@ public final class Auton {
             CmdUtil.asInstant(Component.climber.c_gotoUp()),
             c_shoot(type, false),
             PathManager.c_path("climb from shoot " + type),
+            Component.climber.c_gotoDown().asProxy()
+        );
+    }
+
+    public static Command c_shootAndClimbFromHell() {
+        return new SequentialPathPlannerGroup(
+            CmdUtil.asInstant(Component.climber.c_gotoUp()),
+            c_shoot("left", false),
+            PathManager.c_path("climb from hell"),
+            Component.chassis.c_rotateTo(0.25, false).withTimeout(0.5),
+            Component.chassis.c_driveRobotRelative(0, 2, 0).withTimeout(1).asProxy(),
+            Component.chassis.c_stop().asProxy(),
             Component.climber.c_gotoDown().asProxy()
         );
     }

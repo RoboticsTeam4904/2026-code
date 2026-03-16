@@ -43,7 +43,7 @@ public final class PathManager {
     // apparently cannot be higher than 85 (????) - see javadoc for FieldObject2d.setPoses()
     private static final int PATHPLANNER_PREVIEW_STEPS = 50;
 
-    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1.5;
+    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1;
 
     private static final FieldObject2d liveTraj = Dashboard.liveField.getObject("auton_traj");
     private static final FieldObject2d liveTarget = Dashboard.liveField.getObject("auton_next");

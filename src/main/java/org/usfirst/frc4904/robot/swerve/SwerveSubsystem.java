@@ -394,7 +394,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private PositionCommand posCommand; // non-null when a pos command is running
-    private Translation2d posPIDEffort;
+    private Translation2d posPIDEffort = Translation2d.kZero;
 
     /**
      * @param getPos Supplier of field-relative translations to go to.

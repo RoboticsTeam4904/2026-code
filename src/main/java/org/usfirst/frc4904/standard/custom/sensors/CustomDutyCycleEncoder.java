@@ -2,17 +2,16 @@ package org.usfirst.frc4904.standard.custom.sensors;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
-import org.usfirst.frc4904.standard.util.Logging;
 import org.usfirst.frc4904.standard.util.Storage;
 
 public class CustomDutyCycleEncoder extends DutyCycleEncoder {
 
     // TODO worst thing since sliced bread
     private static final double[] ZEROS = {
-        0.9352, // fl
-        0.5175, // fr
-        0.1961, // bl
-        0.1161  // br
+        0.275, // fl
+        0.524, // fr
+        0.874, // bl
+        0.128  // br
     };
 
     private final String key;
@@ -52,5 +51,9 @@ public class CustomDutyCycleEncoder extends DutyCycleEncoder {
     public double get() {
         double value = super.get() - resetOffset;
         return value < 0 ? value + 1 : value;
+    }
+
+    public double getAbsolute() {
+        return super.get();
     }
 }
