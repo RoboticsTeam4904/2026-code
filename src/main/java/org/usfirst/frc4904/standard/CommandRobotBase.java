@@ -1,12 +1,25 @@
+/*
+Copyright (c) 2021-2026 Littleton Robotics
+http://github.com/Mechanical-Advantage
+
+Use of this source code is governed by a BSD
+license that can be found in the LICENSE file
+at the root directory of this project.
+*/
 package org.usfirst.frc4904.standard;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.usfirst.frc4904.robot.RobotMap;
 import org.usfirst.frc4904.robot.auton.Auton;
 import org.usfirst.frc4904.standard.custom.CommandSendableChooser;
@@ -24,9 +37,7 @@ import java.util.Set;
  * think certain features will almost always be needed, so we created the
  * CommandRobotBase class. Robot should extend this instead of iterative robot.
  */
-public abstract class CommandRobotBase extends TimedRobot {
-
-    public static final double TIME_STEP = TimedRobot.kDefaultPeriod;
+public abstract class CommandRobotBase extends LoggedRobot {
 
     public static boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(null) == Alliance.Red;
@@ -36,7 +47,19 @@ public abstract class CommandRobotBase extends TimedRobot {
     }
 
     public CommandRobotBase() {
-        super(TIME_STEP);
+        Logger.recordMetadata("ProjectName", "robor"); // Set a metadata value
+
+        if (isReal()) {
+            Logger.addDataReceiver(new WPILOGWriter());
+            Logger.addDataReceiver(new NT4Publisher());
+        } else {
+            setUseTiming(false);
+            String logPath = LogFileUtil.findReplayLog();
+            Logger.setReplaySource(new WPILOGReader(logPath));
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        }
+
+        Logger.start();
     }
 
     /// CHOOSERS

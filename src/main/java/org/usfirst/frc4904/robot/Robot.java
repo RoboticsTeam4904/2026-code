@@ -7,12 +7,14 @@
 package org.usfirst.frc4904.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.Logger;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.auton.Auton;
@@ -21,11 +23,15 @@ import org.usfirst.frc4904.robot.auton.PathManager.TrajectoryCommand;
 import org.usfirst.frc4904.robot.humaninterface.drivers.RuffyDriver;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
+import org.usfirst.frc4904.robot.vision.TagManager;
+import org.usfirst.frc4904.robot.vision.TagManager.Tag;
 import org.usfirst.frc4904.standard.CommandRobotBase;
 import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.silly.Silly;
 import org.usfirst.frc4904.standard.silly.console;
 import org.usfirst.frc4904.standard.util.Util;
+
+import java.util.List;
 
 import static org.usfirst.frc4904.robot.RobotMap.USE_RUFFY_DRIVER;
 
@@ -171,6 +177,28 @@ public class Robot extends CommandRobotBase {
 
         SmartDashboard.putNumber("climber encoder", Component.climberEncoder.get());
         SmartDashboard.putNumber("intake encoder", Component.intakeEncoder.get());
+
+
+        // AdvantageKit Logs
+
+        // Swerve
+        if (Component.chassis.poseEstimatorEnabled()) {
+            Logger.recordOutput("Swerve/PoseEstimate", Component.chassis.getPoseEstimate());
+        }
+        Logger.recordOutput("Swerve/ChassisSpeeds", Component.chassis.getChassisSpeeds());
+
+        // Vision
+
+        List<Tag> tags = TagManager.getTags();
+        int[] tagIds = tags.stream().mapToInt(Tag::id).toArray();
+        Pose3d[] poses = tags.stream().map(Tag::fieldPos).toArray(Pose3d[]::new);
+        Logger.recordOutput("Vision/Tags", tagIds);
+        Logger.recordOutput("Vision/TagPoses", poses);
+
+        // Mechanisms
+        
+        Logger.recordOutput("Climber/Height", Component.climber.getHeight());
+        Logger.recordOutput("Intake/Angle", Component.intake.getAngle());
     }
 
     @Override
