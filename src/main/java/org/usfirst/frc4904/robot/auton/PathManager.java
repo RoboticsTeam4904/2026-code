@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import org.json.simple.parser.ParseException;
 import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
@@ -18,9 +17,6 @@ import org.usfirst.frc4904.standard.commands.NoOp;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 public final class PathManager {
@@ -35,19 +31,17 @@ public final class PathManager {
      */
     public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = true;
 
+    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1;
+
     public static boolean shouldFlip() {
         return Robot.isRedAlliance();
     }
 
     // apparently cannot be higher than 85 (????) - see javadoc for FieldObject2d.setPoses()
-    private static final int PATHPLANNER_PREVIEW_STEPS = 50;
-
-    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1;
+    static final int PATHPLANNER_PREVIEW_STEPS = 50;
 
     private static final FieldObject2d liveTraj = Dashboard.liveField.getObject("auton_traj");
     private static final FieldObject2d liveTarget = Dashboard.liveField.getObject("auton_next");
-
-    private static final Map<String, Command> pathCache = new HashMap<>();
 
     static RobotConfig pathPlannerConfig;
     static {
@@ -59,20 +53,15 @@ public final class PathManager {
     }
 
     public static Command c_path(String name) {
-        // return pathCache.computeIfAbsent(name, PathManager::loadPathCommand);
-        return loadPathCommand(name);
-    }
-
-    private static Command loadPathCommand(String file) {
         try {
-            PathPlannerPath path = PathPlannerPath.fromPathFile(file);
+            PathPlannerPath path = PathPlannerPath.fromPathFile(name);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
 
             return new PathPlannerCommand(traj);
         } catch (IOException | ParseException e) {
-            System.err.println("Failed to load PathPlanner path '" + file + "':\n" + e.getMessage());
+            System.err.println("Failed to load PathPlanner path '" + name + "':\n" + e.getMessage());
         } catch (NoSuchElementException e) {
-            System.err.println("Failed to load PathPlanner path '" + file + "'. Paths must have an ideal starting state.");
+            System.err.println("Failed to load PathPlanner path '" + name + "'. Paths must have an ideal starting state.");
         }
 
         return new NoOp();
@@ -99,7 +88,7 @@ public final class PathManager {
         return start.plus(new Transform2d(initial, pose));
     }
 
-    public static class PathPlannerCommand extends Command implements TrajectoryCommand {
+    private static class PathPlannerCommand extends Command implements TrajectoryCommand {
 
         public PathPlannerTrajectory traj;
         private final double duration;
@@ -198,77 +187,6 @@ public final class PathManager {
         public boolean isFinished() {
             return gotoPoseCommand.isFinished();
         }
-    }
-
-    /**
-     * Note: Using {@link SequentialCommandGroup#addCommands(Command...) addCommands()} will not
-     * add trajectories to the preview.
-     */
-    public static class SequentialPathPlannerGroup extends SequentialCommandGroup implements TrajectoryCommand {
-
-        private final double duration;
-        private final TrajectoryCommand[] trajCommands;
-
-        public SequentialPathPlannerGroup(Command... commands) {
-            super(commands);
-
-            trajCommands = Arrays.stream(commands)
-                                 .filter(cmd -> cmd instanceof TrajectoryCommand)
-                                 .toArray(TrajectoryCommand[]::new);
-
-            if (trajCommands.length == 0) {
-                throw new IllegalArgumentException("Cannot construct a SequentialPathPlannerGroup without any TrajectoryCommands");
-            }
-
-            double dur = 0;
-            for (var cmd : trajCommands) {
-                dur += cmd.getDuration();
-            }
-            duration = dur;
-        }
-
-        @Override
-        public double getDuration() {
-            return duration;
-        }
-
-        @Override
-        public Pose2d[] getTrajPreview(int totalSteps) {
-            return Arrays.stream(trajCommands)
-                         .flatMap(cmd -> {
-                             int steps = (int) Math.round(cmd.getDuration() / duration * totalSteps);
-                             return Arrays.stream(cmd.getTrajPreview(steps));
-                         })
-                         .toArray(Pose2d[]::new);
-        }
-
-        @Override
-        public Pose2d getInitialPose() {
-            return trajCommands[0].getInitialPose();
-        }
-
-        @Override
-        public Pose2d getEndPose() {
-            return trajCommands[trajCommands.length - 1].getEndPose();
-        }
-
-    }
-
-    public interface TrajectoryCommand {
-
-        double getDuration();
-
-        // length of returned array may be slightly off due to rounding errors
-        Pose2d[] getTrajPreview(int steps);
-
-        default Pose2d[] getTrajPreview() {
-            return getTrajPreview(PATHPLANNER_PREVIEW_STEPS);
-        }
-
-        Pose2d getInitialPose();
-
-        Pose2d getEndPose();
-
     }
 
 }

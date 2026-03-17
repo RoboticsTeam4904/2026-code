@@ -19,7 +19,7 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.Dashboard;
 import org.usfirst.frc4904.robot.auton.Auton;
 import org.usfirst.frc4904.robot.auton.PathManager;
-import org.usfirst.frc4904.robot.auton.PathManager.TrajectoryCommand;
+import org.usfirst.frc4904.robot.auton.TrajectoryCommand;
 import org.usfirst.frc4904.robot.humaninterface.drivers.RuffyDriver;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
@@ -191,7 +191,7 @@ public class Robot extends CommandRobotBase {
         Logger.recordOutput("Vision/TagPoses", poses);
 
         // Mechanisms
-        
+
         Logger.recordOutput("Climber/Height", Component.climber.getHeight());
         Logger.recordOutput("Intake/Angle", Component.intake.getAngle());
     }
