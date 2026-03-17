@@ -61,6 +61,42 @@ public interface TrajectoryCommand {
 
     }
 
+    /**
+     * Note: Path trajectory is only assembled from synchronous commands.
+     */
+    class AsyncPathPlannerSequence extends AsyncSequence implements TrajectoryWrapper {
+
+        private final double duration;
+        private final TrajectoryCommand[] trajCommands;
+
+        public AsyncPathPlannerSequence(Command... commands) {
+            super(commands);
+
+            trajCommands = filterTrajCommands(commands);
+
+            if (trajCommands.length == 0) {
+                throw new IllegalArgumentException("Cannot construct an AsyncPathPlannerSequence without any synchronous TrajectoryCommands");
+            }
+
+            double dur = 0;
+            for (var cmd : trajCommands) {
+                dur += cmd.getDuration();
+            }
+            duration = dur;
+        }
+
+        @Override
+        public double getDuration() {
+            return duration;
+        }
+
+        @Override
+        public TrajectoryCommand[] getCommands() {
+            return trajCommands;
+        }
+
+    }
+
     private static TrajectoryCommand[] filterTrajCommands(Command... commands) {
         return Arrays.stream(commands)
                      .filter(cmd -> cmd instanceof TrajectoryCommand)
