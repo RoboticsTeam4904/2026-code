@@ -174,6 +174,9 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
+    private Translation2d driveTranslation = Translation2d.kZero;
+    private double driveTheta = 0;
+
     /**
      * Drive relative to the current angle of the robot.
      * @param translation Movement speed in meters per second
@@ -182,31 +185,8 @@ public class SwerveSubsystem extends SubsystemBase {
      *              Will be overridden if a {@link #c_rotateTo(double, boolean) c_rotateTo()} command is active
      */
     public void driveRobotRelative(Translation2d translation, double theta) {
-        if (posCommand != null) translation = posPIDEffort;
-        if (rotCommand != null) theta = rotPIDEffort;
-
-        Translation2d[] translations = new Translation2d[modules.length];
-        double maxMag = SwerveConstants.LIN_SPEED;
-
-        for (int i = 0; i < modules.length; i++) {
-            Translation2d rotation = modules[i].rotToTranslation(theta);
-            Translation2d sum = translation.plus(rotation);
-
-            translations[i] = sum;
-            maxMag = Math.max(sum.getNorm(), maxMag);
-        }
-
-        double norm = maxMag / SwerveConstants.LIN_SPEED;
-
-        for (int i = 0; i < modules.length; i++) {
-            Translation2d normalized = translations[i].div(norm);
-
-            double magnitude = normalized.getNorm();
-            modules[i].moveTo(
-                magnitude,
-                magnitude > 0 ? normalized.getAngle().getRotations() : 0
-            );
-        }
+        driveTranslation = translation;
+        driveTheta = theta;
     }
 
     /** See {@link #driveRobotRelative(Translation2d, double)} */
@@ -226,6 +206,32 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (DriverStation.isEnabled()) {
+            var translation = posCommand != null ? posPIDEffort : driveTranslation;
+            var theta = rotCommand != null ? rotPIDEffort : driveTheta;
+
+            Translation2d[] translations = new Translation2d[modules.length];
+            double maxMag = SwerveConstants.LIN_SPEED;
+
+            for (int i = 0; i < modules.length; i++) {
+                Translation2d rotation = modules[i].rotToTranslation(theta);
+                Translation2d sum = translation.plus(rotation);
+
+                translations[i] = sum;
+                maxMag = Math.max(sum.getNorm(), maxMag);
+            }
+
+            double norm = maxMag / SwerveConstants.LIN_SPEED;
+
+            for (int i = 0; i < modules.length; i++) {
+                Translation2d normalized = translations[i].div(norm);
+
+                double magnitude = normalized.getNorm();
+                modules[i].moveTo(
+                    magnitude,
+                    magnitude > 0 ? normalized.getAngle().getRotations() : 0
+                );
+            }
+
             for (var module : modules) module.periodic();
         }
 
@@ -493,7 +499,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * See {@link #driveFieldRelative(Translation2d, double)}
      */
     public Command c_driveFieldRelative(Translation2d translation, double theta) {
-        return run(() -> driveFieldRelative(translation, theta));
+        return run(() -> driveFieldRelative(translation, theta)).finallyDo(this::stop);
     }
 
     /**
@@ -503,7 +509,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command c_driveFieldRelative(double x, double y, double theta) {
         Translation2d translation = new Translation2d(x, y);
-        return run(() -> driveFieldRelative(translation, theta));
+        return run(() -> driveFieldRelative(translation, theta)).finallyDo(this::stop);
     }
 
     /**
@@ -512,7 +518,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * See {@link #driveRobotRelative(Translation2d, double)}
      */
     public Command c_driveRobotRelative(Translation2d translation, double theta) {
-        return run(() -> driveRobotRelative(translation, theta));
+        return run(() -> driveRobotRelative(translation, theta)).finallyDo(this::stop);
     }
 
     /**
@@ -522,7 +528,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command c_driveRobotRelative(double x, double y, double theta) {
         Translation2d translation = new Translation2d(x, y);
-        return run(() -> driveRobotRelative(translation, theta));
+        return run(() -> driveRobotRelative(translation, theta)).finallyDo(this::stop);
     }
 
     /**
@@ -531,7 +537,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * See {@link #input(Translation2d, double)}
      */
     public Command c_input(Supplier<? extends Translation2d> translation, DoubleSupplier theta) {
-        return run(() -> input(translation.get(), theta.getAsDouble()));
+        return run(() -> input(translation.get(), theta.getAsDouble())).finallyDo(this::stop);
     }
 
     /// MISC CONFIG
