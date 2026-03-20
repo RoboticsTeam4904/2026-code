@@ -46,7 +46,7 @@ public final class Auton {
                 Component.shooter.c_smartShoot(),
                 ShooterSubsystem.c_smartShootAlign(),
                 Component.indexer.c_forward(true),
-                Component.intake.c_intake().asProxy(),
+                Component.intake.c_intake(),
                 Component.intake.c_wobble()
             ).withTimeout(extraTime ? 15 : 6)
         );
