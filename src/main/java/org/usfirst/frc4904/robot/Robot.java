@@ -181,6 +181,7 @@ public class Robot extends CommandRobotBase {
             Logger.recordOutput("Swerve/PoseEstimate", Component.chassis.getPoseEstimate());
         }
         Logger.recordOutput("Swerve/ChassisSpeeds", Component.chassis.getChassisSpeeds());
+        Logger.recordOutput("Swerve/ModuleStates", Component.chassis.getModuleStates());
 
         // Vision
 

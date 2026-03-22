@@ -79,7 +79,7 @@ public class SwerveSubsystem extends SubsystemBase {
                      .toArray(SwerveModulePosition[]::new);
     }
 
-    private SwerveModuleState[] getModuleStates() {
+    public SwerveModuleState[] getModuleStates() {
         return Arrays.stream(modules)
                      .map(SwerveModule::getModuleState)
                      .toArray(SwerveModuleState[]::new);
