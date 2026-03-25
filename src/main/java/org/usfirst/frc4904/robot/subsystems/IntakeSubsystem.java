@@ -15,6 +15,7 @@ import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
+import org.usfirst.frc4904.standard.custom.sensors.CustomDutyCycleEncoder;
 import org.usfirst.frc4904.standard.util.Util;
 
 public class IntakeSubsystem extends MotorSubsystem {
@@ -28,9 +29,10 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double kA = 0;
     public static final double kG = 0.3;
 
-    public static final double RETRACT_ANGLE = 0.33;
+    public static final double RETRACT_ANGLE = 0.33 + 1;
     public static final double EXTEND_ANGLE = 0.91;
     public static final double HORIZONTAL = EXTEND_ANGLE, ENCODER_RATIO = 37 / 18.0; // encoder rots/intake rots
+    private static final double ENCODER_OFFSET = RETRACT_ANGLE - 0.1;
 
     public static final double MAX_VEL = 0.7;
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
@@ -45,17 +47,19 @@ public class IntakeSubsystem extends MotorSubsystem {
     public IntakeSubsystem(
         SmartMotorController angleMotor,
         SmartMotorController rollerMotor,
-        DutyCycleEncoder encoder
+        CustomDutyCycleEncoder encoder
     ) {
         super(rollerMotor, 6);
 
         this.angleMotor = angleMotor;
         this.encoder = encoder;
         this.feedforward = new ArmFeedforward(kS, kG, kV, kA);
+
+        encoder.setResetOffset(ENCODER_OFFSET);
     }
 
     public double getAngle() {
-        return encoder.get();
+        return encoder.get() + ENCODER_OFFSET;
     }
 
     public Command c_intake() {
@@ -90,7 +94,6 @@ public class IntakeSubsystem extends MotorSubsystem {
                 vel
             )
         );
-        control.pid.enableContinuousInput(0, 1);
         var profile = new TrapezoidProfile(new Constraints(MAX_VEL, MAX_ACCEL));
 
         return new ezMotion(
