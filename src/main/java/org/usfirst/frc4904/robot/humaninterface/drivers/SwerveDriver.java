@@ -16,6 +16,8 @@ import org.usfirst.frc4904.standard.util.Storage;
 
 import static org.usfirst.frc4904.robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
 
+import java.util.prefs.Preferences;
+
 public class SwerveDriver extends Driver {
 
     private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
@@ -53,12 +55,19 @@ public class SwerveDriver extends Driver {
         );
 
         // swerve reset
-        ps4.povDown().onTrue(
+        ps4.povRight().onTrue(
             new RunUnless(
                 new AlwaysRunnableInstantCommand(() -> Component.chassis.zero()),
                 DriverStation::isTeleopEnabled
             )
         );
+
+        // ps4.povRight().onTrue(
+        //     new AlwaysRunnableInstantCommand(() -> edu.wpi.first.wpilibj.Preferences.setDouble("cheese", 5))
+        // );
+        // ps4.povRight().whileTrue(
+        //     Component.INTAKE_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.c_forward(true)
+        // );
 
         // climber up
         ps4.triangle().onTrue(Component.climber.c_gotoUp());

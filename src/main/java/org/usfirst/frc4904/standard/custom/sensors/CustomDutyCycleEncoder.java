@@ -22,8 +22,8 @@ public class CustomDutyCycleEncoder extends DutyCycleEncoder {
 
         key = "zeros/" + channel;
 
-        // resetOffset = Preferences.getDouble(key, 0);
-        resetOffset = channel < ZEROS.length ? ZEROS[channel] : 0;
+        resetOffset = Preferences.getDouble(key, 0);
+        // resetOffset = channel < ZEROS.length ? ZEROS[channel] : 0;
     }
 
     public void reset() {
@@ -39,6 +39,7 @@ public class CustomDutyCycleEncoder extends DutyCycleEncoder {
         if (offset < 0) offset++;
 
         resetOffset = offset;
+        System.out.println(key);
         Preferences.setDouble(key, offset);
     }
 

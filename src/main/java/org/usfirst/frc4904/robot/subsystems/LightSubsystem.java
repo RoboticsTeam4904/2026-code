@@ -12,9 +12,8 @@ public class LightSubsystem extends SubsystemBase {
         public static final int[] SUCCESS  = { 0, 200, 50 };
         public static final int[] FAIL     = { 255, 50, 0 };
 
-        public static final int[] VISION   = { 127, 0, 255 };
-
-        public static final int[] ENABLED  = { 255, 100, 0 };
+        public static final int[] AUTON    = { 127, 50, 255 };
+        public static final int[] TELEOP   = { 255, 100, 0 };
         public static final int[] DISABLED = { 200, 220, 255 };
 
         private Color() {}

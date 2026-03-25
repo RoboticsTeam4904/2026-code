@@ -39,35 +39,35 @@ public final class Silly {
     }
 
     public static void periodic() {
-        // odometer
-        SwerveSubsystem chassis = Component.chassis;
+        // // odometer
+        // SwerveSubsystem chassis = Component.chassis;
 
-        if (chassis.poseEstimatorEnabled()) {
-            Translation2d pos = chassis.getPositionEstimate();
-            if (lastPos != null) {
-                odometerDistance += pos.getDistance(lastPos);
-                Preferences.setDouble(odometerDistanceKey, odometerDistance);
-            }
-            lastPos = pos;
-        } else {
-            lastPos = null;
-        }
+        // if (chassis.poseEstimatorEnabled()) {
+        //     Translation2d pos = chassis.getPositionEstimate();
+        //     if (lastPos != null) {
+        //         odometerDistance += pos.getDistance(lastPos);
+        //         Preferences.setDouble(odometerDistanceKey, odometerDistance);
+        //     }
+        //     lastPos = pos;
+        // } else {
+        //     lastPos = null;
+        // }
 
-        // progress
-        if (Math.random() < progressChance) {
-            progress += Math.random();
-            progressChance -= 0.02;
+        // // progress
+        // if (Math.random() < progressChance) {
+        //     progress += Math.random();
+        //     progressChance -= 0.02;
 
-            if (progress >= 99.95) { // rounds to 100
-                progress = 0;
-                Preferences.setInt(progressCompletedKey, ++progressCompleted);
-            }
-            Preferences.setDouble(progressKey, progress);
-            Logger.recordOutput("progress", String.format("%.1f%% (%d done)", progress, progressCompleted));
-            Logger.recordOutput("progressRaw", progress);
-        } else {
-            progressChance += 0.00001;
-        }
+        //     if (progress >= 99.95) { // rounds to 100
+        //         progress = 0;
+        //         Preferences.setInt(progressCompletedKey, ++progressCompleted);
+        //     }
+        //     Preferences.setDouble(progressKey, progress);
+        //     Logger.recordOutput("progress", String.format("%.1f%% (%d done)", progress, progressCompleted));
+        //     Logger.recordOutput("progressRaw", progress);
+        // } else {
+        //     progressChance += 0.00001;
+        // }
     }
 
 }

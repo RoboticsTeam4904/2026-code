@@ -39,7 +39,7 @@ public final class RobotMap {
 
         public static class PWM {
 
-            public static final int LED_STRIP = 9;
+            public static final int LED_STRIP = 0;
 
         }
     }
@@ -129,7 +129,7 @@ public final class RobotMap {
         }
         initialized = true;
 
-        Component.pdh = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+        Component.pdh = new PowerDistribution(9, PowerDistribution.ModuleType.kRev);
 
         Component.imu = new CustomPigeon(59);
 
@@ -168,13 +168,13 @@ public final class RobotMap {
         //     new Transform2d(Units.inchesToMeters(8), Units.inchesToMeters(0), Rotation2d.kZero)
         // );
 
-        // Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);
-        // Component.lights = new LightSubsystem(
-        //     Component.ledStrip,
-        //     107,
-        //     new int[] { 20, 37, 34, 16 },
-        //     new boolean[] { false, true, false, true }
-        // );
+        Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);
+        Component.lights = new LightSubsystem(
+            Component.ledStrip,
+            50,
+            new int[] { 19, 11, 20 },
+            new boolean[] { false, false, false }
+        );
 
         Component.climbMotor = new CustomTalonFX(1, true);
         Component.climberEncoder = new LinearDutyCycleEncoder(8);
@@ -186,7 +186,7 @@ public final class RobotMap {
         Component.shooterMotorLeft = new CustomTalonFX(23);
         Component.shooterMotorRight = new CustomTalonFX(24, true);
 
-        Component.indexerMotorBottom = new CustomTalonFX(5);
+        Component.indexerMotorBottom = new CustomTalonFX(5, true);
         Component.indexerMotorTop = new CustomTalonFX(42, true);
 
         Component.INTAKE_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = new MotorSubsystem(

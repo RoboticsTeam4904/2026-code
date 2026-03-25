@@ -23,6 +23,7 @@ import org.usfirst.frc4904.robot.auton.TrajectoryCommand;
 import org.usfirst.frc4904.robot.humaninterface.drivers.RuffyDriver;
 import org.usfirst.frc4904.robot.humaninterface.drivers.SwerveDriver;
 import org.usfirst.frc4904.robot.humaninterface.operators.DefaultOperator;
+import org.usfirst.frc4904.robot.subsystems.LightSubsystem;
 import org.usfirst.frc4904.robot.vision.TagManager;
 import org.usfirst.frc4904.robot.vision.TagManager.Tag;
 import org.usfirst.frc4904.standard.CommandRobotBase;
@@ -32,12 +33,13 @@ import org.usfirst.frc4904.standard.util.Storage;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import static org.usfirst.frc4904.robot.RobotMap.USE_RUFFY_DRIVER;
 
 public class Robot extends CommandRobotBase {
 
-    private final boolean ADVANTAGEKIT_LOGS = false;
+    private final boolean ADVANTAGEKIT_LOGS = true;
 
     private static final FieldObject2d
         autonPreview = Dashboard.previewField.getObject("auton_preview"),
@@ -109,7 +111,7 @@ public class Robot extends CommandRobotBase {
     public void teleopInitialize() {
         Component.chassis.stop();
 
-        // Component.lights.flashColor(LightSubsystem.Color.ENABLED);
+        Component.lights.flashColor(LightSubsystem.Color.TELEOP);
     }
 
     @Override
@@ -120,6 +122,8 @@ public class Robot extends CommandRobotBase {
 
     @Override
     public void autonomousInitialize() {
+        Component.lights.flashColor(LightSubsystem.Color.AUTON);
+
         // if we are using absolute pathplanner positioning (see javadoc on constant),
         // then we're probably starting in the right place, so let's zero the pose
         // estimator assuming that we are. even if not, it's still probably a better
@@ -147,7 +151,7 @@ public class Robot extends CommandRobotBase {
 
         CommandScheduler.getInstance().cancelAll();
 
-        // Component.lights.flashColor(LightSubsystem.Color.DISABLED);
+        Component.lights.flashColor(LightSubsystem.Color.DISABLED);
     }
 
     @Override
@@ -177,9 +181,6 @@ public class Robot extends CommandRobotBase {
             Util.clearPose(Dashboard.liveField.getRobotObject());
         }
 
-
-
-
         // AdvantageKit Logs
 
         if (ADVANTAGEKIT_LOGS) {
@@ -201,6 +202,8 @@ public class Robot extends CommandRobotBase {
 
             Logger.recordOutput("Climber/Height", Component.climber.getHeight());
             Logger.recordOutput("Intake/Angle", Component.intake.getAngle());
+            
+            Logger.recordOutput("Shooter/Current", Component.shooterMotorLeft.getSupplyCurrent().getValueAsDouble());
         }
 
         Logger.recordOutput("Swerve/ChassisSpeeds", Component.chassis.getChassisSpeeds());

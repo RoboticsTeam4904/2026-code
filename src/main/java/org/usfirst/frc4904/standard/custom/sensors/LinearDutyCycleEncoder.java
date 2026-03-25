@@ -29,12 +29,12 @@ public class LinearDutyCycleEncoder {
 
     public void reset() {
         resetOffset = encoder.get();
-        Preferences.setDouble(resetOffsetKey, resetOffset);
+        // Preferences.setDouble(resetOffsetKey, resetOffset);
     }
 
     public double get() {
         double reading = encoder.get();
-        Preferences.setDouble(lastReadingKey, reading);
+        // Preferences.setDouble(lastReadingKey, reading);
 
         if (lastReading == null) {
             lastReading = reading;
@@ -48,7 +48,7 @@ public class LinearDutyCycleEncoder {
                 resetOffset++;
             }
 
-            Preferences.setDouble(resetOffsetKey, resetOffset);
+            // Preferences.setDouble(resetOffsetKey, resetOffset);
         }
 
         lastReading = reading;
