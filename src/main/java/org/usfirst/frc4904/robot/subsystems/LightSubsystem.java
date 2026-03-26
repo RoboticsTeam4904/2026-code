@@ -1,9 +1,15 @@
 package org.usfirst.frc4904.robot.subsystems;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.standard.util.Perlin2D;
 import org.usfirst.frc4904.standard.util.Util;
+
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.AddressableLEDBufferView;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LightSubsystem extends SubsystemBase {
 
@@ -95,6 +101,21 @@ public class LightSubsystem extends SubsystemBase {
 
         for (int i = 0; i < length; i++) {
             float strength = Util.clamp(progress * length - i, 0, 1);
+            if (strength > 0) {
+                colors[i][0] = color[0] / 255f;
+                colors[i][1] = color[1] / 255f;
+                colors[i][2] = color[2] / 255f;
+            }
+            float alpha = color.length == 4 ? color[3] : 1;
+            colors[i][3] = alpha * strength;
+        }
+    }
+    
+    private void pigeonTemp(float[][] colors, float pigeonTemp, int[] color) {
+    int length = colors.length;
+
+        for (int i = 0; i < length; i++) {
+            float strength = Util.clamp((pigeonTemp/85) * length - i, 0, 1);
             if (strength > 0) {
                 colors[i][0] = color[0] / 255f;
                 colors[i][1] = color[1] / 255f;
