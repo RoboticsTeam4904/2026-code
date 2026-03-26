@@ -115,7 +115,7 @@ public class LightSubsystem extends SubsystemBase {
     int length = colors.length;
 
         for (int i = 0; i < length; i++) {
-            float strength = Util.clamp((pigeonTemp/85) * length - i, 0, 1);
+            float strength = Util.clamp((pigeonTemp/140) * length - i, 0, 1);
             if (strength > 0) {
                 colors[i][0] = color[0] / 255f;
                 colors[i][1] = color[1] / 255f;
