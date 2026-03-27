@@ -36,7 +36,7 @@ public class LightSubsystem extends SubsystemBase {
         public final AddressableLEDBufferView view;
 
         public BufferViewData(AddressableLEDBuffer buffer, int start, int length, boolean reverse) {
-            colorArray = new float[length][4];
+            colorArray = new float[length][3];
 
             int end = start + length - 1;
             view = buffer.createView(reverse ? end : start, reverse ? start : end);
@@ -45,13 +45,12 @@ public class LightSubsystem extends SubsystemBase {
         public void copyColorsToBuffer() {
             for (int i = 0; i < colorArray.length; i++) {
                 float[] color = colorArray[i];
-                float a = color[3];
 
                 view.setRGB(
                     i,
-                    (int) (Math.pow(color[0] * a, 2) * 255),
-                    (int) (Math.pow(color[1] * a, 2) * 255),
-                    (int) (Math.pow(color[2] * a, 2) * 255)
+                    (int) (Math.pow(color[0], 2) * 255),
+                    (int) (Math.pow(color[1], 2) * 255),
+                    (int) (Math.pow(color[2], 2) * 255)
                 );
             }
         }
@@ -79,54 +78,64 @@ public class LightSubsystem extends SubsystemBase {
     }
 
     private void alphaBlend(float[][] colors, float[] c2, float mix) {
-        float a2 = c2[3] * mix;
+        float a = c2.length == 4 ? c2[3] * mix : mix;
+        float r = c2[0] * a, g = c2[1] * a, b = c2[2] * a;
+        float aInv = 1 - a;
 
         for (float[] c1 : colors) {
-            float a1 = c1[3] * (1 - a2);
-            float a = a1 + a2;
-
-            c1[0] = (c2[0] * a2 + c1[0] * a1) / a;
-            c1[1] = (c2[1] * a2 + c1[1] * a1) / a;
-            c1[2] = (c2[2] * a2 + c1[2] * a1) / a;
-            c1[3] = a;
+            c1[0] = r + c1[0] * aInv;
+            c1[1] = g + c1[1] * aInv;
+            c1[2] = b + c1[2] * aInv;
         }
     }
 
-    private void progressBar(float[][] colors, float progress, int[] color) {
+    // blends with existing colors
+    private void progressBar(float[][] colors, float[] color, float progress) {
         int length = colors.length;
 
+        float a = color.length == 4 ? color[3] : 1;
+        float r = color[0], g = color[1], b = color[2];
+
         for (int i = 0; i < length; i++) {
-            float strength = Util.clamp(progress * length - i, 0, 1);
-            if (strength > 0) {
-                colors[i][0] = color[0] / 255f;
-                colors[i][1] = color[1] / 255f;
-                colors[i][2] = color[2] / 255f;
+            float[] c1 = colors[i];
+            float strength = (progress * length - i) * a;
+
+            if (strength >= 1) {
+                c1[0] = r;
+                c1[1] = g;
+                c1[2] = b;
+            } else if (strength > 0) {
+                float strengthInv = 1 - strength;
+
+                c1[0] = r * strength + c1[0] * strengthInv;
+                c1[1] = g * strength + c1[1] * strengthInv;
+                c1[2] = b * strength + c1[2] * strengthInv;
             }
-            float alpha = color.length == 4 ? color[3] : 1;
-            colors[i][3] = alpha * strength;
         }
     }
 
     private final Perlin2D fireNoise = new Perlin2D(12345678987654321L);
 
+    // overwrites existing colors
     private void fire(float[][] colors, boolean blue) {
         float time = (float) lastUpdateTime;
 
         for (int i = 0; i < colors.length; i++) {
+            float[] color = colors[i];
+
             float height = 1 - (float) i / (colors.length - 1);
             float noise = fireNoise.noise(time, -i * 0.13f + time * 2);
             float strength = (float) Math.pow(noise, 2.5) * 1.3f + height - 0.55f;
 
-            float r = 1;
-            float g = Util.clamp(strength * 2 - 0.5f, 0, 1);
-            float b = Util.clamp(strength * 4 - 3, 0, 1);
             float a = Util.clamp(strength * 4, 0, 1);
 
+            float r = a * 1;
+            float g = a * Util.clamp(strength * 2 - 0.5f, 0, 1);
+            float b = a * Util.clamp(strength * 4 - 3, 0, 1);
 
-            colors[i][0] = blue ? b : r;
-            colors[i][1] = g * 0.8f; // green LEDs are brighter
-            colors[i][2] = blue ? r : b;
-            colors[i][3] = a;
+            color[0] = blue ? b : r;
+            color[1] = g * 0.8f; // green LEDs are brighter
+            color[2] = blue ? r : b;
         }
     }
 
@@ -162,7 +171,7 @@ public class LightSubsystem extends SubsystemBase {
     private final Set<ProgressBar> progressBars = new LinkedHashSet<>();
 
     public class ProgressBar {
-        private final int[] color;
+        private final float[] color;
         private final boolean[] viewsEnabled;
         private float progress = 0;
 
@@ -173,9 +182,14 @@ public class LightSubsystem extends SubsystemBase {
         public ProgressBar(int[] color, boolean[] viewsEnabled) {
             if (color.length != 3 && color.length != 4) {
                 System.err.println("LightSubsystem.addProgressBar() must take an array of 3 or 4 ints for RGB or RGBA");
-                this.color = new int[3];
+                this.color = new float[3];
             } else {
-                this.color = color;
+                this.color = new float[] {
+                    color[0] / 255f,
+                    color[1] / 255f,
+                    color[2] / 255f,
+                    color.length == 4 ? color[3] / 255f : 1
+                };
             }
 
             if (viewsEnabled != null && viewsEnabled.length != views.length) {
@@ -222,7 +236,7 @@ public class LightSubsystem extends SubsystemBase {
 
                 for (var bar : progressBars) {
                     if (bar.viewsEnabled[i] && bar.progress > 0) {
-                        progressBar(colors, bar.progress, bar.color);
+                        progressBar(colors, bar.color, bar.progress);
                     }
                 }
 
