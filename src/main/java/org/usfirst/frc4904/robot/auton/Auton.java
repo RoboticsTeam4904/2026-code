@@ -76,6 +76,18 @@ public final class Auton {
         );
     }
 
+    public static Command c_ragebait() {
+        return new AsyncPathPlannerSequence(
+            async(Component.climber.c_gotoUp()),
+            PathManager.c_path("climb from hell"),
+            Component.chassis.c_rotateTo(0.25, false).withTimeout(2),
+            Component.chassis.c_driveRobotRelative(-2, 0, 0).withTimeout(1.5),
+            Component.chassis.c_driveRobotRelative(0, 2, 0).withTimeout(2),
+            Component.climber.c_gotoDown(),
+            Component.climber.c_gotoUp()
+        );
+    }
+
     public static Command c_shootLeft() {
         return c_shoot("left", true);
     }
