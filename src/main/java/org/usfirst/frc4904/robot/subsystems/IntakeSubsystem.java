@@ -20,8 +20,8 @@ import org.usfirst.frc4904.standard.util.Util;
 
 public class IntakeSubsystem extends MotorSubsystem {
 
-    public static final double kP = 3; // 4;
-    public static final double kI = 0; // 1.3;
+    public static final double kP = 6; // 4;
+    public static final double kI = 1; // 1.3;
     public static final double kD = 0;
 
     public static final double kS = 0;
@@ -95,6 +95,7 @@ public class IntakeSubsystem extends MotorSubsystem {
                 vel
             )
         );
+        control.pid.setIZone(0.1);
         var profile = new TrapezoidProfile(new Constraints(MAX_VEL, MAX_ACCEL));
 
         return new ezMotion(
