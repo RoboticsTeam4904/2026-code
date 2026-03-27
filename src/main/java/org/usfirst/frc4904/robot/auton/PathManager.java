@@ -32,7 +32,7 @@ public final class PathManager {
      */
     public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = true;
 
-    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 1;
+    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 3;
 
     public static boolean shouldFlip() {
         return Robot.isRedAlliance();

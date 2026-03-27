@@ -58,13 +58,13 @@ public final class Auton {
         );
     }
 
-    public static Command c_shootAndClimbFromHell() {
+    public static Command c_climbFromHell() {
         return new AsyncPathPlannerSequence(
             async(Component.climber.c_gotoUp()),
-            c_shoot("left", false),
             PathManager.c_path("climb from hell"),
-            Component.chassis.c_rotateTo(0.25, false).withTimeout(0.5),
-            Component.chassis.c_driveRobotRelative(0, 2, 0).withTimeout(1)
+            Component.chassis.c_rotateTo(0.25, false).withTimeout(2),
+            Component.chassis.c_driveRobotRelative(-2, 0, 0).withTimeout(2),
+            Component.chassis.c_driveRobotRelative(0, 2, 0).withTimeout(3)
             // Component.climber.c_gotoDown()
         );
     }
@@ -97,6 +97,14 @@ public final class Auton {
         return new AsyncPathPlannerSequence(
             async(Component.climber.c_gotoUp()),
             PathManager.c_path("climb"),
+            Component.climber.c_gotoDown()
+        );
+    }
+
+    public static Command c_climbTest() {
+        return new AsyncPathPlannerSequence(
+            async(Component.climber.c_gotoUp()),
+            PathManager.c_path("climb test"),
             Component.climber.c_gotoDown()
         );
     }

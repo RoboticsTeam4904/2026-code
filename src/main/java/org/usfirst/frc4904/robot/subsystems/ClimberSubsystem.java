@@ -14,8 +14,8 @@ public class ClimberSubsystem extends MotorSubsystem {
 
     public static final double MAX_VOLTAGE = 8;
 
-    private static final double MIN_HEIGHT = 0.93; // 0.623;
-    private static final double MAX_HEIGHT = 2.8;
+    private static final double MIN_HEIGHT = 0.05; // 0.623;
+    private static final double MAX_HEIGHT = 1.92;
 
     private final LinearDutyCycleEncoder encoder;
    //"@param" adds description to the constructor...hover over below to see
@@ -60,7 +60,7 @@ public class ClimberSubsystem extends MotorSubsystem {
 
     @Override
     public void setVoltage(double voltage) {
-        setVoltage(voltage, false);
+        setVoltage(voltage, true);
     }
 
     public void setVoltage(double voltage, boolean bypassSoftwareStop) {
