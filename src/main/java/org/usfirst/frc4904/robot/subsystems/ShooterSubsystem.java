@@ -47,7 +47,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     public static final double FLYWHEEL_CIRC = Units.inchesToMeters(4 * Math.PI);
     public static final double SHOOTER_ANGLE = Units.degreesToRadians(60); // 0 = horizontal
-    public static final Translation3d SHOOTER_POS = new Translation3d(0, -0.24, 0.51) // forward, left, up
+    public static final Translation3d SHOOTER_POS = new Translation3d(0, Units.inchesToMeters(-9.5), 0.51) // forward, left, up
         .rotateBy(new Rotation3d(0, 0, -ANGLE_OFFSET));
 
     // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf

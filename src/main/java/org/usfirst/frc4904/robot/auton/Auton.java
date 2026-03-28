@@ -67,11 +67,10 @@ public final class Auton {
                 ShooterSubsystem.c_smartShootAlign(),
                 Component.indexer.c_forward(true),
                 Component.intake.c_intake(),
+                Component.intake.c_retract(),
                 Component.intake.c_wobble()
             ).withTimeout(6),
-            Component.chassis.c_rotateTo(0.25, false).withTimeout(2),
-            Component.chassis.c_driveRobotRelative(-2, 0, 0).withTimeout(1.5),
-            Component.chassis.c_driveRobotRelative(0, 2, 0).withTimeout(2),
+            c_sams5StepPlanToWealthAndHappiness(),
             Component.climber.c_gotoDown()
         );
     }
@@ -80,11 +79,11 @@ public final class Auton {
         return new AsyncPathPlannerSequence(
             async(Component.climber.c_gotoUp()),
             PathManager.c_path("climb from hell"),
-            Component.chassis.c_rotateTo(0.25, false).withTimeout(2),
-            Component.chassis.c_driveRobotRelative(-2, 0, 0).withTimeout(1.5),
-            Component.chassis.c_driveRobotRelative(0, 2, 0).withTimeout(2),
-            Component.climber.c_gotoDown(),
-            Component.climber.c_gotoUp()
+            c_sams5StepPlanToWealthAndHappiness(),
+            Component.climber.c_gotoDown().withTimeout(2.5),
+            Component.climber.c_gotoUp().withTimeout(2.5),
+            Component.climber.c_gotoDown().withTimeout(2.5)
+
         );
     }
 
@@ -125,6 +124,14 @@ public final class Auton {
             async(Component.climber.c_gotoUp()),
             PathManager.c_path("climb test"),
             Component.climber.c_gotoDown()
+        );
+    }
+    
+    public static Command c_sams5StepPlanToWealthAndHappiness(){
+        return new SequentialCommandGroup(
+            Component.chassis.c_rotateTo(0.25, false).withTimeout(1.5),
+            Component.chassis.c_driveRobotRelative(-2, 0, 0).withTimeout(1.5),
+            Component.chassis.c_driveRobotRelative(0, 2, 0).withTimeout(2)
         );
     }
 

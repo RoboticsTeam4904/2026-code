@@ -201,7 +201,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private double lastTagUpdateTime;
 
     // TODO VISION not very accurate
-    private static final Translation2d CAMERA_OFFSET = new Translation2d(0.3, 0);
+    private static final Translation2d CAMERA_OFFSET = new Translation2d(Units.inchesToMeters(12.5), 0);
 
     @Override
     public void periodic() {

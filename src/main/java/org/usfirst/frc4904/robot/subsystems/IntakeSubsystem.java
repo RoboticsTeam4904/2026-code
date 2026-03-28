@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.usfirst.frc4904.robot.RobotMap.Component;
+import org.usfirst.frc4904.standard.commands.SwitchingIfElseCommand;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezMotion;
 import org.usfirst.frc4904.standard.custom.motorcontrollers.SmartMotorController;
@@ -21,15 +22,15 @@ import org.usfirst.frc4904.standard.util.Util;
 public class IntakeSubsystem extends MotorSubsystem {
 
     public static final double kP = 6; // 4;
-    public static final double kI = 1; // 1.3;
+    public static final double kI = 1.5; // 1.3;
     public static final double kD = 0;
 
     public static final double kS = 0;
-    public static final double kV = 3; // 4;
+    public static final double kV = 4; // 4;
     public static final double kA = 0;
-    public static final double kG = 0; // 0.3
+    public static final double kG = -0.3; // 0.3
 
-    public static final double EXTEND_ANGLE = 0.34;
+    public static final double EXTEND_ANGLE = 0.63;
     public static final double RETRACT_ANGLE = EXTEND_ANGLE + 0.5;
 
     public static final double HORIZONTAL = EXTEND_ANGLE, ENCODER_RATIO = 37 / 18.0; // encoder rots/intake rots
@@ -50,7 +51,7 @@ public class IntakeSubsystem extends MotorSubsystem {
         SmartMotorController rollerMotor,
         CustomDutyCycleEncoder encoder
     ) {
-        super(rollerMotor, 6);
+        super(rollerMotor, 8);
 
         this.angleMotor = angleMotor;
         this.encoder = encoder;
@@ -64,7 +65,11 @@ public class IntakeSubsystem extends MotorSubsystem {
     }
 
     public Command c_intake() {
-        return c_forward(true);
+        return new SwitchingIfElseCommand(
+            c_forward(true),
+            null,
+            () -> true
+        );
     }
 
     // private final Subsystem angleMotorRequirement = new SubsystemBase("intake vertical motor") {};

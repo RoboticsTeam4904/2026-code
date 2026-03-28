@@ -45,10 +45,7 @@ public class Robot extends CommandRobotBase {
         autonStart = Dashboard.previewField.getRobotObject(),
         autonEnd = Dashboard.previewField.getObject("auton_end");
 
-    LightSubsystem.ProgressBar pigeonTemp = Component.lights.new ProgressBar(
-        new int[] { 255, 255, 255 },
-        new boolean[] { true, false, true }
-    );
+    LightSubsystem.ProgressBar pigeonTemp;
 
     @Override
     public void initialize() {
@@ -72,7 +69,7 @@ public class Robot extends CommandRobotBase {
         autonChooser.addOption("shoot n' climb center left", Auton.c_shootAndClimbCenterLeft());
         autonChooser.addOption("direct climb center left", Auton.c_climbCenterLeft());
         autonChooser.addOption("climb from hell", Auton.c_climbFromHell());
-        autonChooser.addOption("climb from hell", Auton.c_ragebait());
+        autonChooser.addOption("ragebait", Auton.c_ragebait());
 
         // pathplanner paths
         String[] names = { "STRET", "romtater", "aaahhh", "go", "climbnew" };
@@ -98,6 +95,11 @@ public class Robot extends CommandRobotBase {
         });
 
         Component.chassis.startPoseEstimator(Translation2d.kZero);
+
+        pigeonTemp = Component.lights.new ProgressBar(
+            new int[] { 255, 255, 255 },
+            new boolean[] { true, false, true }
+        );
 
         Silly.initialize();
 
