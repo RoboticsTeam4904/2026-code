@@ -138,8 +138,11 @@ public final class Auton {
     public static Command c_dip(){
         return new AsyncPathPlannerSequence(
             PathManager.c_path("intake 1"),
-            // Component.intake.c_extend(),
-            async(Component.intake.c_intake().withTimeout(2))
+            Component.intake.c_extend().withTimeout(2),
+            // Component.intake.c_intake()
+            PathManager.c_path("intake 2"),
+            Component.intake.c_retract().withTimeout(2),
+            PathManager.c_path("intake 3")
         );
     }
 
