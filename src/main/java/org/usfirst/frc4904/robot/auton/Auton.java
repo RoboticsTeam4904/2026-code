@@ -143,4 +143,22 @@ public final class Auton {
         );
     }
 
+    public static Command c_dipthesecond(){
+        return new AsyncPathPlannerSequence(
+            PathManager.c_path("intake 1"),
+            new ParallelCommandGroup(
+                Component.intake.c_intake(),
+                Component.intake.c_extend()
+            )
+        
+        );
+    }
+    public static Command c_intaker(){
+     return new ParallelCommandGroup(
+           Component.intake.c_intake(),
+           Component.intake.c_extend()
+            );
+        
+
+    }
 }
