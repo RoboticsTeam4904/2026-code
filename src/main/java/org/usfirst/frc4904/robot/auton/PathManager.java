@@ -32,7 +32,7 @@ public final class PathManager {
      */
     public static final boolean ABSOLUTE_PATHPLANNER_POSITIONING = true;
 
-    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 3;
+    private static final double PATHPLANNER_SLOWDOWN_FACTOR = 2.5;
 
     public static boolean shouldFlip() {
         return Robot.isRedAlliance();
@@ -58,7 +58,6 @@ public final class PathManager {
             Logging.log("path planed!!", name);
             PathPlannerPath path = PathPlannerPath.fromPathFile(name);
             PathPlannerTrajectory traj = path.getIdealTrajectory(pathPlannerConfig).orElseThrow();
-
             return new PathPlannerCommand(traj);
         } catch (IOException | ParseException e) {
             System.err.println("Failed to load PathPlanner path '" + name + "':\n" + e.getMessage());

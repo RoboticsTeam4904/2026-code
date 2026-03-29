@@ -1,7 +1,9 @@
 package org.usfirst.frc4904.robot.auton;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.usfirst.frc4904.robot.RobotMap.Component;
@@ -135,33 +137,26 @@ public final class Auton {
         );
     }
 
-    public static Command c_dip(){
-        return new AsyncPathPlannerSequence(
-            PathManager.c_path("intake 1"),
-            Component.intake.c_extend().withTimeout(2),
-            // Component.intake.c_intake()
-            PathManager.c_path("intake 2"),
-            Component.intake.c_retract().withTimeout(2),
-            PathManager.c_path("intake 3")
-        );
-    }
-
     public static Command c_dipthesecond(){
         return new AsyncPathPlannerSequence(
             PathManager.c_path("intake 1"),
-            new ParallelCommandGroup(
+            new ParallelDeadlineGroup(
+                PathManager.c_path("intake 2"),
                 Component.intake.c_intake(),
                 Component.intake.c_extend()
-            )
+            ),
+            new ParallelDeadlineGroup(
+                PathManager.c_path("intake 3"),
+                Component.intake.c_retract()
+            ),
+            new ParallelCommandGroup(
+                Component.shooter.c_smartShoot(),
+                ShooterSubsystem.c_smartShootAlign(),
+                Component.indexer.c_forward(true),
+                Component.intake.c_intake(),
+                Component.intake.c_wobble()
+            ).withTimeout(5)
         
         );
-    }
-    public static Command c_intaker(){
-     return new ParallelCommandGroup(
-           Component.intake.c_intake(),
-           Component.intake.c_extend()
-            );
-        
-
     }
 }

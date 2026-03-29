@@ -21,8 +21,8 @@ import org.usfirst.frc4904.standard.util.Util;
 
 public class IntakeSubsystem extends MotorSubsystem {
 
-    public static final double kP = 6; // 4;
-    public static final double kI = 1.5; // 1.3;
+    public static final double kP = 10; // 4;
+    public static final double kI = 0; // 1.3;
     public static final double kD = 0;
 
     public static final double kS = 0;
@@ -30,7 +30,7 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double kA = 0;
     public static final double kG = -0.3; // 0.3
 
-    public static final double EXTEND_ANGLE = 0.63;
+    public static final double EXTEND_ANGLE = 0.64;
     public static final double RETRACT_ANGLE = EXTEND_ANGLE + 0.5;
 
     public static final double HORIZONTAL = EXTEND_ANGLE, ENCODER_RATIO = 37 / 18.0; // encoder rots/intake rots
@@ -40,7 +40,7 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double MAX_ACCEL = MAX_VEL * 4; // accelerate to max speed in 1/4 of a second
 
     public static final double WOBBLE_SPEED = 1.5; // Hz
-    public static final double WOBBLE_DISTANCE = Units.degreesToRotations(45);
+    public static final double WOBBLE_DISTANCE = Units.degreesToRotations(45) * ENCODER_RATIO;
 
     private final SmartMotorController angleMotor;
     private final DutyCycleEncoder encoder;
@@ -85,11 +85,11 @@ public class IntakeSubsystem extends MotorSubsystem {
     }
 
     public Command c_extend() {
-        return c_gotoAngle(EXTEND_ANGLE, -WOBBLE_DISTANCE);
+        return c_gotoAngle(EXTEND_ANGLE, +WOBBLE_DISTANCE);
     }
 
     public Command c_retract() {
-        return c_gotoAngle(RETRACT_ANGLE, WOBBLE_DISTANCE);
+        return c_gotoAngle(RETRACT_ANGLE, -WOBBLE_DISTANCE);
     }
 
     public Command c_gotoAngle(double angle, double wobbleDistance) {
