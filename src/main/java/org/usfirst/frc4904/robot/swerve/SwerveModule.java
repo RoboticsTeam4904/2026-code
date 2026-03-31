@@ -125,7 +125,7 @@ record DriveController(String name, CustomTalonFX motor) {
 }
 
 class RotationController {
-    private static final double kP = 15, kI = 0, kD = 0;
+    private static final double kP = 20, kI = 0, kD = 0;
 
     private static final double MAX_VOLTAGE = 4;
 

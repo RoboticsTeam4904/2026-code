@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.usfirst.frc4904.robot.Robot;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.vision.TagManager;
+import org.usfirst.frc4904.standard.silly.Frogging;
 import org.usfirst.frc4904.standard.util.CmdUtil;
 import org.usfirst.frc4904.standard.util.Util;
 
@@ -200,7 +201,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private double lastTagUpdateTime;
 
-    // TODO VISION not very accurate
     private static final Translation2d CAMERA_OFFSET = new Translation2d(Units.inchesToMeters(12.5), 0);
 
     @Override
@@ -209,7 +209,7 @@ public class SwerveSubsystem extends SubsystemBase {
             var translation = posCommand != null ? posPIDEffort : driveTranslation;
             var theta = rotCommand != null ? rotPIDEffort : driveTheta;
 
-            if (autoBrickWhenStill && theta == 0 && translation.equals(Translation2d.kZero)) {
+            if (autoBrickWhenStill && Math.abs(theta) < 0.01 && translation.getNorm() < 0.01) {
                 brickMode();
             } else {
                 Translation2d[] translations = new Translation2d[modules.length];
@@ -246,12 +246,11 @@ public class SwerveSubsystem extends SubsystemBase {
             lastTagUpdateTime = TagManager.getLastTime();
 
             for (var tag : tags) {
-                Translation2d cameraToTagRR = tag.pos().getTranslation().toTranslation2d();
-                Translation2d robotToTagRR = cameraToTagRR.minus(CAMERA_OFFSET);
+                Translation2d robotToTagRR = tag.pos().getTranslation().toTranslation2d();
                 Translation2d robotToTagFR = robotToTagRR.rotateBy(getAbsoluteRotation());
 
                 Translation2d tagFR = tag.fieldPos().getTranslation().toTranslation2d();
-                Translation2d robotFR = tagFR.plus(robotToTagFR);
+                Translation2d robotFR = tagFR.minus(robotToTagFR);
 
                 // TODO VISION std devs
                 // estimator.setVisionMeasurementStdDevs(VecBuilder.fill(

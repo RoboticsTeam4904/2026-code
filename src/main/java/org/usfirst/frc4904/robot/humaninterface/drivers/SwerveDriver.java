@@ -3,6 +3,8 @@ package org.usfirst.frc4904.robot.humaninterface.drivers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.robot.RobotMap.HumanInput;
 import org.usfirst.frc4904.robot.subsystems.ShooterSubsystem;
@@ -31,7 +33,11 @@ public class SwerveDriver extends Driver {
             Component.chassis.c_input(this::getTranslation, this::getTurnSpeed)
                 .withName("Driver - swerve drive")
         );
-        Component.chassis.setAutoBrickWhenStill(true);
+
+        ps4.povDown().whileTrue(new StartEndCommand(
+            () -> Component.chassis.setAutoBrickWhenStill(true),
+            () -> Component.chassis.setAutoBrickWhenStill(false)
+        ));
 
         // navx reset
         ps4.povUp().onTrue(
@@ -76,10 +82,8 @@ public class SwerveDriver extends Driver {
         ps4.L1().onTrue(Component.intake.c_retract());
         // intake extend
         ps4.L2().onTrue(Component.intake.c_extend());
-        // intake wobble
-        ps4.povDown().whileTrue(Component.intake.c_wobble());
         // run intake while any of the above are held
-        ps4.L1().or(ps4.L2()).or(ps4.povDown()).whileTrue(Component.intake.c_intake());
+        ps4.L1().or(ps4.L2()).whileTrue(Component.intake.c_intake());
 
         // align
         ps4.R1().whileTrue(ShooterSubsystem.c_smartShootAlign());
@@ -97,7 +101,6 @@ public class SwerveDriver extends Driver {
     @Override
     public void unbindCommands() {
         Component.chassis.removeDefaultCommand();
-        Component.chassis.setAutoBrickWhenStill(false);
     }
 
     protected double getRawForward() {

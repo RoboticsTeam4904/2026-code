@@ -203,7 +203,7 @@ public final class RobotMap {
             HumanInput.Driver.xyJoystick = new CustomCommandJoystick(Port.HumanInput.xyJoystick, 0.01);
             HumanInput.Driver.turnJoystick = new CustomCommandJoystick(Port.HumanInput.turnJoystick, 0.01);
         } else {
-            HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4, 0.01);
+            HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4, 0.02);
         }
 
         HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);

@@ -124,7 +124,7 @@ public abstract class CommandRobotBase extends LoggedRobot {
     /** Use {@link #initialize()} for year-specific code. */
     @Override
     public final void robotInit() {
-        Storage.init();
+        // Storage.init();
 
         RobotMap.initialize();
 
@@ -155,7 +155,7 @@ public abstract class CommandRobotBase extends LoggedRobot {
 
         alwaysExecute();
 
-        Storage.save();
+        // Storage.save();
     }
 
     /** Use {@link #teleopInitialize()} for year-specific code. */
