@@ -172,8 +172,10 @@ public final class RobotMap {
         Component.lights = new LightSubsystem(
             Component.ledStrip,
             50,
-            new int[] { 19, 11, 20 },
-            new boolean[] { false, false, true }
+            new int[] { 25, 25 },
+            new boolean[] { true, false }
+            // new int[] { 19, 11, 20 },
+            // new boolean[] { false, false, true }
         );
 
         Component.climbMotor = new CustomTalonFX(1, true);
@@ -191,7 +193,7 @@ public final class RobotMap {
 
         Component.INTAKE_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = new MotorSubsystem(
             Component.intakeAngleMotor,
-            4
+            2
         );
 
         Component.intake = new IntakeSubsystem(Component.intakeAngleMotor, Component.intakeRollerMotor, Component.intakeEncoder);

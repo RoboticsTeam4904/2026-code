@@ -8,6 +8,8 @@ package org.usfirst.frc4904.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -33,6 +35,8 @@ import org.usfirst.frc4904.standard.util.Storage;
 import org.usfirst.frc4904.standard.util.Util;
 
 import java.util.List;
+
+import javax.xml.transform.Transformer;
 
 import static org.usfirst.frc4904.robot.RobotMap.USE_RUFFY_DRIVER;
 
@@ -103,10 +107,6 @@ public class Robot extends CommandRobotBase {
         // );
 
         Silly.initialize();
-
-        double test = Storage.getDouble("test", 0);
-        SmartDashboard.putNumber("le test", test);
-        Storage.setDouble("test", test + 1);
     }
 
     @Override
@@ -221,27 +221,36 @@ public class Robot extends CommandRobotBase {
         // AdvantageKit Logs
 
         if (ADVANTAGEKIT_LOGS) {
-            // Swerve
-
-            if (Component.chassis.poseEstimatorEnabled()) {
-                Logger.recordOutput("Swerve/PoseEstimate", Component.chassis.getPoseEstimate());
-            }
-
-            Logger.recordOutput("Swerve/ChassisSpeeds", Component.chassis.getChassisSpeeds());
-            Logger.recordOutput("Swerve/ModuleStates", Component.chassis.getModuleStates());
-
             // Vision
 
             List<Tag> tags = TagManager.getTags();
             int[] tagIds = tags.stream().mapToInt(Tag::id).toArray();
             Pose3d[] poses = tags.stream().map(Tag::fieldPos).toArray(Pose3d[]::new);
             Logger.recordOutput("Vision/Tags", tagIds);
-            Logger.recordOutput("Vision/TagPoses", poses);
+            Logger.recordOutput("Vision/AbsolutePoses", poses);
+
+            // Swerve
+
+            if (Component.chassis.poseEstimatorEnabled()) {
+                var pose = Component.chassis.getPoseEstimate();
+                var pose3d = new Pose3d(pose);
+
+                Logger.recordOutput("Swerve/PoseEstimate", pose);
+
+                Pose3d[] relativePoses = tags.stream().map(
+                    t -> pose3d.plus(t.pos())
+                ).toArray(Pose3d[]::new);
+                Logger.recordOutput("Vision/RelativePoses", relativePoses);
+            }
+
+            Logger.recordOutput("Swerve/ChassisSpeeds", Component.chassis.getChassisSpeeds());
+            Logger.recordOutput("Swerve/ModuleStates", Component.chassis.getModuleStates());
 
             // Mechanisms
 
-            Logger.recordOutput("Climber/Height", Component.climber.getHeight());
+            Logger.recordOutput("Climber/Encoder", Component.climberEncoder.get());
             Logger.recordOutput("Intake/Angle", Component.intake.getAngle());
+            Logger.recordOutput("Intake/Encoder", Component.intakeEncoder.getAbsolute());
             Logger.recordOutput("Shooter/Current", Component.shooterMotorLeft.getSupplyCurrent().getValueAsDouble());
 
             // Misc

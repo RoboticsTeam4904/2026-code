@@ -87,12 +87,15 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     /// IMPL
 
+    private CustomTalonFX firstMotor;
     private LightSubsystem.ProgressBar velocityDisplay;
 
     private final Map<CustomTalonFX, PIDController> pid = new HashMap<>();
 
     public ShooterSubsystem(CustomTalonFX... motors) {
         super(motors, 7);
+
+        firstMotor = motors[0];
 
         for (var motor : motors) {
             motor.setMotorBrake(false);
@@ -105,17 +108,19 @@ public class ShooterSubsystem extends MotorSubsystem {
         return c_forward(true);
     }
 
+    private double lastTargetVel;
+
     public Command c_controlVelocity(DoubleSupplier getVelocity) {
         if (velocityDisplay == null) {
             // all subsystems should be initialized by now
             velocityDisplay = Component.lights.new ProgressBar(
-                new int[] { 255, 0, 0 },
-                new boolean[] { true, false, true }
+                new int[] { 255, 190, 0 }
+                // new boolean[] { true, false, true }
             );
         }
 
         return runEnd(() -> {
-            double vel = getVelocity.getAsDouble();
+            double vel = lastTargetVel = getVelocity.getAsDouble();
             double ff = kS * Math.signum(vel) + kV * vel;
 
             boolean first = true;
@@ -125,7 +130,6 @@ public class ShooterSubsystem extends MotorSubsystem {
 
                 double currentVel = motor.getVelocity().getValueAsDouble() * (motor.getInverted() ? -1 : 1);
                 if (first) {
-                    velocityDisplay.setProgress(Math.pow(currentVel / vel, 4));
                     Logger.recordOutput("Shooter/RealVelocity", currentVel);
                     first = false;
                 }
@@ -216,6 +220,15 @@ public class ShooterSubsystem extends MotorSubsystem {
         double offset = Math.asin(-SHOOTER_POS.getY() / dist.getNorm());
 
         return Units.radiansToRotations(angle + offset - ANGLE_OFFSET);
+    }
+
+    /// LIGHTS
+    
+    @Override
+    public void periodic() {
+        double currentVel = Math.abs(firstMotor.getVelocity().getValueAsDouble());
+        double x = Math.pow(currentVel / lastTargetVel, 10);
+        velocityDisplay.setProgress(x * x * (3 - 2 * x));
     }
 
 }

@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+
+import org.littletonrobotics.junction.Logger;
 import org.usfirst.frc4904.robot.RobotMap.Component;
 import org.usfirst.frc4904.standard.commands.SwitchingIfElseCommand;
 import org.usfirst.frc4904.standard.custom.motioncontrollers.ezControl;
@@ -21,6 +23,8 @@ import org.usfirst.frc4904.standard.util.Util;
 
 public class IntakeSubsystem extends MotorSubsystem {
 
+    // POSITIVE VOLTAGE and INCREASING ENCODER READINGS are UP/TOWARDS RETRACT
+
     public static final double kP = 10; // 4;
     public static final double kI = 1.5; // 1.3;
     public static final double kD = 0;
@@ -30,7 +34,7 @@ public class IntakeSubsystem extends MotorSubsystem {
     public static final double kA = 0;
     public static final double kG = -0.3; // 0.3
 
-    public static final double EXTEND_ANGLE = 0.69;
+    public static final double EXTEND_ANGLE = 0.73;
     public static final double RETRACT_ANGLE = EXTEND_ANGLE + 0.5;
 
     public static final double HORIZONTAL = EXTEND_ANGLE, ENCODER_RATIO = 37 / 18.0; // encoder rots/intake rots
@@ -85,14 +89,14 @@ public class IntakeSubsystem extends MotorSubsystem {
     }
 
     public Command c_extend() {
-        return c_gotoAngle(EXTEND_ANGLE, +WOBBLE_DISTANCE);
+        return c_gotoAngle(EXTEND_ANGLE, +WOBBLE_DISTANCE, 0.1);
     }
 
     public Command c_retract() {
-        return c_gotoAngle(RETRACT_ANGLE, -WOBBLE_DISTANCE);
+        return c_gotoAngle(RETRACT_ANGLE, -WOBBLE_DISTANCE, 0);
     }
 
-    public Command c_gotoAngle(double angle, double wobbleDistance) {
+    public Command c_gotoAngle(double angle, double wobbleDistance, double wobbleOffset) {
         ezControl control = new ezControl(
             kP, kI, kD,
             (pos, vel) -> feedforward.calculate(
@@ -115,7 +119,10 @@ public class IntakeSubsystem extends MotorSubsystem {
 
                 return (elapsed) -> {
                     State setpoint = profile.calculate(elapsed, startState, goalState);
-                    if (!wobble) return setpoint;
+                    if (!wobble) {
+                        Logger.recordOutput("Intake/TargetAngle", setpoint.position);
+                        return setpoint;
+                    }
 
                     // increase wobbling the closer we are to the target angle
                     double dist = Math.abs(MathUtil.inputModulus(setpoint.position - angle, -0.5, 0.5));
@@ -129,8 +136,11 @@ public class IntakeSubsystem extends MotorSubsystem {
                     double wobblePos = (Math.sin(t * speed) + 1) / 2;
                     double wobbleVel = speed * Math.cos(t * speed) / 2; // calculus reference
 
+                    double setpointPos = setpoint.position + wobblePos * wobbleScale + wobbleOffset;
+                    Logger.recordOutput("Intake/TargetAngle", setpointPos);
+
                     return new State(
-                        setpoint.position + wobblePos * wobbleScale,
+                        setpointPos,
                         setpoint.velocity + wobbleVel * wobbleScale
                     );
                 };

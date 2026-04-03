@@ -42,6 +42,12 @@ public class LightSubsystem extends SubsystemBase {
             view = buffer.createView(reverse ? end : start, reverse ? start : end);
         }
 
+        public void zero() {
+            for (float[] color : colorArray) {
+                Arrays.fill(color, 0);
+            }
+        }
+
         public void copyColorsToBuffer() {
             for (int i = 0; i < colorArray.length; i++) {
                 float[] color = colorArray[i];
@@ -233,7 +239,9 @@ public class LightSubsystem extends SubsystemBase {
                 float[][] colors = view.colorArray;
 
                 // TODO hack - dont show fire on middle segment cause it looks stupid
-                if (i != 1) fire(colors, DriverStation.isAutonomous());
+                // if (i != 1) {
+                fire(colors, DriverStation.isAutonomous());
+                // } else view.zero();
 
                 for (var bar : progressBars) {
                     if (bar.viewsEnabled[i] && bar.progress > 0) {
