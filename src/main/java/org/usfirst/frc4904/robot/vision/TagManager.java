@@ -77,7 +77,7 @@ public final class TagManager {
                 Transform3d robotToTag = Util.transform3d(pos[2], -pos[0], pos[1], el.path("rot").asDouble());
                 Transform3d cameraOffset = CAMERA_OFFSETS[camera];
 
-                double time = Util.epochSecondsToFPGATimestamp(el.path("time").asDouble());
+                double time = el.path("time").asDouble();
 
                 tags.add(new Tag(
                     id,
