@@ -51,13 +51,11 @@ public final class TagManager {
 
     public static List<Tag> getTags() {
         Logging.log("get the tags");
-        
+
         double timeSeconds = timeEntry.getDouble(0);
 
         if (lastTime == timeSeconds && lastTags != null) return lastTags;
         lastTime = timeSeconds;
-
-        double time = Util.epochSecondsToFPGATimestamp(timeSeconds);
 
         List<Tag> tags = lastTags = new ArrayList<>();
 
@@ -84,7 +82,7 @@ public final class TagManager {
                 Transform3d cameraToTag = Util.transform3d(pos[2], -pos[0], pos[1], el.path("rot").asDouble());
                 Transform3d cameraOffset = CAMERA_OFFSETS[camera];
 
-                Logging.log("camera", camera, cameraOffset, cameraToTag, cameraOffset.plus(cameraToTag));
+                double time = el.path("time").asDouble();
 
                 tags.add(new Tag(
                     id,

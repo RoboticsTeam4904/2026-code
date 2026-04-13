@@ -199,6 +199,9 @@ public class SwerveSubsystem extends SubsystemBase {
         driveRobotRelative(0, 0, 0);
     }
 
+    private final double[] prevHeadings = new double[50];
+    private int prevHeadingIndex = 0;
+
     private double lastTagUpdateTime;
 
     private static final Translation2d CAMERA_OFFSET = new Translation2d(Units.inchesToMeters(12.5), 0);
@@ -239,15 +242,28 @@ public class SwerveSubsystem extends SubsystemBase {
             for (var module : modules) module.periodic();
         }
 
+        prevHeadings[prevHeadingIndex++] = getAbsoluteHeading();
+        prevHeadingIndex %= prevHeadings.length;
+
         if (estimatorEnabled) {
             estimator.update(getAbsoluteRotation(), getModulePositions());
 
             var tags = TagManager.getTagsSince(lastTagUpdateTime);
             lastTagUpdateTime = TagManager.getLastTime();
 
+            double now = Timer.getFPGATimestamp();
+
             for (var tag : tags) {
+                double secondsAgo = now - tag.time();
+                int framesAgo = (int) Math.round(secondsAgo / Robot.defaultPeriodSecs);
+                if (framesAgo >= prevHeadings.length) continue;
+
+                int headingIndex = prevHeadingIndex - framesAgo;
+                if (headingIndex < 0) headingIndex += prevHeadings.length;
+                double heading = prevHeadings[headingIndex];
+
                 Translation2d robotToTagRR = tag.pos().getTranslation().toTranslation2d();
-                Translation2d robotToTagFR = robotToTagRR.rotateBy(getAbsoluteRotation());
+                Translation2d robotToTagFR = robotToTagRR.rotateBy(Rotation2d.fromRotations(heading));
 
                 Translation2d tagFR = tag.fieldPos().getTranslation().toTranslation2d();
                 Translation2d robotFR = tagFR.minus(robotToTagFR);
@@ -257,7 +273,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
                 estimator.addVisionMeasurement(
                     new Pose2d(robotFR, getAbsoluteRotation()),
-                    Timer.getFPGATimestamp() // TODO VISION use frame time (probably fixed now?)
+                    now // TODO VISION use frame time (probably fixed now?)
                 );
             }
 
