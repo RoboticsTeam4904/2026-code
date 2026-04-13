@@ -187,6 +187,3 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
-
-# Prettier
-node_modules

@@ -1,0 +1,270 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2017-2018 FIRST. All Rights Reserved. */
+/* Open Source Software - may be modified and shared by FRC teams. The code */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project. */
+/*----------------------------------------------------------------------------*/
+package robot;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.Logger;
+import robot.RobotMap.Component;
+import robot.RobotMap.Dashboard;
+import robot.auton.Auton;
+import robot.auton.PathManager;
+import robot.auton.TrajectoryCommand;
+import robot.humaninterface.drivers.RuffyDriver;
+import robot.humaninterface.drivers.SwerveDriver;
+import robot.humaninterface.operators.DefaultOperator;
+import robot.subsystems.LightSubsystem;
+import robot.vision.TagManager;
+import robot.vision.TagManager.Tag;
+import lib.CommandRobotBase;
+import lib.commands.NoOp;
+import lib.silly.Silly;
+import lib.util.Storage;
+import lib.util.Util;
+
+import java.util.List;
+
+import javax.xml.transform.Transformer;
+
+import static robot.RobotMap.USE_RUFFY_DRIVER;
+
+public class Robot extends CommandRobotBase {
+
+    private final boolean ADVANTAGEKIT_LOGS = true;
+
+    private static final FieldObject2d
+        autonPreview = Dashboard.previewField.getObject("auton_preview"),
+        autonStart = Dashboard.previewField.getRobotObject(),
+        autonEnd = Dashboard.previewField.getObject("auton_end");
+
+    // private LightSubsystem.ProgressBar pigeonTemp;
+
+    @Override
+    public void initialize() {
+        DriverStation.silenceJoystickConnectionWarning(true); // BEGONE
+
+        SmartDashboard.putData("scheduler", CommandScheduler.getInstance()); // TODO: make Logger
+        Logger.recordOutput("Elastic Working", "YES.");
+
+        // basic autons
+        autonChooser.setDefaultOption("none", new NoOp());
+        autonChooser.addOption("straight", Auton.c_jankStraight());
+        autonChooser.addOption("reverse", Auton.c_jankReverse());
+
+        // pathplanner sequences
+        autonChooser.addOption("shoot left", Auton.c_shootLeft());
+        autonChooser.addOption("shoot straight", Auton.c_shootStraight());
+        autonChooser.addOption("shoot center left", Auton.c_shootCenterLeft());
+        autonChooser.addOption("shoot right", Auton.c_shootRight());
+        autonChooser.addOption("shoot center right", Auton.c_shootCenterRight());
+        autonChooser.addOption("shoot n' climb left", Auton.c_shootAndClimbLeft());
+        autonChooser.addOption("shoot n' climb center left", Auton.c_shootAndClimbCenterLeft());
+        autonChooser.addOption("direct climb center left", Auton.c_climbCenterLeft());
+        autonChooser.addOption("climb from hell", Auton.c_climbFromHell());
+        autonChooser.addOption("ragebait", Auton.c_ragebait());
+        autonChooser.addOption("intake SOME of the balls", Auton.c_dipthesecond());
+
+        // pathplanner paths
+        String[] names = { "STRET", "romtater", "aaahhh", "go", "climbnew" };
+        for (var name : names) {
+            autonChooser.addOption("(path) " + name, PathManager.c_path(name));
+        }
+
+        // drivers
+        driverChooser.setDefaultOption("swerve", USE_RUFFY_DRIVER ? new RuffyDriver() : new SwerveDriver());
+
+        // operators
+        operatorChooser.setDefaultOption("default", new DefaultOperator());
+
+        // show selected auton path in elastic dashboard
+        autonChooser.onChange(cmd -> {
+            if (cmd instanceof TrajectoryCommand pathCmd) {
+                autonPreview.setPoses(pathCmd.getTrajPreview());
+                autonStart.setPose(pathCmd.getInitialPose());
+                autonEnd.setPose(pathCmd.getEndPose());
+            } else {
+                Util.clearPose(autonPreview, autonStart, autonEnd);
+            }
+        });
+
+        Component.chassis.startPoseEstimator(Translation2d.kZero);
+
+        // pigeonTemp = Component.lights.new ProgressBar(
+        //     new int[] { 255, 255, 255 },
+        //     new boolean[] { true, false, true }
+        // );
+
+        Silly.initialize();
+    }
+
+    @Override
+    public void teleopInitialize() {
+        Component.chassis.stop();
+
+        Component.lights.flashColor(LightSubsystem.Color.TELEOP);
+    }
+
+    private static final double shiftFlashDur = 3;
+    private static final int[] shiftDurations = { 10, 25, 25, 25, 25, 30 };
+
+    private static final int[] shiftEndTimes = new int[shiftDurations.length];
+    static {
+        for (int i = 0, acc = 0; i < shiftDurations.length; i++) {
+            shiftEndTimes[i] = acc += shiftDurations[i];
+        }
+    }
+
+    private int getShift(double elapsed) {
+        for (int i = 0; i < shiftEndTimes.length; i++) {
+            if (shiftEndTimes[i] > elapsed) return i;
+        }
+        return -1;
+    }
+
+    private int lastShift;
+
+    @Override
+    public void teleopExecute() {
+        if (DriverStation.isFMSAttached() && DriverStation.isTeleopEnabled()) {
+            double time = 140 - Timer.getMatchTime();
+            int upcomingShift = getShift(time + shiftFlashDur);
+            if (lastShift != upcomingShift) {
+                if (upcomingShift == getShift(time)) {
+                    Component.lights.flashColor(0, 255, 0);
+                    lastShift = upcomingShift;
+                } else {
+                    int[] color = time % 1 < 0.5 ? new int[] { 255, 255, 255 } : new int[] { 0, 0, 0 };
+                    Component.lights.flashColor(color);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void teleopCleanup() {}
+
+    @Override
+    public void autonomousInitialize() {
+        Component.lights.flashColor(LightSubsystem.Color.AUTON);
+
+        // if we are using absolute pathplanner positioning (see javadoc on constant),
+        // then we're probably starting in the right place, so let's zero the pose
+        // estimator assuming that we are. even if not, it's still probably a better
+        // estimate than (0, 0) and it'll hopefully get adjusted with vision data.
+        if (
+            PathManager.ABSOLUTE_PATHPLANNER_POSITIONING
+            && autonChooser.getSelected() instanceof TrajectoryCommand pathCmd
+        ) {
+            Pose2d pose = pathCmd.getInitialPose();
+
+            Component.imu.zeroYaw(pose.getRotation().getRotations() + (Robot.isRedAlliance() ? 0.5 : 0));
+            Component.chassis.startPoseEstimator(pose);
+        }
+    }
+
+    @Override
+    public void autonomousExecute() {}
+
+    @Override
+    public void autonomousCleanup() {}
+
+    @Override
+    public void disabledInitialize() {
+        Component.chassis.stop();
+
+        CommandScheduler.getInstance().cancelAll();
+
+        Component.lights.flashColor(LightSubsystem.Color.DISABLED);
+    }
+
+    @Override
+    public void disabledExecute() {}
+
+    @Override
+    public void disabledCleanup() {
+        Component.chassis.setMotorBrake(true);
+    }
+
+    @Override
+    public void testInitialize() {}
+
+    @Override
+    public void testExecute() {}
+
+    @Override
+    public void testCleanup() {}
+
+    @Override
+    public void alwaysExecute() {
+        Silly.periodic();
+
+        if (Component.chassis.poseEstimatorEnabled()) {
+            Dashboard.liveField.setRobotPose(Component.chassis.getPoseEstimate());
+        } else {
+            Util.clearPose(Dashboard.liveField.getRobotObject());
+        }
+
+        // pigeonTemp.setProgress(Util.transformRange(Component.imu.getTemperature(), 60, 120, 0, 1));
+
+        // AdvantageKit Logs
+
+        if (ADVANTAGEKIT_LOGS) {
+            // Vision
+
+            List<Tag> tags = TagManager.getTags();
+            int[] tagIds = tags.stream().mapToInt(Tag::id).toArray();
+            Pose3d[] poses = tags.stream().map(Tag::fieldPos).toArray(Pose3d[]::new);
+            Logger.recordOutput("Vision/Tags", tagIds);
+            Logger.recordOutput("Vision/AbsolutePoses", poses);
+
+            // Swerve
+
+            if (Component.chassis.poseEstimatorEnabled()) {
+                var pose = Component.chassis.getPoseEstimate();
+                var pose3d = new Pose3d(pose);
+
+                Logger.recordOutput("Swerve/PoseEstimate", pose);
+
+                Pose3d[] relativePoses = tags.stream().map(
+                    t -> pose3d.plus(t.pos())
+                ).toArray(Pose3d[]::new);
+                Logger.recordOutput("Vision/RelativePoses", relativePoses);
+            }
+
+            Logger.recordOutput("Swerve/ChassisSpeeds", Component.chassis.getChassisSpeeds());
+            Logger.recordOutput("Swerve/ModuleStates", Component.chassis.getModuleStates());
+
+            // Mechanisms
+
+            Logger.recordOutput("Climber/Encoder", Component.climberEncoder.get());
+            Logger.recordOutput("Intake/Angle", Component.intake.getAngle());
+            Logger.recordOutput("Intake/Encoder", Component.intakeEncoder.getAbsolute());
+            Logger.recordOutput("Shooter/Current", Component.shooterMotorLeft.getSupplyCurrent().getValueAsDouble());
+
+            // Misc
+
+            Logger.recordOutput("IMU/Temp", Component.imu.getTemperature());
+            Logger.recordOutput("IMU/Yaw", Component.imu.getYaw());
+            Logger.recordOutput("PDH/Temp", Util.fahrenheit(Component.pdh.getTemperature()));
+            Logger.recordOutput("Game/MatchTime", Timer.getMatchTime());
+        }
+    }
+
+    @Override
+    public void simulationInitialize() {}
+
+    @Override
+    public void simulationExecute() {}
+}

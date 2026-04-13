@@ -1,0 +1,80 @@
+package robot.humaninterface.drivers;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
+import robot.RobotMap.Component;
+import robot.RobotMap.HumanInput;
+import robot.subsystems.ShooterSubsystem;
+import lib.commands.AlwaysRunnableInstantCommand;
+import lib.humaninput.Driver;
+
+import static robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
+
+public class RuffyDriver extends Driver {
+
+    private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
+
+    public RuffyDriver() {
+        super("RuffyDriver");
+    }
+
+    @Override
+    public void bindCommands() {
+        var xyJoystick = HumanInput.Driver.xyJoystick;
+        var turnJoystick = HumanInput.Driver.turnJoystick;
+
+        Component.chassis.setDefaultCommand(
+            Component.chassis.c_input(this::getTranslation, this::getTurnSpeed)
+                .withName("Driver - swerve drive")
+        );
+
+        turnJoystick.button1.whileTrue(ShooterSubsystem.c_smartShootAlign());
+
+        /// ODOMETRY RESETTING
+        xyJoystick.button1.onTrue(
+            new AlwaysRunnableInstantCommand(() -> Component.chassis.resetOdometry())
+        );
+
+        // no zeroing when enabled (prevent accidental mid-match zeroing)
+        // xyJoystick.button2.onTrue(
+        //     new RunUnless(
+        //         new AlwaysRunnableInstantCommand(() -> Component.chassis.zero()),
+        //         DriverStation::isTeleopEnabled
+        //     )
+        // );
+        // turnJoystick.button2.onTrue(
+        //     new RunUnless(
+        //         new AlwaysRunnableInstantCommand(() -> Component.chassis.flipZero()),
+        //         DriverStation::isTeleopEnabled
+        //     )
+        // );
+    }
+
+    @Override
+    public void unbindCommands() {
+        Component.chassis.removeDefaultCommand();
+    }
+
+    protected double getRawForward() {
+        return -HumanInput.Driver.xyJoystick.getY();
+    }
+    protected double getRawLeft() {
+        return -HumanInput.Driver.xyJoystick.getX();
+    }
+
+    @Override
+    public Translation2d getTranslation() {
+        Translation2d translation = new Translation2d(getRawForward(), getRawLeft());
+        double mag = translation.getNorm();
+        if (mag == 0) return translation;
+
+        double len = scaleGain(MathUtil.applyDeadband(mag, JOYSTICK_DEADZONE), SPEED_EXP);
+        return translation.times(len / mag); // unit translation * len
+    }
+
+    @Override
+    public double getTurnSpeed() {
+        double turnSpeed = -HumanInput.Driver.turnJoystick.getX();
+        return scaleGain(turnSpeed, TURN_EXP);
+    }
+}
