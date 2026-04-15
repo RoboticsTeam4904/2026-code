@@ -67,14 +67,6 @@ public final class CmdUtil {
         return cmd == null ? new NoOp() : cmd;
     }
 
-    /**
-     * Makes commands finish instantly (but keep running) by scheduling
-     * them instead of running them directly.
-     */
-    public static Command asInstant(Command... commands) {
-        return new InstantCommand(() -> schedule(commands));
-    }
-
     public static Command delayed(double delaySeconds, Command command) {
         return new WaitCommand(delaySeconds).andThen(command);
     }
