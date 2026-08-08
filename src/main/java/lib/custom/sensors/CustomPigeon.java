@@ -17,6 +17,10 @@ public class CustomPigeon implements IMU {
         pigeon = new Pigeon2(deviceId);
     }
 
+    public Pigeon2 getPigeon() {
+        return pigeon;
+    }
+
     @Override
     public double getYaw() {
         return IMU.wrapAnglePositive(pigeon.getYaw().getValue().in(Rotations));

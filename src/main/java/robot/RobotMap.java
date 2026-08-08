@@ -3,9 +3,11 @@ package robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import robot.subsystems.*;
+import robot.swerve.MapleSimDrive;
 import robot.swerve.SwerveModule;
 import robot.swerve.SwerveSubsystem;
 import robot.vision.VisionSubsystem;
@@ -84,6 +86,8 @@ public final class RobotMap {
         public static CustomDutyCycleEncoder intakeEncoder;
         public static LinearDutyCycleEncoder climberEncoder;
 
+        public static MapleSimDrive sim;
+        public static robot.simulation.MechanismSim mechanismSim;
 
     }
 
@@ -133,33 +137,56 @@ public final class RobotMap {
 
         Component.imu = new CustomPigeon(59);
 
+        Component.flDrive = new CustomTalonFX(3);
+        Component.flTurn = new CustomTalonFX(15);
+        Component.frDrive = new CustomTalonFX(2);
+        Component.frTurn = new CustomTalonFX(17);
+        Component.blDrive = new CustomTalonFX(10);
+        Component.blTurn = new CustomTalonFX(16);
+        Component.brDrive = new CustomTalonFX(4);
+        Component.brTurn = new CustomTalonFX(18);
+
+        CustomDutyCycleEncoder flEncoder = new CustomDutyCycleEncoder(0);
+        CustomDutyCycleEncoder frEncoder = new CustomDutyCycleEncoder(1);
+        CustomDutyCycleEncoder blEncoder = new CustomDutyCycleEncoder(2);
+        CustomDutyCycleEncoder brEncoder = new CustomDutyCycleEncoder(3);
+
+        if (RobotBase.isSimulation()) {
+            Component.sim = new MapleSimDrive(
+                new CustomTalonFX[] { Component.flDrive, Component.frDrive, Component.blDrive, Component.brDrive },
+                new CustomTalonFX[] { Component.flTurn, Component.frTurn, Component.blTurn, Component.brTurn },
+                new CustomDutyCycleEncoder[] { flEncoder, frEncoder, blEncoder, brEncoder },
+                ((CustomPigeon) Component.imu).getPigeon()
+            );
+        }
+
         Component.chassis = new SwerveSubsystem(
             new SwerveModule(
                 "Front Left",
-                Component.flDrive = new CustomTalonFX(3),
-                Component.flTurn = new CustomTalonFX(15),
-                new CustomDutyCycleEncoder(0),
+                Component.flDrive,
+                Component.flTurn,
+                flEncoder,
                 new Translation2d(1, 1)
             ),
             new SwerveModule(
                 "Front Right",
-                Component.frDrive = new CustomTalonFX(2),
-                Component.frTurn = new CustomTalonFX(17),
-                new CustomDutyCycleEncoder(1),
+                Component.frDrive,
+                Component.frTurn,
+                frEncoder,
                 new Translation2d(1, -1)
             ),
             new SwerveModule(
                 "Back Left",
-                Component.blDrive = new CustomTalonFX(10),
-                Component.blTurn = new CustomTalonFX(16),
-                new CustomDutyCycleEncoder(2),
+                Component.blDrive,
+                Component.blTurn,
+                blEncoder,
                 new Translation2d(-1, 1)
             ),
             new SwerveModule(
                 "Back Right",
-                Component.brDrive = new CustomTalonFX(4),
-                Component.brTurn = new CustomTalonFX(18),
-                new CustomDutyCycleEncoder(3),
+                Component.brDrive,
+                Component.brTurn,
+                brEncoder,
                 new Translation2d(-1, -1)
             )
         );
@@ -200,6 +227,24 @@ public final class RobotMap {
         Component.climber = new ClimberSubsystem(Component.climbMotor, Component.climberEncoder);
         Component.shooter = new ShooterSubsystem(Component.shooterMotorRight, Component.shooterMotorLeft);
         Component.indexer = new IndexerSubsystem(Component.indexerMotorTop, Component.indexerMotorBottom);
+
+        if (RobotBase.isSimulation()) {
+            Component.mechanismSim = new robot.simulation.MechanismSim();
+            Component.mechanismSim.addEncoderMotor(
+                (CustomTalonFX) Component.intakeAngleMotor,
+                Component.intakeEncoder,
+                robot.simulation.MechanismSim.INTAKE_ROTOR_PER_ENCODER_ROT,
+                robot.simulation.MechanismSim.INTAKE_INERTIA,
+                IntakeSubsystem.EXTEND_ANGLE
+            );
+            Component.mechanismSim.addEncoderMotor(
+                (CustomTalonFX) Component.climbMotor,
+                Component.climberEncoder.encoder,
+                robot.simulation.MechanismSim.CLIMBER_ROTOR_PER_ENCODER_ROT,
+                robot.simulation.MechanismSim.CLIMBER_INERTIA,
+                0
+            );
+        }
 
         if (USE_RUFFY_DRIVER) {
             HumanInput.Driver.xyJoystick = new CustomCommandJoystick(Port.HumanInput.xyJoystick, 0.01);

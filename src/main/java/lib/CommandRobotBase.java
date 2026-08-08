@@ -28,6 +28,8 @@ import lib.humaninput.Operator;
 import lib.util.CmdUtil;
 import lib.util.Storage;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,11 +53,18 @@ public abstract class CommandRobotBase extends LoggedRobot {
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
-        } else {
+        } else if (
+            System.getenv("AKIT_LOG_PATH") != null
+            || Files.exists(Paths.get(System.getProperty("java.io.tmpdir"), "akit-log-path.txt"))
+        ) {
             setUseTiming(false);
             String logPath = LogFileUtil.findReplayLog();
             Logger.setReplaySource(new WPILOGReader(logPath));
             Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        } else {
+            setUseTiming(true);
+            Logger.addDataReceiver(new WPILOGWriter());
+            Logger.addDataReceiver(new NT4Publisher());
         }
 
         Logger.start();

@@ -99,7 +99,11 @@ public class Robot extends CommandRobotBase {
             }
         });
 
-        Component.chassis.startPoseEstimator(Translation2d.kZero);
+        Component.chassis.startPoseEstimator(
+            Component.sim != null
+                ? Component.sim.getSimulationWorldPose().getTranslation()
+                : Translation2d.kZero
+        );
 
         // pigeonTemp = Component.lights.new ProgressBar(
         //     new int[] { 255, 255, 255 },
@@ -171,6 +175,8 @@ public class Robot extends CommandRobotBase {
 
             Component.imu.zeroYaw(pose.getRotation().getRotations() + (Robot.isRedAlliance() ? 0.5 : 0));
             Component.chassis.startPoseEstimator(pose);
+
+            if (Component.sim != null) Component.sim.setSimulationWorldPose(pose);
         }
     }
 
@@ -266,5 +272,8 @@ public class Robot extends CommandRobotBase {
     public void simulationInitialize() {}
 
     @Override
-    public void simulationExecute() {}
+    public void simulationExecute() {
+        if (Component.sim != null) Component.sim.periodic();
+        if (Component.mechanismSim != null) Component.mechanismSim.periodic();
+    }
 }
