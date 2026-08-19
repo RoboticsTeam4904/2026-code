@@ -5,7 +5,12 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-
+/**
+ * Usage instructions:
+ * 1. Don't use SPARK MAXes
+ * 2. Be thankful you aren't using SPARK MAXes
+ * 3. Success
+ */
 public class CustomSparkMax extends SparkMax implements SmartMotorController {
 
     protected final boolean limitSwitch;
@@ -55,4 +60,5 @@ public class CustomSparkMax extends SparkMax implements SmartMotorController {
         if (!limitSwitch) throw new IllegalAccessException("Cannot read reverse limit switch state when CustomSparkMax was constructed without limit switch.");
         return getReverseLimitSwitch().isPressed();
     }
+
 }

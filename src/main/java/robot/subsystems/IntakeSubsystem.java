@@ -11,15 +11,15 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-
-import org.littletonrobotics.junction.Logger;
-import robot.RobotMap.Component;
-import lib.commands.SwitchingIfElseCommand;
+import lib.commands.conditional.SwitchingConditionalCommand;
 import lib.custom.motioncontrollers.ezControl;
 import lib.custom.motioncontrollers.ezMotion;
 import lib.custom.motorcontrollers.SmartMotorController;
 import lib.custom.sensors.CustomDutyCycleEncoder;
+import lib.subsystems.MotorSubsystem;
 import lib.util.Util;
+import org.littletonrobotics.junction.Logger;
+import robot.RobotMap.Component;
 
 public class IntakeSubsystem extends MotorSubsystem {
 
@@ -69,7 +69,7 @@ public class IntakeSubsystem extends MotorSubsystem {
     }
 
     public Command c_intake() {
-        return new SwitchingIfElseCommand(
+        return new SwitchingConditionalCommand(
             c_forward(true),
             null,
             () -> true

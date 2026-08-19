@@ -8,11 +8,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import lib.custom.motorcontrollers.CustomTalonFX;
+import lib.subsystems.MotorSubsystem;
+import lib.util.Util;
 import org.littletonrobotics.junction.Logger;
 import robot.Robot;
 import robot.RobotMap.Component;
-import lib.custom.motorcontrollers.CustomTalonFX;
-import lib.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class ShooterSubsystem extends MotorSubsystem {
 
     /// TUNING
 
-    public static boolean ACCOUNT_FOR_ROBOT_VEL = true; // TODO make private final
+    private static final boolean ACCOUNT_FOR_ROBOT_VEL = true;
 
     // approximate amount of seconds the fuel spends in the air
     // used to account for robot velocity

@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import lib.custom.motorcontrollers.SmartMotorController;
+import lib.subsystems.MotorSubsystem;
 
 public class IndexerSubsystem extends MotorSubsystem {
 

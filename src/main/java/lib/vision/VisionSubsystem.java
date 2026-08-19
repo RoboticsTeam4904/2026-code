@@ -1,4 +1,4 @@
-package robot.vision;
+package lib.vision;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import robot.Robot;
-import robot.RobotMap.Component;
-import robot.vision.TagManager.Tag;
 import lib.commands.WaitWhileCommand;
 import lib.util.Util;
+import lib.vision.TagManager.Tag;
+import robot.Robot;
+import robot.RobotMap.Component;
 
 import java.util.Comparator;
 import java.util.HashMap;

@@ -4,26 +4,21 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-
-import robot.RobotMap.Component;
-import robot.RobotMap.HumanInput;
-import robot.subsystems.ShooterSubsystem;
 import lib.commands.AlwaysRunnableInstantCommand;
-import lib.commands.RunIf;
-import lib.commands.RunUnless;
+import lib.commands.conditional.RunIf;
+import lib.commands.conditional.RunUnless;
 import lib.custom.controllers.CustomCommandPS4;
 import lib.humaninput.Driver;
-import lib.humaninput.Operator;
+import robot.RobotMap.Component;
+import robot.RobotMap.HumanInput;
+import robot.humaninterface.operators.DefaultOperator;
+import robot.subsystems.ShooterSubsystem;
 
 import static robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
 
 public class SwerveDriver extends Driver {
 
     private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
-
-    public SwerveDriver() {
-        super("SwerveDriver");
-    }
 
     @Override
     public void bindCommands() {
@@ -73,7 +68,7 @@ public class SwerveDriver extends Driver {
         ps4.cross().onTrue(Component.climber.c_gotoDown());
 
         // long shoot
-        ps4.circle().whileTrue(Operator.wrapShootCommand(Component.shooter.c_longShoot()));
+        ps4.circle().whileTrue(DefaultOperator.wrapShootCommand(Component.shooter.c_longShoot()));
 
         // indexer
         ps4.square().whileTrue(Component.indexer.c_forward(true));
@@ -89,7 +84,7 @@ public class SwerveDriver extends Driver {
         ps4.R1().whileTrue(ShooterSubsystem.c_smartShootAlign());
 
         // index and shooter
-        ps4.R2().whileTrue(Operator.c_smartShoot());
+        ps4.R2().whileTrue(DefaultOperator.c_smartShoot());
         ps4.R2().whileFalse(
             new RunIf(
                 Component.shooter.c_smartShoot().withTimeout(0.7),

@@ -8,35 +8,30 @@ package robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import lib.CommandRobotBase;
+import lib.auton.PathManager;
+import lib.commands.NoOp;
+import lib.commands.trajectory.TrajectoryCommand;
+import lib.silly.Silly;
+import lib.util.Util;
+import lib.vision.TagManager;
+import lib.vision.TagManager.Tag;
 import org.littletonrobotics.junction.Logger;
 import robot.RobotMap.Component;
 import robot.RobotMap.Dashboard;
 import robot.auton.Auton;
-import robot.auton.PathManager;
-import robot.auton.TrajectoryCommand;
 import robot.humaninterface.drivers.RuffyDriver;
 import robot.humaninterface.drivers.SwerveDriver;
 import robot.humaninterface.operators.DefaultOperator;
 import robot.subsystems.LightSubsystem;
-import robot.vision.TagManager;
-import robot.vision.TagManager.Tag;
-import lib.CommandRobotBase;
-import lib.commands.NoOp;
-import lib.silly.Silly;
-import lib.util.Storage;
-import lib.util.Util;
 
 import java.util.List;
-
-import javax.xml.transform.Transformer;
 
 import static robot.RobotMap.USE_RUFFY_DRIVER;
 
@@ -233,13 +228,10 @@ public class Robot extends CommandRobotBase {
 
             if (Component.chassis.poseEstimatorEnabled()) {
                 var pose = Component.chassis.getPoseEstimate();
-                var pose3d = new Pose3d(pose);
-
                 Logger.recordOutput("Swerve/PoseEstimate", pose);
 
-                Pose3d[] relativePoses = tags.stream().map(
-                    t -> pose3d.plus(t.pos())
-                ).toArray(Pose3d[]::new);
+                var pose3d = new Pose3d(pose);
+                Pose3d[] relativePoses = tags.stream().map(tag -> pose3d.plus(tag.pos())).toArray(Pose3d[]::new);
                 Logger.recordOutput("Vision/RelativePoses", relativePoses);
             }
 

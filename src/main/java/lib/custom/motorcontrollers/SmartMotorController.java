@@ -11,6 +11,12 @@ public interface SmartMotorController extends MotorController {
 	boolean isFwdLimitSwitchPressed() throws IllegalAccessException;
 	boolean isRevLimitSwitchPressed() throws IllegalAccessException;
 
+	/**
+	 * Controls whether the motor brakes when not actively turning.
+	 * <p>
+	 * This does not brake the motor. Use {@link MotorController#setVoltage(double) .setVoltage(0)}
+	 * instead, after {@code .setMotorBrake(true)}.
+	 */
 	void setMotorBrake(boolean brake);
 
 	default SmartMotorController withSpeedMultiplier(double multiplier) {

@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import lib.custom.motorcontrollers.SmartMotorController;
 import lib.custom.sensors.LinearDutyCycleEncoder;
+import lib.subsystems.MotorSubsystem;
 import lib.util.Util;
 
 public class ClimberSubsystem extends MotorSubsystem {

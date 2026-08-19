@@ -1,4 +1,4 @@
-package lib.subsystems.motor;
+package lib.custom.motioncontrollers;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 

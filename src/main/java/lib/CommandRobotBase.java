@@ -14,6 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import lib.custom.CommandSendableChooser;
+import lib.custom.NamedSendableChooser;
+import lib.humaninput.Driver;
+import lib.humaninput.Operator;
+import lib.util.CmdUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -21,15 +26,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import robot.RobotMap;
-import lib.custom.CommandSendableChooser;
-import lib.custom.NamedSendableChooser;
-import lib.humaninput.Driver;
-import lib.humaninput.Operator;
-import lib.util.CmdUtil;
-import lib.util.Storage;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * IterativeRobot is normally the base class for command based code, but we
@@ -97,7 +96,7 @@ public abstract class CommandRobotBase extends LoggedRobot {
 
     /// BINDINGS
 
-    private static final Set<Runnable> clearBindingCallbacks = new HashSet<>();
+    private static final List<Runnable> clearBindingCallbacks = new ArrayList<>();
 
     /**
      * Add a callback that will be called to unbind commands from a joystick/controller

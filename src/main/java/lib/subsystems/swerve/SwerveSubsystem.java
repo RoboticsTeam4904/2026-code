@@ -1,4 +1,4 @@
-package robot.swerve;
+package lib.subsystems.swerve;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -19,11 +19,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import robot.Robot;
-import robot.RobotMap.Component;
-import robot.vision.TagManager;
 import lib.util.CmdUtil;
 import lib.util.Util;
+import lib.vision.TagManager;
+import robot.Robot;
+import robot.RobotMap.Component;
 
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
@@ -54,8 +54,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
 
-    private boolean estimatorEnabled = false;
-
     public SwerveSubsystem(SwerveModule... modules) {
         this.modules = modules;
 
@@ -74,7 +72,153 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putData("swerve/goal", this);
     }
 
-    private SwerveModulePosition[] getModulePositions() {
+    @Override
+    public void periodic() {
+        if (DriverStation.isEnabled()) runSwerve();
+
+        updateOdometry();
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+        builder.addDoubleProperty("Robot Angle", this::getHeading, null);
+
+        for (var module : modules) module.addSendableProps(builder);
+    }
+
+    /// IMU UTILS
+
+    double getHeading() {
+        return Component.imu.getYaw();
+    }
+
+    /**
+     * Heading that accounts for alliance flip.
+     * <p>
+     * Bottom right corner of the blue side is (0, 0, 0).
+     * Accordingly, blue —> red is 0deg, red —> blue is 180deg.
+     */
+    double getAbsoluteHeading() {
+        double heading = getHeading();
+        return Robot.isRedAlliance() ? (heading + 0.5) % 1 : heading;
+    }
+
+    Rotation2d getRotation() {
+        return Component.imu.getRotation2d();
+    }
+
+    Rotation2d getAbsoluteRotation() {
+        return Rotation2d.fromRotations(getAbsoluteHeading());
+    }
+
+    /// SWERVE
+
+    private Translation2d driveTranslation = Translation2d.kZero;
+    private double driveTheta = 0;
+    private boolean autoBrickWhenStill = false;
+
+    public void setAutoBrickWhenStill(boolean enabled) {
+        autoBrickWhenStill = enabled;
+    }
+
+    public Translation2d toRobotRelative(Translation2d translation) {
+        return translation.rotateBy(Rotation2d.fromRotations(-getHeading()));
+    }
+
+    /**
+     * Drive according to joystick inputs. {@code hypot(x, y)} should not exceed 1.
+     * @param translation X/Y movement from [-1, 1], wpilib coordinate system (forward, left)
+     * @param theta Turn speed from [-1, 1], positive = counterclockwise
+     */
+    public void input(Translation2d translation, double theta) {
+        Translation2d scaled = translation.times(SwerveConstants.LIN_SPEED);
+        driveFieldRelative(scaled, theta * SwerveConstants.ROT_SPEED);
+    }
+
+    /**
+     * Drive relative to the field.
+     * @param translation Movement speed in meters per second
+     * @param theta Rotation speed in rotations per second - not field-relative,
+     *              as it represents the turning speed, not an absolute angle.
+     *              Will be overridden if a c_rotateTo() command is active
+     */
+    public void driveFieldRelative(Translation2d translation, double theta) {
+        driveRobotRelative(toRobotRelative(translation), theta);
+    }
+
+    /**
+     * Drive relative to the current angle of the robot.
+     * @param speeds Target velocity and rotation, deconstructed into a translation and rotation.
+     *               See {@link #driveRobotRelative(Translation2d, double)}
+     */
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        driveRobotRelative(
+            new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond),
+            Units.radiansToRotations(speeds.omegaRadiansPerSecond)
+        );
+    }
+
+    /** See {@link #driveRobotRelative(Translation2d, double)} */
+    public void driveRobotRelative(double x, double y, double theta) {
+        driveRobotRelative(new Translation2d(x, y), theta);
+    }
+
+    /**
+     * Drive relative to the current angle of the robot.
+     * @param translation Movement speed in meters per second
+     *                    Will be overridden if a {@link #c_gotoPos(Supplier) c_gotoPos()} command is active
+     * @param theta Rotation speed in rotations per second.
+     *              Will be overridden if a {@link #c_rotateTo(double, boolean) c_rotateTo()} command is active
+     */
+    public void driveRobotRelative(Translation2d translation, double theta) {
+        driveTranslation = translation;
+        driveTheta = theta;
+    }
+
+    public void stop() {
+        driveRobotRelative(0, 0, 0);
+    }
+
+    private void runSwerve() {
+        var translation = posCommand != null ? posPIDEffort : driveTranslation;
+        var theta = rotCommand != null ? rotPIDEffort : driveTheta;
+
+        if (autoBrickWhenStill && Math.abs(theta) < 0.01 && translation.getNorm() < 0.01) {
+            brickMode();
+        } else {
+            Translation2d[] translations = new Translation2d[modules.length];
+            double maxMag = SwerveConstants.LIN_SPEED;
+
+            for (int i = 0; i < modules.length; i++) {
+                Translation2d rotation = modules[i].rotToTranslation(theta);
+                Translation2d sum = translation.plus(rotation);
+
+                translations[i] = sum;
+                maxMag = Math.max(sum.getNorm(), maxMag);
+            }
+
+            double norm = maxMag / SwerveConstants.LIN_SPEED;
+
+            for (int i = 0; i < modules.length; i++) {
+                Translation2d normalized = translations[i].div(norm);
+
+                double magnitude = normalized.getNorm();
+                modules[i].moveTo(
+                    magnitude,
+                    magnitude > 0 ? normalized.getAngle().getRotations() : 0
+                );
+            }
+        }
+
+        for (var module : modules) module.runSwerve();
+    }
+
+    /// ODOMETRY
+
+    private boolean estimatorEnabled = false;
+
+    public SwerveModulePosition[] getModulePositions() {
         return Arrays.stream(modules)
                      .map(SwerveModule::getModulePosition)
                      .toArray(SwerveModulePosition[]::new);
@@ -138,110 +282,12 @@ public class SwerveSubsystem extends SubsystemBase {
         return new Translation2d(speed.vxMetersPerSecond, speed.vyMetersPerSecond);
     }
 
-    /**
-     * Drive according to joystick inputs. {@code hypot(x, y)} should not exceed 1.
-     * @param translation X/Y movement from [-1, 1], wpilib coordinate system (forward, left)
-     * @param theta Turn speed from [-1, 1], positive = counterclockwise
-     */
-    public void input(Translation2d translation, double theta) {
-        Translation2d scaled = translation.times(SwerveConstants.LIN_SPEED);
-        driveFieldRelative(scaled, theta * SwerveConstants.ROT_SPEED);
-    }
-
-    public Translation2d toRobotRelative(Translation2d translation) {
-        return translation.rotateBy(Rotation2d.fromRotations(-getHeading()));
-    }
-
-    /**
-     * Drive relative to the field.
-     * @param translation Movement speed in meters per second
-     * @param theta Rotation speed in rotations per second - not field-relative,
-     *              as it represents the turning speed, not an absolute angle.
-     *              Will be overridden if a c_rotateTo() command is active
-     */
-    public void driveFieldRelative(Translation2d translation, double theta) {
-        driveRobotRelative(toRobotRelative(translation), theta);
-    }
-
-    /**
-     * Drive relative to the current angle of the robot.
-     * @param speeds Target velocity and rotation, deconstructed into a translation and rotation.
-     *               See {@link #driveRobotRelative(Translation2d, double)}
-     */
-    public void driveRobotRelative(ChassisSpeeds speeds) {
-        driveRobotRelative(
-            new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond),
-            Units.radiansToRotations(speeds.omegaRadiansPerSecond)
-        );
-    }
-
-    private Translation2d driveTranslation = Translation2d.kZero;
-    private double driveTheta = 0;
-
-    /**
-     * Drive relative to the current angle of the robot.
-     * @param translation Movement speed in meters per second
-     *                    Will be overridden if a {@link #c_gotoPos(Supplier) c_gotoPos()} command is active
-     * @param theta Rotation speed in rotations per second.
-     *              Will be overridden if a {@link #c_rotateTo(double, boolean) c_rotateTo()} command is active
-     */
-    public void driveRobotRelative(Translation2d translation, double theta) {
-        driveTranslation = translation;
-        driveTheta = theta;
-    }
-
-    /** See {@link #driveRobotRelative(Translation2d, double)} */
-    public void driveRobotRelative(double x, double y, double theta) {
-        driveRobotRelative(new Translation2d(x, y), theta);
-    }
-
-    public void stop() {
-        driveRobotRelative(0, 0, 0);
-    }
-
     private final double[] prevHeadings = new double[50];
     private int prevHeadingIndex = 0;
 
     private double lastTagUpdateTime;
 
-    private static final Translation2d CAMERA_OFFSET = new Translation2d(Units.inchesToMeters(12.5), 0);
-
-    @Override
-    public void periodic() {
-        if (DriverStation.isEnabled()) {
-            var translation = posCommand != null ? posPIDEffort : driveTranslation;
-            var theta = rotCommand != null ? rotPIDEffort : driveTheta;
-
-            if (autoBrickWhenStill && Math.abs(theta) < 0.01 && translation.getNorm() < 0.01) {
-                brickMode();
-            } else {
-                Translation2d[] translations = new Translation2d[modules.length];
-                double maxMag = SwerveConstants.LIN_SPEED;
-
-                for (int i = 0; i < modules.length; i++) {
-                    Translation2d rotation = modules[i].rotToTranslation(theta);
-                    Translation2d sum = translation.plus(rotation);
-
-                    translations[i] = sum;
-                    maxMag = Math.max(sum.getNorm(), maxMag);
-                }
-
-                double norm = maxMag / SwerveConstants.LIN_SPEED;
-
-                for (int i = 0; i < modules.length; i++) {
-                    Translation2d normalized = translations[i].div(norm);
-
-                    double magnitude = normalized.getNorm();
-                    modules[i].moveTo(
-                        magnitude,
-                        magnitude > 0 ? normalized.getAngle().getRotations() : 0
-                    );
-                }
-            }
-
-            for (var module : modules) module.periodic();
-        }
-
+    private void updateOdometry() {
         prevHeadings[prevHeadingIndex++] = getAbsoluteHeading();
         prevHeadingIndex %= prevHeadings.length;
 
@@ -276,31 +322,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     now // TODO VISION use frame time (probably fixed now?)
                 );
             }
-
         }
-    }
-
-    double getHeading() {
-        return Component.imu.getYaw();
-    }
-
-    /**
-     * Heading that accounts for alliance flip.
-     * <p>
-     * Bottom right corner of the blue side is (0, 0, 0).
-     * Accordingly, blue —> red is 0deg, red —> blue is 180deg.
-     */
-    double getAbsoluteHeading() {
-        double heading = getHeading();
-        return Robot.isRedAlliance() ? (heading + 0.5) % 1 : heading;
-    }
-
-    Rotation2d getRotation() {
-        return Component.imu.getRotation2d();
-    }
-
-    Rotation2d getAbsoluteRotation() {
-        return Rotation2d.fromRotations(getAbsoluteHeading());
     }
 
     /// COMMANDS
@@ -557,7 +579,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return run(() -> input(translation.get(), theta.getAsDouble())).finallyDo(this::stop);
     }
 
-    /// MISC CONFIG
+    /// MISC
 
     public void resetOdometry() {
         Component.imu.zeroYaw();
@@ -588,17 +610,4 @@ public class SwerveSubsystem extends SubsystemBase {
         for (var module : modules) module.brickMode();
     }
 
-    private boolean autoBrickWhenStill = false;
-
-    public void setAutoBrickWhenStill(boolean enabled) {
-        autoBrickWhenStill = enabled;
-    }
-
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("SwerveDrive");
-        builder.addDoubleProperty("Robot Angle", this::getHeading, null);
-
-        for (var module : modules) module.addSendableProps(builder);
-    }
 }

@@ -30,6 +30,6 @@ public class CANInfraredDistanceSensor extends CANSensor implements DistanceSens
 
     @Override
     public double getDistanceSafely() throws InvalidSensorException {
-        return readSensor()[CANInfraredDistanceSensor.DISTANCE_SENSOR_ARRAY_INDEX];
+        return readSensor()[DISTANCE_SENSOR_ARRAY_INDEX];
     }
 }

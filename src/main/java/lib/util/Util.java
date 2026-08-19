@@ -17,10 +17,7 @@ import static edu.wpi.first.units.Units.*;
  * Common utilities
  */
 public final class Util {
-
-    private Util() {
-        throw new UnsupportedOperationException("Cannot instantiate utility class.");
-    }
+    private Util() {}
 
     /**
      * Returns true if {@code value} is less than {@code epsilon}. This is useful

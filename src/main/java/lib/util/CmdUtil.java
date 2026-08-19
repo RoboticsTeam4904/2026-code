@@ -10,9 +10,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class CmdUtil {
-    private CmdUtil() {
-        throw new UnsupportedOperationException("Cannot instantiate utility class.");
-    }
+    private CmdUtil() {}
 
     private static CommandScheduler scheduler() {
         return CommandScheduler.getInstance();

@@ -1,23 +1,24 @@
-package lib.commands;
+package lib.commands.conditional;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import lib.util.CmdUtil;
 import lib.util.Util;
 
 import java.util.function.BooleanSupplier;
 
-public class SwitchingIfElseCommand extends Command {
+public class SwitchingConditionalCommand extends Command {
 
     private final Command onTrue;
     private final Command onFalse;
     private final BooleanSupplier condition;
 
     /**
-     * Similar to {@link RunIfElse}, but will switch which command is
+     * Similar to {@link ConditionalCommand}, but will switch which command is
      * running mid-execution if the supplier changes.
      */
-    public SwitchingIfElseCommand(Command onTrue, Command onFalse, BooleanSupplier... conditions) {
+    public SwitchingConditionalCommand(Command onTrue, Command onFalse, BooleanSupplier... conditions) {
         this.onTrue = CmdUtil.nonNull(onTrue);
         this.onFalse = CmdUtil.nonNull(onFalse);
         this.condition = Util.all(conditions);

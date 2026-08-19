@@ -5,10 +5,6 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import robot.subsystems.*;
-import robot.swerve.SwerveModule;
-import robot.swerve.SwerveSubsystem;
-import robot.vision.VisionSubsystem;
 import lib.custom.controllers.CustomCommandJoystick;
 import lib.custom.controllers.CustomCommandPS4;
 import lib.custom.motorcontrollers.CustomTalonFX;
@@ -17,8 +13,14 @@ import lib.custom.sensors.CustomDutyCycleEncoder;
 import lib.custom.sensors.CustomPigeon;
 import lib.custom.sensors.IMU;
 import lib.custom.sensors.LinearDutyCycleEncoder;
+import lib.subsystems.MotorSubsystem;
+import lib.subsystems.swerve.SwerveModule;
+import lib.subsystems.swerve.SwerveSubsystem;
+import lib.vision.VisionSubsystem;
+import robot.subsystems.*;
 
 public final class RobotMap {
+    private RobotMap() {}
 
     public static final boolean USE_RUFFY_DRIVER = false;
 
@@ -93,9 +95,9 @@ public final class RobotMap {
 
         public static class Driver {
 
+            // if USE_RUFFY_DRIVER
             public static CustomCommandPS4 ps4;
-
-            // NOT INITIALIZED
+            // else
             public static CustomCommandJoystick xyJoystick;
             public static CustomCommandJoystick turnJoystick;
 
@@ -171,7 +173,6 @@ public final class RobotMap {
         Component.ledStrip = new AddressableLED(Port.PWM.LED_STRIP);
         Component.lights = new LightSubsystem(
             Component.ledStrip,
-            50,
             new int[] { 25, 25 },
             new boolean[] { true, false }
             // new int[] { 19, 11, 20 },
@@ -210,7 +211,5 @@ public final class RobotMap {
 
         HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);
     }
-
-    private RobotMap() {}
 
 }

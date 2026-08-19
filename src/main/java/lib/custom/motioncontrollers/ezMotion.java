@@ -18,7 +18,7 @@ public class ezMotion extends Command {
 
     private final DoubleSupplier getCurrent;
     private final DoubleConsumer processValue;
-    private final Supplier<? extends SetpointSupplier> setpointDealerDealer;
+    private final Supplier<SetpointSupplier> setpointDealerDealer;
 
     private SetpointSupplier setpointDealer;
     private double initialTimestamp;
@@ -33,7 +33,7 @@ public class ezMotion extends Command {
         ezControl control,
         DoubleSupplier getCurrent,
         DoubleConsumer processValue,
-        Supplier<? extends SetpointSupplier> setpointDealerDealer,
+        Supplier<SetpointSupplier> setpointDealerDealer,
         Subsystem... requirements
     ) {
         this.control = control;

@@ -20,13 +20,12 @@ public class CANUltrasonicDistanceSensor extends CANSensor implements DistanceSe
 			return getDistanceSafely();
 		} catch (Exception e) {
 			e.printStackTrace();
-			// LogKitten.ex(e);
 			return 0;
 		}
 	}
 
 	@Override
 	public double getDistanceSafely() throws InvalidSensorException {
-		return super.readSensor()[CANInfraredDistanceSensor.DISTANCE_SENSOR_ARRAY_INDEX];
+		return super.readSensor()[DISTANCE_SENSOR_ARRAY_INDEX];
 	}
 }

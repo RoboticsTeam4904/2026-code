@@ -1,4 +1,4 @@
-package lib.commands;
+package lib.commands.conditional;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;

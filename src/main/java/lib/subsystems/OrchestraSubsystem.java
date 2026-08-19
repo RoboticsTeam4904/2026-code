@@ -1,17 +1,16 @@
-package robot.subsystems;
+package lib.subsystems;
 
 import com.ctre.phoenix6.Orchestra;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import lib.custom.motorcontrollers.CustomTalonFX;
+import robot.RobotMap.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import robot.RobotMap.Component;
-import lib.custom.motorcontrollers.CustomTalonFX;
 
 /** Orchestra™ */
 public class OrchestraSubsystem extends SubsystemBase {

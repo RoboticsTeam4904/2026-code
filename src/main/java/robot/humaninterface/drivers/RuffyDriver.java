@@ -2,21 +2,17 @@ package robot.humaninterface.drivers;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
+import lib.commands.AlwaysRunnableInstantCommand;
+import lib.humaninput.Driver;
 import robot.RobotMap.Component;
 import robot.RobotMap.HumanInput;
 import robot.subsystems.ShooterSubsystem;
-import lib.commands.AlwaysRunnableInstantCommand;
-import lib.humaninput.Driver;
 
 import static robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
 
 public class RuffyDriver extends Driver {
 
     private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
-
-    public RuffyDriver() {
-        super("RuffyDriver");
-    }
 
     @Override
     public void bindCommands() {

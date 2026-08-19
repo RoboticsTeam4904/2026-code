@@ -9,10 +9,7 @@ import java.util.Map;
 import static edu.wpi.first.units.Units.*;
 
 public final class Logging {
-
-    private Logging() {
-        throw new UnsupportedOperationException("Cannot instantiate utility class.");
-    }
+    private Logging() {}
 
     private static final Map<String, Double> lastLogTimes = new HashMap<>();
 

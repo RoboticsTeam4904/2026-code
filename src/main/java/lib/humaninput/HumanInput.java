@@ -1,16 +1,20 @@
 package lib.humaninput;
 
-import robot.RobotMap;
 import lib.CommandRobotBase;
 import lib.custom.Nameable;
+import robot.RobotMap;
 
 /**
  * A generic human interface class. This is designed to be used to bind commands
- * to controllers. bindCommands should only be called during teleop init.
+ * to controllers.
  */
 public abstract class HumanInput implements Nameable {
 
     protected final String name;
+
+    public HumanInput() {
+        this.name = getClass().getSimpleName();
+    }
 
     public HumanInput(String name) {
         this.name = name;

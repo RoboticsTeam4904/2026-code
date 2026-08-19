@@ -67,11 +67,13 @@ public class LightSubsystem extends SubsystemBase {
     final AddressableLEDBuffer buffer;
     final BufferViewData[] views;
 
-    public LightSubsystem(AddressableLED led, int ledLength, int[] lengths, boolean[] reverse) {
-        this.led = led;
-        buffer = new AddressableLEDBuffer(ledLength);
+    public LightSubsystem(AddressableLED led, int[] lengths, boolean[] reverse) {
+        int length = Arrays.stream(lengths).sum();
 
-        led.setLength(ledLength);
+        this.led = led;
+        buffer = new AddressableLEDBuffer(length);
+
+        led.setLength(length);
         led.start();
 
         this.views = new BufferViewData[lengths.length];

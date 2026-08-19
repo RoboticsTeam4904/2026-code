@@ -18,11 +18,6 @@ public class CustomTalonFX extends TalonFX implements SmartMotorController {
         this(deviceId, false);
     }
 
-    /**
-     * Setting to toggle brake mode on neutral.
-     * <p>
-     * This does not brake the motor. Use {@code .neutralOutput()} instead, after {@code .setMotorBrake(true)}.
-     */
     @Override
     public void setMotorBrake(boolean brake) {
         setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);

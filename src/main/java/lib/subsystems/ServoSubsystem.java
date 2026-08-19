@@ -1,4 +1,4 @@
-package lib.subsystems.motor;
+package lib.subsystems;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,8 +19,8 @@ public class ServoSubsystem extends SubsystemBase {
 	 * Subsystem functionality.
 	 *
 	 * @param inverted Inverts the direction of all of the Servos. This does not
-	 *                   override the individual inversions of the servos.
-	 * @param servos     The Servos in this subsystem. Can be a single Servo or multiple.
+	 *                 override the individual inversions of the servos.
+	 * @param servos   The Servos in this subsystem. Can be a single Servo or multiple.
 	 */
 	public ServoSubsystem(boolean inverted, Servo... servos) {
 		super();

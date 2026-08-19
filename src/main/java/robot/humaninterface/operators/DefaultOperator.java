@@ -1,26 +1,37 @@
 package robot.humaninterface.operators;
 
-import robot.RobotMap;
-import robot.RobotMap.Component;
-import robot.subsystems.ShooterSubsystem;
-import lib.commands.AlwaysRunnableInstantCommand;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import lib.commands.conditional.SwitchingConditionalCommand;
 import lib.custom.controllers.CustomCommandJoystick.Axis;
 import lib.humaninput.Operator;
+import lib.util.CmdUtil;
 import lib.util.Util;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import robot.RobotMap;
+import robot.RobotMap.Component;
 
 import static robot.subsystems.ShooterSubsystem.getShooterVelocityForDistance;
 
 public class DefaultOperator extends Operator {
 
-    public DefaultOperator() {
-        super("DefaultOperator");
+    public static final double SHOOT_INDEXER_DELAY = 0.5;
+
+    public static Command wrapShootCommand(Command command) {
+        return new ParallelCommandGroup(
+            command,
+            CmdUtil.delayed(SHOOT_INDEXER_DELAY, new ParallelCommandGroup(
+                Component.indexer.c_forward(true),
+                Component.intake.c_wobble()
+            )).asProxy()
+        );
     }
 
-    public DefaultOperator(String name) {
-        super(name);
+    public static Command c_smartShoot() {
+        return new SwitchingConditionalCommand(
+            wrapShootCommand(Component.shooter.c_smartShoot()),
+            null,
+            Component.shooter::canShoot
+        );
     }
 
     double getVelocity() {

@@ -1,4 +1,4 @@
-package robot.vision;
+package lib.vision;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,15 +7,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
-import lib.util.Logging;
 import lib.util.Util;
 
 import java.util.ArrayList;
@@ -28,8 +23,7 @@ public final class TagManager {
     private TagManager() {}
 
     // forward, left, up - z components don't matter (at least for now)
-    private static Transform3d[] CAMERA_OFFSETS = {
-        // 12.5, 13
+    private static final Transform3d[] CAMERA_OFFSETS = {
         Util.transform3d(Units.inchesToMeters(12.5), 0, 0, 0),
         Util.transform3d(Units.inchesToMeters(-13), 0, 0, Rotation2d.k180deg.getRadians())
     };
@@ -50,8 +44,6 @@ public final class TagManager {
     private static List<Tag> lastTags;
 
     public static List<Tag> getTags() {
-        Logging.log("get the tags");
-
         double timeSeconds = timeEntry.getDouble(0);
 
         if (lastTime == timeSeconds && lastTags != null) return lastTags;

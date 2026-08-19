@@ -1,4 +1,4 @@
-package robot.swerve;
+package lib.subsystems.swerve;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,7 +14,10 @@ import lib.custom.motorcontrollers.SmartMotorController;
 import lib.custom.sensors.CustomDutyCycleEncoder;
 import lib.util.Util;
 
-import static robot.swerve.SwerveConstants.*;
+import static lib.subsystems.swerve.SwerveConstants.DRIVE_GEAR_RATIO;
+import static lib.subsystems.swerve.SwerveConstants.LIN_SPEED;
+import static lib.subsystems.swerve.SwerveConstants.ROBOT_DIAGONAL;
+import static lib.subsystems.swerve.SwerveConstants.WHEEL_CIRC;
 
 public class SwerveModule implements Sendable {
 
@@ -89,7 +92,7 @@ public class SwerveModule implements Sendable {
         theta = pos.getAngle().getRotations();
     }
 
-    void periodic() {
+    void runSwerve() {
         double angleDist = rotation.rotateToward(theta);
         if (drive != null) drive.setMagnitude(magnitude * angleDist);
     }

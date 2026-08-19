@@ -1,4 +1,4 @@
-package robot.subsystems;
+package lib.subsystems;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -111,10 +111,10 @@ public class MotorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Temporary command for tuning {@code kG} PID constant. For example:
+     * Temporary command for tuning {@code kG} feedforward constant. For example:
      * <pre>{@code
      * joystick.button7.whileTrue(
-     *     Component.arm.c_DEBUG_tunePIDkG(() -> joystick.getAxis(Axis.SLIDER))
+     *     Component.arm.c_DEBUG_tuneFFkG(() -> joystick.getAxis(Axis.SLIDER))
      * );
      * }</pre>
      * Run this command and move the slider until the mechanism is receiving
@@ -122,7 +122,7 @@ public class MotorSubsystem extends SubsystemBase {
      * For {@link ArmFeedforward}, the arm should be at the horizontal angle
      * (if not, {@code kG} should be set to {@code FINAL_VOLTAGE / Math.cos(radiansFromHorizontal)}).
      */
-    public Command c_DEBUG_tunePIDkG(DoubleSupplier getVoltage) {
+    public Command c_DEBUG_tuneFFkG(DoubleSupplier getVoltage) {
         return c_controlVoltage(() -> {
             double voltage = getVoltage.getAsDouble();
             Logging.logWithDelay("debug kG tuning - voltage", 0.1, voltage);

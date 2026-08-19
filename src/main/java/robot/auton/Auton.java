@@ -4,11 +4,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import lib.auton.PathManager;
+import lib.commands.trajectory.AsyncPathPlannerSequence;
+import lib.commands.trajectory.ParallelDeadlinePathPlannerGroup;
 import robot.RobotMap.Component;
-import robot.auton.TrajectoryCommand.AsyncPathPlannerSequence;
-import robot.auton.TrajectoryCommand.ParallelDeadlinePathPlannerGroup;
+import robot.humaninterface.operators.DefaultOperator;
 import robot.subsystems.ShooterSubsystem;
-import lib.humaninput.Operator;
 
 import static lib.commands.AsyncSequence.async;
 
@@ -39,7 +40,7 @@ public final class Auton {
             PathManager.c_path("shoot " + type),
             // after some time, put the intake up
             // async(CmdUtil.delayed(extraTime ? 6 : 4, Component.intake.c_retract())),
-            Component.shooter.c_smartShoot().withTimeout(Operator.SHOOT_INDEXER_DELAY),
+            Component.shooter.c_smartShoot().withTimeout(DefaultOperator.SHOOT_INDEXER_DELAY),
             new ParallelCommandGroup(
                 Component.shooter.c_smartShoot(),
                 ShooterSubsystem.c_smartShootAlign(),

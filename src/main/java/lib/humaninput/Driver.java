@@ -4,16 +4,20 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
- * Driver specific version of HumanInterface.
+ * Driver specific version of HumanInput
  */
 public abstract class Driver extends HumanInput {
+
+    public Driver() {
+        super();
+    }
 
     public Driver(String name) {
         super(name);
     }
 
     /**
-     * @return Speed that the driver wants, in wpilib field-relative coordinates (forward, left).
+     * @return Speed that the driver wants, in WPILib field-relative coordinates (forward, left).
      *         Length of translation vector should not exceed 1
      */
     public abstract Translation2d getTranslation();

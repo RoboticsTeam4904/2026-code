@@ -1,14 +1,13 @@
 package lib.custom;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
 import java.util.function.Supplier;
 
 /**
  * A sendable chooser for any named object.
  */
-public class NamedSendableChooser<T extends Nameable>
-    extends SendableChooser<T>
-    implements Supplier<T> {
+public class NamedSendableChooser<T extends Nameable> extends SendableChooser<T> implements Supplier<T> {
 
     /**
      * Adds an object of the type to the smart dashboard.

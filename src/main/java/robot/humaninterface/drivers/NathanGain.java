@@ -24,10 +24,6 @@ public class NathanGain extends Driver {
     public static double precisionScaleY = NORMAL_SPEED_GAIN;
     public static double precisionScaleTurn = NORMAL_TURN_GAIN;
 
-    public NathanGain() {
-        super("NathanGain");
-    }
-
     protected double scaleGain(double input, double gain, double exp) {
         return Math.pow(Math.abs(input), exp) * gain * Math.signum(input);
     }
