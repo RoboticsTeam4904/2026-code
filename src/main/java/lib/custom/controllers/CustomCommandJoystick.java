@@ -98,18 +98,36 @@ public class CustomCommandJoystick extends CommandJoystick {
         return DriverStation.getStickButtonCount(port) > 0;
     }
 
-    /**
-     * Returns the raw value of the given axis (no deadzone calculation).
-     */
+    /** Returns the raw value of the given axis. */
     public double getRawAxis(Axis axis) {
         return super.getRawAxis(axis.axis);
     }
 
-    /**
-     * Returns the value of the given axis, with the deadzone applied.
-     */
+    /** Returns the value of the given axis, with deadzone applied. */
     public double getAxis(Axis axis) {
         return MathUtil.applyDeadband(getRawAxis(axis), deadzone);
+    }
+
+    /** Get the X axis value with deadzone applied. */
+    @Override
+    public double getX() {
+        return getAxis(Axis.X);
+    }
+
+    /** Get the Y axis value with deadzone applied. */
+    @Override
+    public double getY() {
+        return getAxis(Axis.Y);
+    }
+
+    /** Get the raw X axis value. */
+    public double getRawX() {
+        return getRawAxis(Axis.X);
+    }
+
+    /** Get the raw Y axis value. */
+    public double getRawY() {
+        return getRawAxis(Axis.Y);
     }
 
     /**
@@ -117,7 +135,7 @@ public class CustomCommandJoystick extends CommandJoystick {
      *
      * @return whether the current value of that axis is outside the deadzone
      */
-    public boolean active(Axis axis) {
+    public boolean isActive(Axis axis) {
         return Math.abs(getRawAxis(axis)) > deadzone;
     }
 }

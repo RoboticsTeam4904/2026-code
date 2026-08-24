@@ -1,6 +1,5 @@
 package robot.humaninterface.drivers;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -14,11 +13,11 @@ import robot.RobotMap.HumanInput;
 import robot.humaninterface.operators.DefaultOperator;
 import robot.subsystems.ShooterSubsystem;
 
-import static robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
+public class PS4Driver extends Driver {
 
-public class SwerveDriver extends Driver {
+    private static final double SPEED_EXP = 2, TURN_EXP = 2;
 
-    private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
+    private static final double DRIVE_DEADZONE = 0.02, TURN_DEADZONE = 0.02;
 
     @Override
     public void bindCommands() {
@@ -99,35 +98,27 @@ public class SwerveDriver extends Driver {
     }
 
     protected double getRawForward() {
-        return -HumanInput.Driver.ps4.getLeftY();
+        return -HumanInput.Driver.ps4.getRawLeftY();
     }
     protected double getRawLeft() {
-        return -HumanInput.Driver.ps4.getLeftX();
+        return -HumanInput.Driver.ps4.getRawLeftX();
+    }
+    protected double getRawTurn() {
+        return -HumanInput.Driver.ps4.getRawRightX();
     }
 
     @Override
     public Translation2d getTranslation() {
-        try {
-            Translation2d translation = new Translation2d(getRawForward(), getRawLeft());
-            double mag = translation.getNorm();
-            if (mag == 0) return translation;
+        Translation2d translation = new Translation2d(getRawForward(), getRawLeft());
+        double mag = translation.getNorm();
+        if (mag == 0) return translation;
 
-            double len = scaleGain(MathUtil.applyDeadband(mag, JOYSTICK_DEADZONE), SPEED_EXP);
-            return translation.times(len / mag); // unit translation * len
-        } catch (Exception e) {
-            System.err.println("womp womp");
-            return Translation2d.kZero;
-        }
+        double len = scaleGain(mag, SPEED_EXP, DRIVE_DEADZONE);
+        return translation.times(len / mag); // unit translation * len
     }
 
     @Override
     public double getTurnSpeed() {
-        try {
-            double turnSpeed = -HumanInput.Driver.ps4.getRightX();
-            return scaleGain(turnSpeed, TURN_EXP);
-        } catch (Exception e) {
-            System.err.println("womp womp");
-            return 0;
-        }
+        return scaleGain(getRawTurn(), TURN_EXP, TURN_DEADZONE);
     }
 }

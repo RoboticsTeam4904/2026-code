@@ -26,8 +26,8 @@ import org.littletonrobotics.junction.Logger;
 import robot.RobotMap.Component;
 import robot.RobotMap.Dashboard;
 import robot.auton.Auton;
+import robot.humaninterface.drivers.PS4Driver;
 import robot.humaninterface.drivers.RuffyDriver;
-import robot.humaninterface.drivers.SwerveDriver;
 import robot.humaninterface.operators.DefaultOperator;
 import robot.subsystems.LightSubsystem;
 
@@ -78,7 +78,7 @@ public class Robot extends CommandRobotBase {
         }
 
         // drivers
-        driverChooser.setDefaultOption("swerve", USE_RUFFY_DRIVER ? new RuffyDriver() : new SwerveDriver());
+        driverChooser.setDefaultOption("swerve", USE_RUFFY_DRIVER ? new RuffyDriver() : new PS4Driver());
 
         // operators
         operatorChooser.setDefaultOption("default", new DefaultOperator());

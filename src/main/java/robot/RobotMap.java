@@ -24,6 +24,8 @@ public final class RobotMap {
 
     public static final boolean USE_RUFFY_DRIVER = false;
 
+    public static final double DEFAULT_DEADZONE = 0.02;
+
     public static class Port {
 
         public static class HumanInput {
@@ -203,13 +205,13 @@ public final class RobotMap {
         Component.indexer = new IndexerSubsystem(Component.indexerMotorTop, Component.indexerMotorBottom);
 
         if (USE_RUFFY_DRIVER) {
-            HumanInput.Driver.xyJoystick = new CustomCommandJoystick(Port.HumanInput.xyJoystick, 0.01);
-            HumanInput.Driver.turnJoystick = new CustomCommandJoystick(Port.HumanInput.turnJoystick, 0.01);
+            HumanInput.Driver.xyJoystick = new CustomCommandJoystick(Port.HumanInput.xyJoystick, DEFAULT_DEADZONE);
+            HumanInput.Driver.turnJoystick = new CustomCommandJoystick(Port.HumanInput.turnJoystick, DEFAULT_DEADZONE);
         } else {
-            HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4, 0.02);
+            HumanInput.Driver.ps4 = new CustomCommandPS4(Port.HumanInput.ps4, DEFAULT_DEADZONE);
         }
 
-        HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, 0.01);
+        HumanInput.Operator.joystick = new CustomCommandJoystick(Port.HumanInput.joystick, DEFAULT_DEADZONE);
     }
 
 }

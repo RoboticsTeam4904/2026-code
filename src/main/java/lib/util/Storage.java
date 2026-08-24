@@ -1,5 +1,8 @@
 package lib.util;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.littletonrobotics.junction.Logger;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,11 +10,14 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 /**
+ * <strong>
+ *     This whole class exists as an attempt to fix some unexplained issues
+ *     with network tables forgetting saved data on robot restart.
+ *     This did not end up fixing the problem, hence the mess of logs in init().
+ *     Hopefully it was an issue with the roboRIO which will be fixed with the new computer.
+ * </strong>
+ * <p>
  * Storage for values that need to persist on robot restart.
  * Values are stored in plain text in the format
  * <pre>{@code
@@ -196,9 +202,9 @@ public final class Storage {
     private static String escape(String str) {
         // backslashes are escaped as \s instead of \\
         // so that \\n doesn't get converted \\n -> \n -> <newline> or \\n -> \<newline>
-        return str.replaceAll("\\\\", "\\\\s").replaceAll("\n", "\\\\n");
+        return str.replace("\\", "\\s").replace("\n", "\\n");
     }
     private static String unescape(String str) {
-        return str.replaceAll("\\\\s", "\\\\").replaceAll("\\\\n", "\n"); // this is why we need regex literals
+        return str.replace("\\s", "\\").replace("\\n", "\n");
     }
 }

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lib.commands.WaitWhileCommand;
+import lib.subsystems.swerve.SwerveSubsystem;
 import lib.util.Util;
 import lib.vision.TagManager.Tag;
 import robot.Robot;
@@ -20,7 +21,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-/** Sponsored by Claude™ 3.7 Sonnet by Anthropic® */
+/**
+ * This class implements vision by finding a specific tag in the camera's
+ * field of view, and moving towards the position of that tag (with a configured offset).
+ * This vision implementation is no longer used in favor of pose estimation,
+ * implemented in {@link TagManager} and {@link SwerveSubsystem}.
+ * <p>
+ * If you want to use this code, good luck.
+ */
 public class VisionSubsystem extends SubsystemBase {
 
     public enum TagGroup {

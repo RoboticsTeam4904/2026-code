@@ -1,6 +1,5 @@
 package robot.humaninterface.drivers;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import lib.commands.AlwaysRunnableInstantCommand;
 import lib.humaninput.Driver;
@@ -8,11 +7,11 @@ import robot.RobotMap.Component;
 import robot.RobotMap.HumanInput;
 import robot.subsystems.ShooterSubsystem;
 
-import static robot.humaninterface.HumanInterfaceConfig.JOYSTICK_DEADZONE;
-
 public class RuffyDriver extends Driver {
 
-    private static final double SPEED_EXP = 2, TURN_EXP = 2; // TODO TUNE
+    private static final double SPEED_EXP = 2, TURN_EXP = 2;
+
+    private static final double DRIVE_DEADZONE = 0.02, TURN_DEADZONE = 0.02;
 
     @Override
     public void bindCommands() {
@@ -52,10 +51,13 @@ public class RuffyDriver extends Driver {
     }
 
     protected double getRawForward() {
-        return -HumanInput.Driver.xyJoystick.getY();
+        return -HumanInput.Driver.xyJoystick.getRawY();
     }
     protected double getRawLeft() {
-        return -HumanInput.Driver.xyJoystick.getX();
+        return -HumanInput.Driver.xyJoystick.getRawX();
+    }
+    protected double getRawTurn() {
+        return -HumanInput.Driver.turnJoystick.getRawX();
     }
 
     @Override
@@ -64,13 +66,12 @@ public class RuffyDriver extends Driver {
         double mag = translation.getNorm();
         if (mag == 0) return translation;
 
-        double len = scaleGain(MathUtil.applyDeadband(mag, JOYSTICK_DEADZONE), SPEED_EXP);
+        double len = scaleGain(mag, SPEED_EXP, DRIVE_DEADZONE);
         return translation.times(len / mag); // unit translation * len
     }
 
     @Override
     public double getTurnSpeed() {
-        double turnSpeed = -HumanInput.Driver.turnJoystick.getX();
-        return scaleGain(turnSpeed, TURN_EXP);
+        return scaleGain(getRawTurn(), TURN_EXP, TURN_DEADZONE);
     }
 }

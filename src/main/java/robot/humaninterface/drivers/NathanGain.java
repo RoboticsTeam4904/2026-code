@@ -24,10 +24,6 @@ public class NathanGain extends Driver {
     public static double precisionScaleY = NORMAL_SPEED_GAIN;
     public static double precisionScaleTurn = NORMAL_TURN_GAIN;
 
-    protected double scaleGain(double input, double gain, double exp) {
-        return Math.pow(Math.abs(input), exp) * gain * Math.signum(input);
-    }
-
     @Override
     public void bindCommands() {
         // RobotMap.HumanInput.Driver.xbox
@@ -62,8 +58,8 @@ public class NathanGain extends Driver {
             // RobotMap.HumanInput.Driver.xbox.getLeftTriggerAxis();
         1; //ALL the speed
         double speed =
-            scaleGain(rawSpeed, NathanGain.precisionScaleY, NathanGain.SPEED_EXP) *
-            NathanGain.Y_SPEED_SCALE;
+            scaleGain(rawSpeed, NathanGain.SPEED_EXP) *
+                NathanGain.precisionScaleY * NathanGain.Y_SPEED_SCALE;
 
         // double precisionDrive = scaleGain(RobotMap.HumanInput.Driver.xbox.getLeftY(), 0.08, 1.2);
         // double operatorDrive = scaleGain(-RobotMap.HumanInput.Operator.joystick.getAxis(1), 0.1, 1.2);
@@ -76,8 +72,8 @@ public class NathanGain extends Driver {
         // double rawTurnSpeed = RobotMap.HumanInput.Driver.xbox.getLeftX();
         double rawTurnSpeed = 0;
         double turnSpeed =
-            scaleGain(rawTurnSpeed, NathanGain.precisionScaleTurn, NathanGain.TURN_EXP) *
-            NathanGain.TURN_SPEED_SCALE;
+            scaleGain(rawTurnSpeed, NathanGain.TURN_EXP) *
+                NathanGain.precisionScaleTurn * NathanGain.TURN_SPEED_SCALE;
 
         // double precisionTurnSpeed = scaleGain(RobotMap.HumanInput.Driver.xbox.getRightX(), 0.08, 1.2);
         // double operatorControlTurnSpeed = scaleGain(RobotMap.HumanInput.Operator.joystick.getAxis(0), 0.2, 1.5);

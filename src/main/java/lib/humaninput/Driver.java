@@ -1,6 +1,5 @@
 package lib.humaninput;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
@@ -26,10 +25,5 @@ public abstract class Driver extends HumanInput {
      * @return Turn speed that the driver wants in the range [-1, 1], positive = counterclockwise
      */
     public abstract double getTurnSpeed();
-
-    /** Alias for {@link MathUtil#copyDirectionPow(double, double)} */
-    protected double scaleGain(double input, double exp) {
-        return MathUtil.copyDirectionPow(input, exp);
-    }
 
 }

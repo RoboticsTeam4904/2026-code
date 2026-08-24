@@ -1,5 +1,6 @@
 package lib.humaninput;
 
+import edu.wpi.first.math.MathUtil;
 import lib.CommandRobotBase;
 import lib.custom.Nameable;
 import robot.RobotMap;
@@ -9,6 +10,14 @@ import robot.RobotMap;
  * to controllers.
  */
 public abstract class HumanInput implements Nameable {
+
+    public static double scaleGain(double input, double exp, double deadzone) {
+        return MathUtil.copyDirectionPow(MathUtil.applyDeadband(input, deadzone), exp);
+    }
+
+    public static double scaleGain(double input, double exp) {
+        return MathUtil.copyDirectionPow(input, exp);
+    }
 
     protected final String name;
 

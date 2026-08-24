@@ -67,39 +67,52 @@ public class CustomCommandPS4 extends CommandPS4Controller {
         loop.clear();
     }
 
-    /**
-     * Get the X axis value of left side of the controller.
-     */
+    /** Get the X axis value of left side of the controller with deadzone applied. */
     @Override
     public double getLeftX() {
         return deadzone(super.getLeftX());
     }
 
-    /**
-     * Get the Y axis value of left side of the controller.
-     */
+    /** Get the Y axis value of left side of the controller with deadzone applied. */
     @Override
     public double getLeftY() {
         return deadzone(super.getLeftY());
     }
 
-    /**
-     * Get the X axis value of right side of the controller.
-     */
+    /** Get the X axis value of right side of the controller with deadzone applied. */
     @Override
     public double getRightX() {
         return deadzone(super.getRightX());
     }
 
-    /**
-     * Get the Y axis value of right side of the controller.
-     */
+    /** Get the Y axis value of right side of the controller with deadzone applied. */
     @Override
     public double getRightY() {
         return deadzone(super.getRightY());
     }
 
+    /** Get the raw X axis value of left side of the controller. */
+    public double getRawLeftX() {
+        return super.getLeftX();
+    }
+
+    /** Get the raw Y axis value of left side of the controller. */
+    public double getRawLeftY() {
+        return super.getLeftY();
+    }
+
+    /** Get the raw X axis value of right side of the controller. */
+    public double getRawRightX() {
+        return super.getRightX();
+    }
+
+    /** Get the raw Y axis value of right side of the controller. */
+    public double getRawRightY() {
+        return super.getRightY();
+    }
+
     protected double deadzone(double input) {
         return MathUtil.applyDeadband(input, deadzone);
     }
+
 }
