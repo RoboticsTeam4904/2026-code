@@ -7,11 +7,11 @@ package lib.custom.sensors;
  * CAN encoder.
  */
 public interface CustomEncoder extends NativeDerivativeSensor {
-    /**
-     * Gets current count
-     * <p>
-     * does not indicate sensor errors
-     */
+    // /**
+    //  * Gets current count
+    //  * <p>
+    //  * does not indicate sensor errors
+    //  */
     // int get();
 
     /**

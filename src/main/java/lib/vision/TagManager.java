@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -24,8 +23,8 @@ public final class TagManager {
 
     // forward, left, up - z components don't matter (at least for now)
     private static final Transform3d[] CAMERA_OFFSETS = {
-        Util.transform3d(Units.inchesToMeters(12.5), 0, 0, 0),
-        Util.transform3d(Units.inchesToMeters(-13), 0, 0, Rotation2d.k180deg.getRadians())
+        Util.transform3dDeg(Units.inchesToMeters(12.5), 0, 0, 0),
+        Util.transform3dDeg(Units.inchesToMeters(-13), 0, 0, 180)
     };
 
     public record Tag(int id, Transform3d pos, Pose3d fieldPos, double time, int camera) {}
@@ -71,7 +70,7 @@ public final class TagManager {
                     continue;
                 }
 
-                Transform3d cameraToTag = Util.transform3d(pos[2], -pos[0], pos[1], el.path("rot").asDouble());
+                Transform3d cameraToTag = Util.transform3dRad(pos[2], -pos[0], pos[1], el.path("rot").asDouble());
                 Transform3d cameraOffset = CAMERA_OFFSETS[camera];
 
                 double time = el.path("time").asDouble();
@@ -79,7 +78,6 @@ public final class TagManager {
                 tags.add(new Tag(
                     id,
                     cameraOffset.plus(cameraToTag),
-                    // robotToTag,
                     tagPose.get(),
                     time,
                     0

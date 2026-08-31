@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 
@@ -43,7 +44,7 @@ public final class Util {
      * @return Whether {@code value} is effectively zero
      */
     public static boolean isZero(double value) {
-        return isZero(value, Math.sqrt(Math.ulp(1.0)));
+        return isZero(value, 1e-8);
     }
 
     // TODO upgrade java version and use Math.clamp
@@ -219,23 +220,21 @@ public final class Util {
         };
     }
 
-    /**
-     * Utility for creating Transform2D instances
-     */
+    /** Utility for creating Transform2D instances */
     public static Transform2d transform2d(double x, double y, double rotations) {
         return new Transform2d(x, y, Rotation2d.fromRotations(rotations));
     }
 
-    /**
-     * Utility for creating Transform3D instances
-     */
-    public static Transform3d transform3d(double x, double y, double z, double radians) {
+    /** Utility for creating Transform3D instances (in radians) */
+    public static Transform3d transform3dRad(double x, double y, double z, double radians) {
         return new Transform3d(x, y, z, new Rotation3d(0, 0, radians));
     }
+    /** Utility for creating Transform3D instances (in degrees) */
+    public static Transform3d transform3dDeg(double x, double y, double z, double degrees) {
+        return new Transform3d(x, y, z, new Rotation3d(0, 0, Units.degreesToRadians(degrees)));
+    }
 
-    /**
-     * Clears the pose(s) from {@link FieldObject2d} instances
-     */
+    /** Clears the pose(s) from {@link FieldObject2d} instances */
     public static void clearPose(FieldObject2d... poses) {
         for (var pose : poses) pose.setPoses();
     }
